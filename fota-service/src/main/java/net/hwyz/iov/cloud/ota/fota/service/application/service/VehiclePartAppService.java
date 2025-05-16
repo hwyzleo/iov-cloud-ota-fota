@@ -31,11 +31,12 @@ public class VehiclePartAppService {
      * 保存车辆零部件信息
      *
      * @param vin      车架号
+     * @param remark   备注
      * @param partList 零部件列表
      */
-    public void saveVehicleParts(String vin, List<PartPo> partList) {
+    public void saveVehicleParts(String vin, String remark, List<PartPo> partList) {
         for (PartPo partPo : partList) {
-            partAppService.savePart(partPo);
+            partAppService.savePart(partPo, remark);
             VehPartPo vehPartPo = vehPartDao.selectByVinAndEcu(vin, partPo.getEcu());
             if (ObjUtil.isNull(vehPartPo)) {
                 VehPartPo newVehPartPo = VehPartPo.builder()
@@ -44,13 +45,13 @@ public class VehiclePartAppService {
                         .partSn(partPo.getSn())
                         .build();
                 vehPartDao.insertPo(newVehPartPo);
-                recordLog(newVehPartPo, "新增");
+                recordLog(newVehPartPo, StrUtil.nullToEmpty(remark) + "新增");
             } else {
                 if (!StrUtil.nullToEmpty(vehPartPo.getPartSn()).equalsIgnoreCase(partPo.getSn())) {
                     String changeRemark = "SN：" + vehPartPo.getPartSn() + "->" + partPo.getSn();
                     vehPartPo.setPartSn(partPo.getSn());
                     vehPartDao.updatePo(vehPartPo);
-                    recordLog(vehPartPo, changeRemark);
+                    recordLog(vehPartPo, StrUtil.nullToEmpty(remark) + changeRemark);
                 }
             }
         }

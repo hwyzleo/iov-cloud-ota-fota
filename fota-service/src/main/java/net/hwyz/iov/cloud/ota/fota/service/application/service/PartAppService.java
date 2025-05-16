@@ -26,13 +26,14 @@ public class PartAppService {
     /**
      * 保存零部件信息
      *
-     * @param part 零部件信息
+     * @param part   零部件信息
+     * @param remark 备注
      */
-    public void savePart(PartPo part) {
+    public void savePart(PartPo part, String remark) {
         PartPo partPo = partDao.selectBySn(part.getSn());
         if (ObjUtil.isNull(partDao.selectBySn(part.getSn()))) {
             partDao.insertPo(part);
-            recordLog(part, "新增");
+            recordLog(part, StrUtil.nullToEmpty(remark) + "新增");
         } else {
             StringBuilder changeRemark = new StringBuilder();
             if (StrUtil.nullToEmpty(partPo.getConfigWord()).equalsIgnoreCase(StrUtil.nullToEmpty(part.getConfigWord()))) {
@@ -57,7 +58,7 @@ public class PartAppService {
             }
             if (changeRemark.length() > 0) {
                 partDao.updatePo(partPo);
-                recordLog(partPo, changeRemark.toString());
+                recordLog(partPo, StrUtil.nullToEmpty(remark) + changeRemark);
             }
         }
     }

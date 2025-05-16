@@ -29,7 +29,7 @@ public class VehiclePartServiceController {
     @PutMapping("/{vin}/action/saveParts")
     void saveVehicleParts(@PathVariable("vin") String vin, @RequestBody @Validated SaveVehiclePartsRequest request) {
         logger.info("保存车辆[{}]零部件信息", vin);
-        vehiclePartAppService.saveVehicleParts(vin, PartExServiceAssembler.INSTANCE.toPoList(request.getPartList()));
+        vehiclePartAppService.saveVehicleParts(vin, request.getRemark(), PartExServiceAssembler.INSTANCE.toPoList(request.getPartList()));
     }
 
 }
