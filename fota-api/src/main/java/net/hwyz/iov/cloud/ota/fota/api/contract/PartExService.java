@@ -27,6 +27,11 @@ public class PartExService {
     private String no;
 
     /**
+     * 零部件ECU
+     */
+    private String ecu;
+
+    /**
      * 供应商编码
      */
     private String supplierCode;
