@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.ota.fota.api.feign.service;
 
 import net.hwyz.iov.cloud.framework.common.constant.ServiceNameConstants;
-import net.hwyz.iov.cloud.ota.fota.api.contract.request.UpdateVehiclePartsRequest;
+import net.hwyz.iov.cloud.ota.fota.api.contract.request.SaveVehiclePartsRequest;
 import net.hwyz.iov.cloud.ota.fota.api.feign.service.factory.ExVehiclePartServiceFallbackFactory;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.validation.annotation.Validated;
@@ -23,6 +23,6 @@ public interface ExVehiclePartService {
      * @param request 保存车辆零部件信息请求
      */
     @PutMapping("/{vin}/action/saveParts")
-    void saveVehicleParts(@PathVariable("vin") String vin, @RequestBody @Validated UpdateVehiclePartsRequest request);
+    void saveVehicleParts(@PathVariable("vin") String vin, @RequestBody @Validated SaveVehiclePartsRequest request);
 
 }

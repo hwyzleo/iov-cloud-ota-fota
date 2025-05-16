@@ -2,7 +2,7 @@ package net.hwyz.iov.cloud.ota.fota.service.facade.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.hwyz.iov.cloud.ota.fota.api.contract.request.UpdateVehiclePartsRequest;
+import net.hwyz.iov.cloud.ota.fota.api.contract.request.SaveVehiclePartsRequest;
 import net.hwyz.iov.cloud.ota.fota.service.application.service.VehiclePartAppService;
 import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.PartExServiceAssembler;
 import org.springframework.validation.annotation.Validated;
@@ -27,7 +27,7 @@ public class VehiclePartServiceController {
      * @param request 保存车辆零部件信息请求
      */
     @PutMapping("/{vin}/action/saveParts")
-    void saveVehicleParts(@PathVariable("vin") String vin, @RequestBody @Validated UpdateVehiclePartsRequest request) {
+    void saveVehicleParts(@PathVariable("vin") String vin, @RequestBody @Validated SaveVehiclePartsRequest request) {
         logger.info("保存车辆[{}]零部件信息", vin);
         vehiclePartAppService.saveVehicleParts(vin, PartExServiceAssembler.INSTANCE.toPoList(request.getPartList()));
     }

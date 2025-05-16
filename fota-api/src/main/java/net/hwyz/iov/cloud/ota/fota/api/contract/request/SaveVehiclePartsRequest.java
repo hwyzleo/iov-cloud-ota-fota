@@ -10,7 +10,7 @@ import net.hwyz.iov.cloud.ota.fota.api.contract.PartExService;
 import java.util.List;
 
 /**
- * 更新车辆零部件信息请求
+ * 保存车辆零部件信息请求
  *
  * @author hwyz_leo
  */
@@ -18,7 +18,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateVehiclePartsRequest {
+public class SaveVehiclePartsRequest {
 
     /**
      * 零部件列表
