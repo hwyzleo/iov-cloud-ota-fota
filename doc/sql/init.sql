@@ -83,6 +83,24 @@ CREATE TABLE `db_fota`.`tb_veh_part_log`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='车辆零部件关系变更日志表';
 
+DROP TABLE IF EXISTS `db_fota`.`tb_article`;
+CREATE TABLE `db_fota`.`tb_article`
+(
+    `id`          BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `title`       VARCHAR(255) NOT NULL COMMENT '文章标题',
+    `content`     LONGTEXT              DEFAULT NULL COMMENT '文章内容',
+    `type`        SMALLINT     NOT NULL COMMENT '文章类型：1-活动条款，2-升级须知，3-隐私协议',
+    `description` VARCHAR(255)          DEFAULT NULL COMMENT '备注',
+    `create_time` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `create_by`   VARCHAR(64)           DEFAULT NULL COMMENT '创建者',
+    `modify_time` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `modify_by`   VARCHAR(64)           DEFAULT NULL COMMENT '修改者',
+    `row_version` INT                   DEFAULT 1 COMMENT '记录版本',
+    `row_valid`   TINYINT               DEFAULT 1 COMMENT '记录是否有效',
+    PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT '文章表';
+
 DROP TABLE IF EXISTS `db_fota`.`tb_activity`;
 CREATE TABLE `db_fota`.`tb_activity`
 (
