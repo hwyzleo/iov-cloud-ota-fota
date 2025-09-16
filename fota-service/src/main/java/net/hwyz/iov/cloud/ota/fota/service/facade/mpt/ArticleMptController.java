@@ -28,7 +28,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/mpt/activity")
+@RequestMapping(value = "/mpt/article")
 public class ArticleMptController extends BaseController implements ArticleMptApi {
 
     private final ArticleAppService articleAppService;
