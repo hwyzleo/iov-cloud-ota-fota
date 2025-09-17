@@ -21,6 +21,13 @@ public interface ActivityMptApi {
     TableDataInfo list(ActivityMpt activity);
 
     /**
+     * 获取所有升级活动状态
+     *
+     * @return 升级活动状态列表
+     */
+    AjaxResult listAllActivityState();
+
+    /**
      * 导出升级活动
      *
      * @param response 响应

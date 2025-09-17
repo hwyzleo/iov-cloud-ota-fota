@@ -11,6 +11,7 @@ import net.hwyz.iov.cloud.framework.common.web.page.TableDataInfo;
 import net.hwyz.iov.cloud.framework.security.annotation.RequiresPermissions;
 import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
 import net.hwyz.iov.cloud.ota.fota.api.contract.ActivityMpt;
+import net.hwyz.iov.cloud.ota.fota.api.contract.enums.ActivityState;
 import net.hwyz.iov.cloud.ota.fota.api.feign.mpt.ActivityMptApi;
 import net.hwyz.iov.cloud.ota.fota.service.application.service.ActivityAppService;
 import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.ActivityMptAssembler;
@@ -18,7 +19,9 @@ import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.Activity
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 升级活动相关管理接口实现类
@@ -48,6 +51,23 @@ public class ActivityMptController extends BaseController implements ActivityMpt
         List<ActivityPo> activityPoList = activityAppService.search(activity.getName(), getBeginTime(activity), getEndTime(activity));
         List<ActivityMpt> activityMptList = ActivityMptAssembler.INSTANCE.fromPoList(activityPoList);
         return getDataTable(activityPoList, activityMptList);
+    }
+
+    /**
+     * 获取所有升级活动状态
+     *
+     * @return 升级活动状态列表
+     */
+    @RequiresPermissions("ota:fota:activity:list")
+    @Override
+    @GetMapping(value = "/listAllActivityState")
+    public AjaxResult listAllActivityState() {
+        logger.info("管理后台用户[{}]获取所有升级活动状态", SecurityUtils.getUsername());
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (ActivityState activityState : ActivityState.values()) {
+            list.add(Map.of("value", activityState.value, "label", activityState.label));
+        }
+        return success(list);
     }
 
     /**

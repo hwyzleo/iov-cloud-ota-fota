@@ -3,6 +3,7 @@ package net.hwyz.iov.cloud.ota.fota.service.application.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.util.ParamHelper;
+import net.hwyz.iov.cloud.ota.fota.api.contract.enums.ActivityState;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.dao.ActivityDao;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivityPo;
 import org.springframework.stereotype.Service;
@@ -57,6 +58,7 @@ public class ActivityAppService {
      * @return 结果
      */
     public int createActivity(ActivityPo activity) {
+        activity.setState(ActivityState.PENDING.value);
         return activityDao.insertPo(activity);
     }
 
