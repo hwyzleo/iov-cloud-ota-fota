@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.dao.TaskDao">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="baseResultMap" type="net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.TaskPo">
+        <id column="id" property="id" />
+        <result column="description" property="description" />
+        <result column="create_time" property="createTime" />
+        <result column="create_by" property="createBy" />
+        <result column="modify_time" property="modifyTime" />
+        <result column="modify_by" property="modifyBy" />
+        <result column="row_version" property="rowVersion" />
+        <result column="row_valid" property="rowValid" />
+        <result column="name" property="name" />
+        <result column="type" property="type" />
+        <result column="stage" property="stage" />
+        <result column="activity_id" property="activityId" />
+        <result column="target" property="target" />
+        <result column="start_time" property="startTime" />
+        <result column="end_time" property="endTime" />
+        <result column="publish_time" property="publishTime" />
+        <result column="limit_condition" property="limitCondition" />
+        <result column="limit_ibs_soc" property="limitIbsSoc" />
+        <result column="limit_bms_soc" property="limitBmsSoc" />
+        <result column="notice_type" property="noticeType" />
+        <result column="upgrade_mode" property="upgradeMode" />
+        <result column="appointment_time" property="appointmentTime" />
+        <result column="ecu_try_limit" property="ecuTryLimit" />
+        <result column="fail_rollback" property="failRollback" />
+        <result column="adaptation" property="adaptation" />
+        <result column="baseline_alignment" property="baselineAlignment" />
+        <result column="version_check" property="versionCheck" />
+        <result column="part_no_compatible" property="partNoCompatible" />
+        <result column="vehicle_impact" property="vehicleImpact" />
+        <result column="full_package_first" property="fullPackageFirst" />
+        <result column="state" property="state" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="baseColumnList">
+        id, name, type, stage, activity_id, target, start_time, end_time, publish_time, limit_condition, limit_ibs_soc, limit_bms_soc, notice_type, upgrade_mode, appointment_time, ecu_try_limit, fail_rollback, adaptation, baseline_alignment, version_check, part_no_compatible, vehicle_impact, full_package_first, state, 
+        description, create_time, create_by, modify_time, modify_by, row_version, row_valid
+    </sql>
+
+    <!-- 插入 -->
+    <insert id="insertPo" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tb_task (
+            id, name, type, stage, activity_id, target, start_time, end_time, publish_time, limit_condition, limit_ibs_soc, limit_bms_soc, notice_type, upgrade_mode, appointment_time, ecu_try_limit, fail_rollback, adaptation, baseline_alignment, version_check, part_no_compatible, vehicle_impact, full_package_first, state, 
+            description, create_time, create_by, modify_time, modify_by, row_version, row_valid
+        )
+        VALUES (
+            #{id}, #{name}, #{type}, #{stage}, #{activityId}, #{target}, #{startTime}, #{endTime}, #{publishTime}, #{limitCondition}, #{limitIbsSoc}, #{limitBmsSoc}, #{noticeType}, #{upgradeMode}, #{appointmentTime}, #{ecuTryLimit}, #{failRollback}, #{adaptation}, #{baselineAlignment}, #{versionCheck}, #{partNoCompatible}, #{vehicleImpact}, #{fullPackageFirst}, #{state}, 
+            #{description}, now(), #{createBy}, now(), #{modifyBy}, 1, 1
+        )
+    </insert>
+
+    <!-- 批量插入 -->
+    <insert id="batchInsertPo" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
+        INSERT INTO tb_task (
+            id, name, type, stage, activity_id, target, start_time, end_time, publish_time, limit_condition, limit_ibs_soc, limit_bms_soc, notice_type, upgrade_mode, appointment_time, ecu_try_limit, fail_rollback, adaptation, baseline_alignment, version_check, part_no_compatible, vehicle_impact, full_package_first, state, 
+            description, create_time, create_by, modify_time, modify_by, row_version, row_valid
+        )
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+        (
+            #{item.id}, #{item.name}, #{item.type}, #{item.stage}, #{item.activityId}, #{item.target}, #{item.startTime}, #{item.endTime}, #{item.publishTime}, #{item.limitCondition}, #{item.limitIbsSoc}, #{item.limitBmsSoc}, #{item.noticeType}, #{item.upgradeMode}, #{item.appointmentTime}, #{item.ecuTryLimit}, #{item.failRollback}, #{item.adaptation}, #{item.baselineAlignment}, #{item.versionCheck}, #{item.partNoCompatible}, #{item.vehicleImpact}, #{item.fullPackageFirst}, #{item.state}, 
+            #{item.description}, now(), #{item.createBy}, now(), #{item.modifyBy}, 1, 1
+        )
+        </foreach>
+    </insert>
+
+    <!-- 更新 -->
+    <update id="updatePo" parameterType="net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.TaskPo">
+        UPDATE tb_task t SET
+        <if test="name != null and name != ''">
+            t.name = #{name},
+        </if>
+        <if test="type != null">
+            t.type = #{type},
+        </if>
+        <if test="stage != null">
+            t.stage = #{stage},
+        </if>
+        <if test="activityId != null">
+            t.activity_id = #{activityId},
+        </if>
+        <if test="target != null and target != ''">
+            t.target = #{target},
+        </if>
+        <if test="startTime != null">
+            t.start_time = #{startTime},
+        </if>
+        <if test="endTime != null">
+            t.end_time = #{endTime},
+        </if>
+        <if test="publishTime != null">
+            t.publish_time = #{publishTime},
+        </if>
+        <if test="limitCondition != null and limitCondition != ''">
+            t.limit_condition = #{limitCondition},
+        </if>
+        <if test="limitIbsSoc != null">
+            t.limit_ibs_soc = #{limitIbsSoc},
+        </if>
+        <if test="limitBmsSoc != null">
+            t.limit_bms_soc = #{limitBmsSoc},
+        </if>
+        <if test="noticeType != null and noticeType != ''">
+            t.notice_type = #{noticeType},
+        </if>
+        <if test="upgradeMode != null">
+            t.upgrade_mode = #{upgradeMode},
+        </if>
+        <if test="appointmentTime != null">
+            t.appointment_time = #{appointmentTime},
+        </if>
+        <if test="ecuTryLimit != null">
+            t.ecu_try_limit = #{ecuTryLimit},
+        </if>
+        <if test="failRollback != null">
+            t.fail_rollback = #{failRollback},
+        </if>
+        <if test="adaptation != null">
+            t.adaptation = #{adaptation},
+        </if>
+        <if test="baselineAlignment != null">
+            t.baseline_alignment = #{baselineAlignment},
+        </if>
+        <if test="versionCheck != null">
+            t.version_check = #{versionCheck},
+        </if>
+        <if test="partNoCompatible != null">
+            t.part_no_compatible = #{partNoCompatible},
+        </if>
+        <if test="vehicleImpact != null">
+            t.vehicle_impact = #{vehicleImpact},
+        </if>
+        <if test="fullPackageFirst != null">
+            t.full_package_first = #{fullPackageFirst},
+        </if>
+        <if test="state != null">
+            t.state = #{state},
+        </if>
+        <if test="description != null and description != ''">
+            t.description = #{description},
+        </if>
+        <if test="modifyBy != null">
+            t.modify_by = #{modifyBy},
+        </if>
+        t.row_version = t.row_version + 1,
+        t.modify_time = now()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 逻辑删除 -->
+    <update id="logicalDeletePo" parameterType="Long">
+        UPDATE tb_task t SET
+        t.row_version = t.row_version + 1,
+        t.modify_time = now(),
+        t.row_valid = 0
+        WHERE t.id = #{value}
+    </update>
+
+    <!-- 物理删除 -->
+    <delete id="physicalDeletePo" parameterType="Long">
+        DELETE FROM tb_task t
+        WHERE t.id = #{value}
+    </delete>
+
+    <!-- 批量物理删除 -->
+    <delete id="batchPhysicalDeletePo" parameterType="Long">
+        DELETE FROM tb_task t
+        WHERE t.id IN
+        <foreach collection="array" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- 根据主键获取对应数据 -->
+    <select id="selectPoById" parameterType="Long" resultMap="baseResultMap">
+        SELECT <include refid="baseColumnList"/>
+        FROM tb_task t
+        WHERE t.id = #{value}
+        AND t.row_valid = 1
+    </select>
+
+    <!-- 根据数据对象获取对应数据列表 -->
+    <select id="selectPoByExample" parameterType="net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.TaskPo" resultMap="baseResultMap">
+        SELECT <include refid="baseColumnList"/>
+        FROM tb_task t
+        WHERE t.row_valid = 1
+        <if test="id != null">
+            AND t.id = #{id}
+        </if>
+        <if test="name != null and name != ''">
+            AND t.name = #{name}
+        </if>
+        <if test="type != null">
+            AND t.type = #{type}
+        </if>
+        <if test="stage != null">
+            AND t.stage = #{stage}
+        </if>
+        <if test="activityId != null">
+            AND t.activity_id = #{activityId}
+        </if>
+        <if test="target != null and target != ''">
+            AND t.target = #{target}
+        </if>
+        <if test="startTime != null">
+            AND t.start_time = #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND t.end_time = #{endTime}
+        </if>
+        <if test="publishTime != null">
+            AND t.publish_time = #{publishTime}
+        </if>
+        <if test="limitCondition != null and limitCondition != ''">
+            AND t.limit_condition = #{limitCondition}
+        </if>
+        <if test="limitIbsSoc != null">
+            AND t.limit_ibs_soc = #{limitIbsSoc}
+        </if>
+        <if test="limitBmsSoc != null">
+            AND t.limit_bms_soc = #{limitBmsSoc}
+        </if>
+        <if test="noticeType != null and noticeType != ''">
+            AND t.notice_type = #{noticeType}
+        </if>
+        <if test="upgradeMode != null">
+            AND t.upgrade_mode = #{upgradeMode}
+        </if>
+        <if test="appointmentTime != null">
+            AND t.appointment_time = #{appointmentTime}
+        </if>
+        <if test="ecuTryLimit != null">
+            AND t.ecu_try_limit = #{ecuTryLimit}
+        </if>
+        <if test="failRollback != null">
+            AND t.fail_rollback = #{failRollback}
+        </if>
+        <if test="adaptation != null">
+            AND t.adaptation = #{adaptation}
+        </if>
+        <if test="baselineAlignment != null">
+            AND t.baseline_alignment = #{baselineAlignment}
+        </if>
+        <if test="versionCheck != null">
+            AND t.version_check = #{versionCheck}
+        </if>
+        <if test="partNoCompatible != null">
+            AND t.part_no_compatible = #{partNoCompatible}
+        </if>
+        <if test="vehicleImpact != null">
+            AND t.vehicle_impact = #{vehicleImpact}
+        </if>
+        <if test="fullPackageFirst != null">
+            AND t.full_package_first = #{fullPackageFirst}
+        </if>
+        <if test="state != null">
+            AND t.state = #{state}
+        </if>
+        <if test="description != null and description != ''">
+            AND t.description = #{description}
+        </if>
+        <if test="createTime != null">
+            AND t.create_time = #{createTime}
+        </if>
+        <if test="createBy != null and createBy != ''">
+            AND t.create_by = #{createBy}
+        </if>
+        <if test="modifyTime != null">
+            AND t.modify_time = #{modifyTime}
+        </if>
+        <if test="modifyBy != null and modifyBy != ''">
+            AND t.modify_by = #{modifyBy}
+        </if>
+        <if test="rowVersion != null">
+            AND t.row_version = #{rowVersion}
+        </if>
+        ORDER BY t.id DESC
+    </select>
+
+    <!-- 根据Map对象获取对应数据列表 -->
+    <select id="selectPoByMap" parameterType="java.util.Map" resultMap="baseResultMap">
+        SELECT <include refid="baseColumnList"/>
+        FROM tb_task t
+        WHERE t.row_valid = 1
+        <!-- 添加自定义条件 -->
+        <if test="name != null and name != ''">
+            AND t.name LIKE #{name}
+        </if>
+        <if test="beginTime != null">
+            and date_format(t.end_time,'%Y%m%d') &gt;= date_format(#{beginTime},'%Y%m%d')
+        </if>
+        <if test="endTime != null">
+            and date_format(t.start_time,'%Y%m%d') &lt;= date_format(#{endTime},'%Y%m%d')
+        </if>
+        ORDER BY t.id DESC
+    </select>
+
+    <!-- 根据Map对象统计记录数 -->
+    <select id="countPoByMap" parameterType="java.util.Map" resultType="int">
+        SELECT COUNT(*)
+        FROM tb_task t
+        WHERE t.row_valid = 1
+        <!-- 添加自定义条件 -->
+    </select>
+</mapper>

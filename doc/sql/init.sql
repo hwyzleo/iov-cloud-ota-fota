@@ -130,3 +130,41 @@ CREATE TABLE `db_fota`.`tb_activity`
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT '升级活动表';
+
+DROP TABLE IF EXISTS `db_fota`.`tb_task`;
+CREATE TABLE `db_fota`.`tb_task`
+(
+    `id`                 BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `name`               VARCHAR(255) NOT NULL COMMENT '任务名称',
+    `type`               SMALLINT     NOT NULL DEFAULT 1 COMMENT '任务类型：1 普通任务，2 快速任务',
+    `stage`              SMALLINT     NOT NULL DEFAULT 1 COMMENT '任务阶段：1 验证，2 灰度，3 发布',
+    `activity_id`        BIGINT       NOT NULL COMMENT '升级活动ID',
+    `target`             VARCHAR(255) NOT NULL COMMENT '升级对象，普通任务时为文件代码，快速任务时为VIN',
+    `start_time`         DATETIME              DEFAULT NULL COMMENT '任务开始时间',
+    `end_time`           DATETIME              DEFAULT NULL COMMENT '任务结束时间',
+    `publish_time`       DATETIME              DEFAULT NULL COMMENT '任务发布时间',
+    `limit_condition`    VARCHAR(255)          DEFAULT NULL COMMENT '限制条件（多选）：1 需保持驻车，2 非充电模式，3 非供电模式，4 车窗、天窗及尾门需关闭，5 电压需稳定在9V以上，6 需无高压，7 需锁车状态，8 需解锁状态',
+    `limit_ibs_soc`      SMALLINT              DEFAULT NULL COMMENT '小电瓶电量限制',
+    `limit_bms_soc`      SMALLINT              DEFAULT NULL COMMENT '高压电池电量限制',
+    `notice_type`        VARCHAR(255)          DEFAULT NULL COMMENT '通知类型（多选）：1 手机',
+    `upgrade_mode`       SMALLINT              DEFAULT NULL COMMENT '升级模式：1 普通，2 强制，3 预约静默，4 远程静默，5 工厂',
+    `appointment_time`   DATETIME              DEFAULT NULL COMMENT '预约升级时间',
+    `ecu_try_limit`      SMALLINT              DEFAULT NULL COMMENT 'ECU尝试刷写次数',
+    `fail_rollback`      TINYINT               DEFAULT NULL COMMENT '刷写失败是否回滚',
+    `adaptation`         SMALLINT              DEFAULT NULL COMMENT '适配主体：1 软件零件号，2 软件版本，3 两者均适配，4 两者均不适配',
+    `baseline_alignment` TINYINT               DEFAULT NULL COMMENT '基线是否对齐',
+    `version_check`      TINYINT               DEFAULT NULL COMMENT '升级前是否版本校验',
+    `part_no_compatible` TINYINT               DEFAULT NULL COMMENT '是否兼容零件总成号',
+    `vehicle_impact`     TINYINT      NOT NULL DEFAULT 0 COMMENT '用车是否影响',
+    `full_package_first` TINYINT      NOT NULL DEFAULT 0 COMMENT '全量包是否优先',
+    `state`              SMALLINT     NOT NULL COMMENT '任务状态：1 待提交，2 待审核，3 已审核，4 未通过，5 已发布，6 已暂停，7 已结束，8 已取消',
+    `description`        VARCHAR(255)          DEFAULT NULL COMMENT '备注',
+    `create_time`        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `create_by`          VARCHAR(64)           DEFAULT NULL COMMENT '创建者',
+    `modify_time`        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `modify_by`          VARCHAR(64)           DEFAULT NULL COMMENT '修改者',
+    `row_version`        INT                   DEFAULT 1 COMMENT '记录版本',
+    `row_valid`          TINYINT               DEFAULT 1 COMMENT '记录是否有效',
+    PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT '升级任务表';
