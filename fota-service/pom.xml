@@ -16,6 +16,7 @@
 
     <properties>
         <fota.version>0.0.1-SNAPSHOT</fota.version>
+        <baseline.version>0.0.1-SNAPSHOT</baseline.version>
     </properties>
 
     <dependencies>
@@ -23,6 +24,11 @@
             <groupId>net.hwyz.iov.cloud.ota</groupId>
             <artifactId>fota-api</artifactId>
             <version>${fota.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.hwyz.iov.cloud.ota</groupId>
+            <artifactId>baseline-api</artifactId>
+            <version>${baseline.version}</version>
         </dependency>
 
         <!-- 框架: 异常 -->

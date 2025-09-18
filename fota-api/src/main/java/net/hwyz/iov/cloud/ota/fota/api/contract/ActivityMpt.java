@@ -98,6 +98,11 @@ public class ActivityMpt extends BaseRequest {
     private String baselineCode;
 
     /**
+     * 软件零件版本数量
+     */
+    private Integer softwarePartVersionCount;
+
+    /**
      * 创建时间
      */
     private Date createTime;

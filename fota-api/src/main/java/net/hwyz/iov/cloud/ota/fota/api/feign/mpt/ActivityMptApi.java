@@ -28,6 +28,14 @@ public interface ActivityMptApi {
     AjaxResult listAllActivityState();
 
     /**
+     * 列出升级活动下软件零件版本
+     *
+     * @param activityId 升级活动ID
+     * @return 软件零件版本列表
+     */
+    AjaxResult listSoftwarePartVersion(Long activityId);
+
+    /**
      * 导出升级活动
      *
      * @param response 响应
@@ -52,6 +60,15 @@ public interface ActivityMptApi {
     AjaxResult add(ActivityMpt activity);
 
     /**
+     * 新增关联的软件零件版本
+     *
+     * @param activityId             升级活动ID
+     * @param softwarePartVersionIds 软件零件版本ID数组
+     * @return 结果
+     */
+    AjaxResult addSoftwarePartVersion(Long activityId, Long[] softwarePartVersionIds);
+
+    /**
      * 修改保存升级活动
      *
      * @param activity 升级活动
@@ -60,11 +77,31 @@ public interface ActivityMptApi {
     AjaxResult edit(ActivityMpt activity);
 
     /**
+     * 修改关联的软件零件版本
+     *
+     * @param activityId             升级活动ID
+     * @param softwarePartVersionIds 软件零件版本ID数组
+     * @param sorts                  排序数组
+     * @param groups                 组数组
+     * @return 结果
+     */
+    AjaxResult editSoftwarePartVersion(Long activityId, Long[] softwarePartVersionIds, Integer[] sorts, Integer[] groups);
+
+    /**
      * 删除升级活动
      *
      * @param activityIds 升级活动ID数组
      * @return 结果
      */
     AjaxResult remove(Long[] activityIds);
+
+    /**
+     * 删除关联的软件零件版本
+     *
+     * @param activityId             升级活动ID
+     * @param softwarePartVersionIds 软件零件版本关联ID数组
+     * @return 结果
+     */
+    AjaxResult removeSoftwarePartVersion(Long activityId, Long[] softwarePartVersionIds);
 
 }
