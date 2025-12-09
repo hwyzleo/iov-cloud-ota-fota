@@ -63,21 +63,6 @@ public class TaskMpt extends BaseRequest {
     private Date publishTime;
 
     /**
-     * 限制条件（多选）：1 需保持驻车，2 非充电模式，3 非供电模式，4 车窗、天窗及尾门需关闭，5 电压需稳定在9V以上，6 需无高压，7 需锁车状态，8 需解锁状态
-     */
-    private String limitCondition;
-
-    /**
-     * 小电瓶电量限制
-     */
-    private Integer limitIbsSoc;
-
-    /**
-     * 高压电池电量限制
-     */
-    private Integer limitBmsSoc;
-
-    /**
      * 通知类型（多选）：1 手机
      */
     private String noticeType;
@@ -88,49 +73,9 @@ public class TaskMpt extends BaseRequest {
     private Integer upgradeMode;
 
     /**
-     * 预约升级时间
+     * 升级模式参数
      */
-    private Date appointmentTime;
-
-    /**
-     * ECU尝试刷写次数
-     */
-    private Integer ecuTryLimit;
-
-    /**
-     * 刷写失败是否回滚
-     */
-    private Boolean failRollback;
-
-    /**
-     * 适配主体：1 软件零件号，2 软件版本，3 两者均适配，4 两者均不适配
-     */
-    private Integer adaptation;
-
-    /**
-     * 基线是否对齐
-     */
-    private Boolean baselineAlignment;
-
-    /**
-     * 升级前是否版本校验
-     */
-    private Boolean versionCheck;
-
-    /**
-     * 是否兼容零件总成号
-     */
-    private Boolean partNoCompatible;
-
-    /**
-     * 用车是否影响
-     */
-    private Boolean vehicleImpact;
-
-    /**
-     * 全量包是否优先
-     */
-    private Boolean fullPackageFirst;
+    private String upgradeModeArg;
 
     /**
      * 任务状态：1 待提交，2 待审核，3 已审核，4 未通过，5 已发布，6 已暂停，7 已结束，8 已取消

@@ -20,37 +20,26 @@
         <result column="start_time" property="startTime" />
         <result column="end_time" property="endTime" />
         <result column="publish_time" property="publishTime" />
-        <result column="limit_condition" property="limitCondition" />
-        <result column="limit_ibs_soc" property="limitIbsSoc" />
-        <result column="limit_bms_soc" property="limitBmsSoc" />
         <result column="notice_type" property="noticeType" />
         <result column="upgrade_mode" property="upgradeMode" />
-        <result column="appointment_time" property="appointmentTime" />
-        <result column="ecu_try_limit" property="ecuTryLimit" />
-        <result column="fail_rollback" property="failRollback" />
-        <result column="adaptation" property="adaptation" />
-        <result column="baseline_alignment" property="baselineAlignment" />
-        <result column="version_check" property="versionCheck" />
-        <result column="part_no_compatible" property="partNoCompatible" />
-        <result column="vehicle_impact" property="vehicleImpact" />
-        <result column="full_package_first" property="fullPackageFirst" />
+        <result column="upgrade_mode_arg" property="upgradeModeArg" />
         <result column="state" property="state" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="baseColumnList">
-        id, name, type, stage, activity_id, target, start_time, end_time, publish_time, limit_condition, limit_ibs_soc, limit_bms_soc, notice_type, upgrade_mode, appointment_time, ecu_try_limit, fail_rollback, adaptation, baseline_alignment, version_check, part_no_compatible, vehicle_impact, full_package_first, state, 
+        id, name, type, stage, activity_id, target, start_time, end_time, publish_time, notice_type, upgrade_mode, upgrade_mode_arg, state, 
         description, create_time, create_by, modify_time, modify_by, row_version, row_valid
     </sql>
 
     <!-- 插入 -->
     <insert id="insertPo" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tb_task (
-            id, name, type, stage, activity_id, target, start_time, end_time, publish_time, limit_condition, limit_ibs_soc, limit_bms_soc, notice_type, upgrade_mode, appointment_time, ecu_try_limit, fail_rollback, adaptation, baseline_alignment, version_check, part_no_compatible, vehicle_impact, full_package_first, state, 
+            id, name, type, stage, activity_id, target, start_time, end_time, publish_time, notice_type, upgrade_mode, upgrade_mode_arg, state, 
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES (
-            #{id}, #{name}, #{type}, #{stage}, #{activityId}, #{target}, #{startTime}, #{endTime}, #{publishTime}, #{limitCondition}, #{limitIbsSoc}, #{limitBmsSoc}, #{noticeType}, #{upgradeMode}, #{appointmentTime}, #{ecuTryLimit}, #{failRollback}, #{adaptation}, #{baselineAlignment}, #{versionCheck}, #{partNoCompatible}, #{vehicleImpact}, #{fullPackageFirst}, #{state}, 
+            #{id}, #{name}, #{type}, #{stage}, #{activityId}, #{target}, #{startTime}, #{endTime}, #{publishTime}, #{noticeType}, #{upgradeMode}, #{upgradeModeArg}, #{state}, 
             #{description}, now(), #{createBy}, now(), #{modifyBy}, 1, 1
         )
     </insert>
@@ -58,13 +47,13 @@
     <!-- 批量插入 -->
     <insert id="batchInsertPo" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
         INSERT INTO tb_task (
-            id, name, type, stage, activity_id, target, start_time, end_time, publish_time, limit_condition, limit_ibs_soc, limit_bms_soc, notice_type, upgrade_mode, appointment_time, ecu_try_limit, fail_rollback, adaptation, baseline_alignment, version_check, part_no_compatible, vehicle_impact, full_package_first, state, 
+            id, name, type, stage, activity_id, target, start_time, end_time, publish_time, notice_type, upgrade_mode, upgrade_mode_arg, state, 
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES
         <foreach collection="list" item="item" index="index" separator=",">
         (
-            #{item.id}, #{item.name}, #{item.type}, #{item.stage}, #{item.activityId}, #{item.target}, #{item.startTime}, #{item.endTime}, #{item.publishTime}, #{item.limitCondition}, #{item.limitIbsSoc}, #{item.limitBmsSoc}, #{item.noticeType}, #{item.upgradeMode}, #{item.appointmentTime}, #{item.ecuTryLimit}, #{item.failRollback}, #{item.adaptation}, #{item.baselineAlignment}, #{item.versionCheck}, #{item.partNoCompatible}, #{item.vehicleImpact}, #{item.fullPackageFirst}, #{item.state}, 
+            #{item.id}, #{item.name}, #{item.type}, #{item.stage}, #{item.activityId}, #{item.target}, #{item.startTime}, #{item.endTime}, #{item.publishTime}, #{item.noticeType}, #{item.upgradeMode}, #{item.upgradeModeArg}, #{item.state}, 
             #{item.description}, now(), #{item.createBy}, now(), #{item.modifyBy}, 1, 1
         )
         </foreach>
@@ -97,47 +86,14 @@
         <if test="publishTime != null">
             t.publish_time = #{publishTime},
         </if>
-        <if test="limitCondition != null and limitCondition != ''">
-            t.limit_condition = #{limitCondition},
-        </if>
-        <if test="limitIbsSoc != null">
-            t.limit_ibs_soc = #{limitIbsSoc},
-        </if>
-        <if test="limitBmsSoc != null">
-            t.limit_bms_soc = #{limitBmsSoc},
-        </if>
         <if test="noticeType != null and noticeType != ''">
             t.notice_type = #{noticeType},
         </if>
         <if test="upgradeMode != null">
             t.upgrade_mode = #{upgradeMode},
         </if>
-        <if test="appointmentTime != null">
-            t.appointment_time = #{appointmentTime},
-        </if>
-        <if test="ecuTryLimit != null">
-            t.ecu_try_limit = #{ecuTryLimit},
-        </if>
-        <if test="failRollback != null">
-            t.fail_rollback = #{failRollback},
-        </if>
-        <if test="adaptation != null">
-            t.adaptation = #{adaptation},
-        </if>
-        <if test="baselineAlignment != null">
-            t.baseline_alignment = #{baselineAlignment},
-        </if>
-        <if test="versionCheck != null">
-            t.version_check = #{versionCheck},
-        </if>
-        <if test="partNoCompatible != null">
-            t.part_no_compatible = #{partNoCompatible},
-        </if>
-        <if test="vehicleImpact != null">
-            t.vehicle_impact = #{vehicleImpact},
-        </if>
-        <if test="fullPackageFirst != null">
-            t.full_package_first = #{fullPackageFirst},
+        <if test="upgradeModeArg != null and upgradeModeArg != ''">
+            t.upgrade_mode_arg = #{upgradeModeArg},
         </if>
         <if test="state != null">
             t.state = #{state},
@@ -217,47 +173,14 @@
         <if test="publishTime != null">
             AND t.publish_time = #{publishTime}
         </if>
-        <if test="limitCondition != null and limitCondition != ''">
-            AND t.limit_condition = #{limitCondition}
-        </if>
-        <if test="limitIbsSoc != null">
-            AND t.limit_ibs_soc = #{limitIbsSoc}
-        </if>
-        <if test="limitBmsSoc != null">
-            AND t.limit_bms_soc = #{limitBmsSoc}
-        </if>
         <if test="noticeType != null and noticeType != ''">
             AND t.notice_type = #{noticeType}
         </if>
         <if test="upgradeMode != null">
             AND t.upgrade_mode = #{upgradeMode}
         </if>
-        <if test="appointmentTime != null">
-            AND t.appointment_time = #{appointmentTime}
-        </if>
-        <if test="ecuTryLimit != null">
-            AND t.ecu_try_limit = #{ecuTryLimit}
-        </if>
-        <if test="failRollback != null">
-            AND t.fail_rollback = #{failRollback}
-        </if>
-        <if test="adaptation != null">
-            AND t.adaptation = #{adaptation}
-        </if>
-        <if test="baselineAlignment != null">
-            AND t.baseline_alignment = #{baselineAlignment}
-        </if>
-        <if test="versionCheck != null">
-            AND t.version_check = #{versionCheck}
-        </if>
-        <if test="partNoCompatible != null">
-            AND t.part_no_compatible = #{partNoCompatible}
-        </if>
-        <if test="vehicleImpact != null">
-            AND t.vehicle_impact = #{vehicleImpact}
-        </if>
-        <if test="fullPackageFirst != null">
-            AND t.full_package_first = #{fullPackageFirst}
+        <if test="upgradeModeArg != null and upgradeModeArg != ''">
+            AND t.upgrade_mode_arg = #{upgradeModeArg}
         </if>
         <if test="state != null">
             AND t.state = #{state}

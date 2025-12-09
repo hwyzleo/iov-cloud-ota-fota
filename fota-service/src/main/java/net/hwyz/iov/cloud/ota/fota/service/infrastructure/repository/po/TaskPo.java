@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
  * </p>
  *
  * @author hwyz_leo
- * @since 2025-09-17
+ * @since 2025-12-09
  */
 @Getter
 @Setter
@@ -83,24 +83,6 @@ public class TaskPo extends BasePo {
     private Date publishTime;
 
     /**
-     * 限制条件（多选）：1 需保持驻车，2 非充电模式，3 非供电模式，4 车窗、天窗及尾门需关闭，5 电压需稳定在9V以上，6 需无高压，7 需锁车状态，8 需解锁状态
-     */
-    @TableField("limit_condition")
-    private String limitCondition;
-
-    /**
-     * 小电瓶电量限制
-     */
-    @TableField("limit_ibs_soc")
-    private Integer limitIbsSoc;
-
-    /**
-     * 高压电池电量限制
-     */
-    @TableField("limit_bms_soc")
-    private Integer limitBmsSoc;
-
-    /**
      * 通知类型（多选）：1 手机
      */
     @TableField("notice_type")
@@ -113,58 +95,10 @@ public class TaskPo extends BasePo {
     private Integer upgradeMode;
 
     /**
-     * 预约升级时间
+     * 升级模式参数
      */
-    @TableField("appointment_time")
-    private Date appointmentTime;
-
-    /**
-     * ECU尝试刷写次数
-     */
-    @TableField("ecu_try_limit")
-    private Integer ecuTryLimit;
-
-    /**
-     * 刷写失败是否回滚
-     */
-    @TableField("fail_rollback")
-    private Boolean failRollback;
-
-    /**
-     * 适配主体：1 软件零件号，2 软件版本，3 两者均适配，4 两者均不适配
-     */
-    @TableField("adaptation")
-    private Integer adaptation;
-
-    /**
-     * 基线是否对齐
-     */
-    @TableField("baseline_alignment")
-    private Boolean baselineAlignment;
-
-    /**
-     * 升级前是否版本校验
-     */
-    @TableField("version_check")
-    private Boolean versionCheck;
-
-    /**
-     * 是否兼容零件总成号
-     */
-    @TableField("part_no_compatible")
-    private Boolean partNoCompatible;
-
-    /**
-     * 用车是否影响
-     */
-    @TableField("vehicle_impact")
-    private Boolean vehicleImpact;
-
-    /**
-     * 全量包是否优先
-     */
-    @TableField("full_package_first")
-    private Boolean fullPackageFirst;
+    @TableField("upgrade_mode_arg")
+    private String upgradeModeArg;
 
     /**
      * 任务状态：1 待提交，2 待审核，3 已审核，4 未通过，5 已发布，6 已暂停，7 已结束，8 已取消
