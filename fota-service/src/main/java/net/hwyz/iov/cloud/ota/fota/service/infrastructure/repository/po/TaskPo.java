@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
  * </p>
  *
  * @author hwyz_leo
- * @since 2025-12-09
+ * @since 2025-12-10
  */
 @Getter
 @Setter
@@ -41,16 +41,16 @@ public class TaskPo extends BasePo {
     private String name;
 
     /**
-     * 任务类型：1 普通任务，2 快速任务
+     * 任务类型：1=普通任务，2=快速任务
      */
     @TableField("type")
     private Integer type;
 
     /**
-     * 任务阶段：1 验证，2 灰度，3 发布
+     * 任务阶段：1=验证，2=灰度，3=发布
      */
-    @TableField("stage")
-    private Integer stage;
+    @TableField("phase")
+    private Integer phase;
 
     /**
      * 升级活动ID
@@ -89,7 +89,7 @@ public class TaskPo extends BasePo {
     private String noticeType;
 
     /**
-     * 升级模式：1 普通，2 强制，3 预约静默，4 远程静默，5 工厂
+     * 升级模式：1=普通，2=强制，3=预约静默，4=远程静默，5=工厂
      */
     @TableField("upgrade_mode")
     private Integer upgradeMode;
@@ -101,7 +101,7 @@ public class TaskPo extends BasePo {
     private String upgradeModeArg;
 
     /**
-     * 任务状态：1 待提交，2 待审核，3 已审核，4 未通过，5 已发布，6 已暂停，7 已结束，8 已取消
+     * 任务状态：1=待提交，2=待审核，3=已审核，4=未通过，5=已发布，6=已暂停，7=已结束，8=已取消
      */
     @TableField("state")
     private Integer state;

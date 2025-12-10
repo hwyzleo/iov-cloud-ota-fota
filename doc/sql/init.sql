@@ -156,17 +156,17 @@ CREATE TABLE `db_fota`.`tb_task`
 (
     `id`               BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键',
     `name`             VARCHAR(255) NOT NULL COMMENT '任务名称',
-    `type`             SMALLINT     NOT NULL DEFAULT 1 COMMENT '任务类型：1 普通任务，2 快速任务',
-    `stage`            SMALLINT     NOT NULL DEFAULT 1 COMMENT '任务阶段：1 验证，2 灰度，3 发布',
+    `type`             SMALLINT     NOT NULL DEFAULT 1 COMMENT '任务类型：1=普通任务，2=快速任务',
+    `phase`            SMALLINT     NOT NULL DEFAULT 1 COMMENT '任务阶段：1=验证，2=灰度，3=发布',
     `activity_id`      BIGINT       NOT NULL COMMENT '升级活动ID',
     `target`           VARCHAR(255) NOT NULL COMMENT '升级对象，普通任务时为文件代码，快速任务时为VIN',
     `start_time`       DATETIME              DEFAULT NULL COMMENT '任务开始时间',
     `end_time`         DATETIME              DEFAULT NULL COMMENT '任务结束时间',
     `publish_time`     DATETIME              DEFAULT NULL COMMENT '任务发布时间',
     `notice_type`      VARCHAR(255)          DEFAULT NULL COMMENT '通知类型（多选）：1 手机',
-    `upgrade_mode`     SMALLINT              DEFAULT NULL COMMENT '升级模式：1 普通，2 强制，3 预约静默，4 远程静默，5 工厂',
+    `upgrade_mode`     SMALLINT              DEFAULT NULL COMMENT '升级模式：1=普通，2=强制，3=预约静默，4=远程静默，5=工厂',
     `upgrade_mode_arg` VARCHAR(255)          DEFAULT NULL COMMENT '升级模式参数',
-    `state`            SMALLINT     NOT NULL COMMENT '任务状态：1 待提交，2 待审核，3 已审核，4 未通过，5 已发布，6 已暂停，7 已结束，8 已取消',
+    `state`            SMALLINT     NOT NULL COMMENT '任务状态：1=待提交，2=待审核，3=已审核，4=未通过，5=已发布，6=已暂停，7=已结束，8=已取消',
     `description`      VARCHAR(255)          DEFAULT NULL COMMENT '备注',
     `create_time`      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `create_by`        VARCHAR(64)           DEFAULT NULL COMMENT '创建者',
@@ -177,3 +177,26 @@ CREATE TABLE `db_fota`.`tb_task`
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT '升级任务表';
+
+DROP TABLE IF EXISTS `db_fota`.`tb_task_vehicle`;
+CREATE TABLE `db_fota`.`tb_task_vehicle`
+(
+    `id`          BIGINT      NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `activity_id` BIGINT      NOT NULL COMMENT '升级活动ID',
+    `task_id`     BIGINT      NOT NULL COMMENT '升级任务ID',
+    `vin`         VARCHAR(20) NOT NULL COMMENT '车架号',
+    `state`       SMALLINT    NOT NULL COMMENT '车辆任务状态',
+    `result_code` VARCHAR(20)          DEFAULT NULL COMMENT '结果代码',
+    `description` VARCHAR(255)         DEFAULT NULL COMMENT '备注',
+    `create_time` TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `create_by`   VARCHAR(64)          DEFAULT NULL COMMENT '创建者',
+    `modify_time` TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `modify_by`   VARCHAR(64)          DEFAULT NULL COMMENT '修改者',
+    `row_version` INT                  DEFAULT 1 COMMENT '记录版本',
+    `row_valid`   TINYINT              DEFAULT 1 COMMENT '记录是否有效',
+    PRIMARY KEY (`id`) USING BTREE,
+    INDEX `idx_activity` (`activity_id`),
+    INDEX `idx_task` (`task_id`),
+    INDEX `idx_vin` (`vin`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT '升级任务车辆表';

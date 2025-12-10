@@ -10,7 +10,7 @@ import org.apache.ibatis.annotations.Mapper;
  * </p>
  *
  * @author hwyz_leo
- * @since 2025-12-09
+ * @since 2025-12-10
  */
 @Mapper
 public interface TaskDao extends BaseDao<TaskPo, Long> {

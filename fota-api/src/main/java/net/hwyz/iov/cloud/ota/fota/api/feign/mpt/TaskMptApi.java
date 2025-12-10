@@ -60,6 +60,15 @@ public interface TaskMptApi {
     AjaxResult edit(TaskMpt task);
 
     /**
+     * 提交升级任务
+     *
+     * @param taskId 升级任务ID
+     * @param task   升级任务
+     * @return 结果
+     */
+    AjaxResult submit(Long taskId, TaskMpt task);
+
+    /**
      * 删除升级任务
      *
      * @param taskIds 升级任务ID数组

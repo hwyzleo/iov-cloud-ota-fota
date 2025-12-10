@@ -63,16 +63,6 @@ public class TaskAppService {
     }
 
     /**
-     * 修改升级任务
-     *
-     * @param task 升级任务
-     * @return 结果
-     */
-    public int modifyTask(TaskPo task) {
-        return taskDao.updatePo(task);
-    }
-
-    /**
      * 批量删除升级任务
      *
      * @param ids 升级任务ID数组

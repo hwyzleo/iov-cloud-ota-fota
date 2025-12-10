@@ -14,7 +14,10 @@ import net.hwyz.iov.cloud.ota.fota.api.contract.TaskMpt;
 import net.hwyz.iov.cloud.ota.fota.api.contract.enums.TaskState;
 import net.hwyz.iov.cloud.ota.fota.api.feign.mpt.TaskMptApi;
 import net.hwyz.iov.cloud.ota.fota.service.application.service.TaskAppService;
+import net.hwyz.iov.cloud.ota.fota.service.domain.task.model.TaskDo;
+import net.hwyz.iov.cloud.ota.fota.service.domain.task.repository.TaskRepository;
 import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.TaskMptAssembler;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.exception.TaskNotExistException;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.TaskPo;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +38,7 @@ import java.util.Map;
 public class TaskMptController extends BaseController implements TaskMptApi {
 
     private final TaskAppService taskAppService;
+    private final TaskRepository taskRepository;
 
     /**
      * 分页查询升级任务
@@ -127,10 +131,38 @@ public class TaskMptController extends BaseController implements TaskMptApi {
     @Override
     @PutMapping
     public AjaxResult edit(@Validated @RequestBody TaskMpt task) {
-        logger.info("管理后台用户[{}]修改保存升级活动[{}]", SecurityUtils.getUsername(), task.getName());
+        logger.info("管理后台用户[{}]修改保存升级任务[{}]", SecurityUtils.getUsername(), task.getName());
         TaskPo taskPo = TaskMptAssembler.INSTANCE.toPo(task);
         taskPo.setModifyBy(SecurityUtils.getUserId().toString());
-        return toAjax(taskAppService.modifyTask(taskPo));
+        TaskDo taskDo = taskRepository.getById(taskPo.getId()).orElseThrow(() -> new TaskNotExistException(taskPo.getId()));
+        taskDo.edit(taskPo);
+        taskRepository.save(taskDo);
+        return toAjax(1);
+    }
+
+    /**
+     * 提交升级任务
+     *
+     * @param taskId 升级任务ID
+     * @param task   升级任务
+     * @return 结果
+     */
+    @Log(title = "升级任务管理", businessType = BusinessType.UPDATE)
+    @RequiresPermissions("ota:fota:task:submit")
+    @Override
+    @PostMapping("/{taskId}/action/submit")
+    public AjaxResult submit(@PathVariable Long taskId, @Validated @RequestBody TaskMpt task) {
+        logger.info("管理后台用户[{}]提交升级任务[{}]", SecurityUtils.getUsername(), taskId);
+        if (task == null) {
+            task = TaskMpt.builder().build();
+        }
+        task.setId(taskId);
+        TaskPo taskPo = TaskMptAssembler.INSTANCE.toPo(task);
+        taskPo.setModifyBy(SecurityUtils.getUserId().toString());
+        TaskDo taskDo = taskRepository.getById(taskPo.getId()).orElseThrow(() -> new TaskNotExistException(taskPo.getId()));
+        int result = taskDo.submit(taskPo);
+        taskRepository.save(taskDo);
+        return toAjax(result);
     }
 
     /**
