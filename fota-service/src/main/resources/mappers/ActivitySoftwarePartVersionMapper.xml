@@ -15,23 +15,23 @@
         <result column="activity_id" property="activityId" />
         <result column="software_part_version_id" property="softwarePartVersionId" />
         <result column="sort" property="sort" />
-        <result column="group" property="group" />
+        <result column="version_group" property="versionGroup" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="baseColumnList">
-        id, activity_id, software_part_version_id, sort, group, 
+        id, activity_id, software_part_version_id, sort, version_group, 
         description, create_time, create_by, modify_time, modify_by, row_version, row_valid
     </sql>
 
     <!-- 插入 -->
     <insert id="insertPo" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tb_activity_software_part_version (
-            id, activity_id, software_part_version_id, sort, group, 
+            id, activity_id, software_part_version_id, sort, version_group, 
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES (
-            #{id}, #{activityId}, #{softwarePartVersionId}, #{sort}, #{group}, 
+            #{id}, #{activityId}, #{softwarePartVersionId}, #{sort}, #{versionGroup}, 
             #{description}, now(), #{createBy}, now(), #{modifyBy}, 1, 1
         )
     </insert>
@@ -39,13 +39,13 @@
     <!-- 批量插入 -->
     <insert id="batchInsertPo" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
         INSERT INTO tb_activity_software_part_version (
-            id, activity_id, software_part_version_id, sort, group, 
+            id, activity_id, software_part_version_id, sort, version_group, 
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES
         <foreach collection="list" item="item" index="index" separator=",">
         (
-            #{item.id}, #{item.activityId}, #{item.softwarePartVersionId}, #{item.sort}, #{item.group}, 
+            #{item.id}, #{item.activityId}, #{item.softwarePartVersionId}, #{item.sort}, #{item.versionGroup}, 
             #{item.description}, now(), #{item.createBy}, now(), #{item.modifyBy}, 1, 1
         )
         </foreach>
@@ -63,8 +63,8 @@
         <if test="sort != null">
             t.sort = #{sort},
         </if>
-        <if test="group != null">
-            t.group = #{group},
+        <if test="versionGroup != null">
+            t.version_group = #{versionGroup},
         </if>
         <if test="description != null and description != ''">
             t.description = #{description},
@@ -136,8 +136,8 @@
         <if test="sort != null">
             AND t.sort = #{sort}
         </if>
-        <if test="group != null">
-            AND t.group = #{group}
+        <if test="versionGroup != null">
+            AND t.version_group = #{versionGroup}
         </if>
         <if test="description != null and description != ''">
             AND t.description = #{description}

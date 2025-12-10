@@ -15,7 +15,7 @@ import lombok.experimental.SuperBuilder;
  * </p>
  *
  * @author hwyz_leo
- * @since 2025-09-17
+ * @since 2025-12-09
  */
 @Getter
 @Setter
@@ -54,6 +54,6 @@ public class ActivitySoftwarePartVersionPo extends BasePo {
     /**
      * 软件版本组
      */
-    @TableField("group")
-    private Integer group;
+    @TableField("version_group")
+    private Integer versionGroup;
 }

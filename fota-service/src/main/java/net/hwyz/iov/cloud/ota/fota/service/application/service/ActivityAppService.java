@@ -91,7 +91,7 @@ public class ActivityAppService {
                         .activityId(activityId)
                         .softwarePartVersionId(softwarePartVersionId)
                         .sort(0)
-                        .group(0)
+                        .versionGroup(0)
                         .build());
             }
         }
@@ -125,7 +125,7 @@ public class ActivityAppService {
             for (int i = 0; i < softwarePartVersionIds.length; i++) {
                 if (po.getSoftwarePartVersionId().longValue() == softwarePartVersionIds[i]) {
                     po.setSort(sorts[i]);
-                    po.setGroup(groups[i]);
+                    po.setVersionGroup(groups[i]);
                     activitySoftwarePartVersionDao.updatePo(po);
                 }
             }

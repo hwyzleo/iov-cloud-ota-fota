@@ -65,7 +65,7 @@ public class ActivitySoftwarePartVersionMpt extends BaseRequest {
     /**
      * 软件版本组
      */
-    private Integer group;
+    private Integer versionGroup;
 
     /**
      * 创建时间

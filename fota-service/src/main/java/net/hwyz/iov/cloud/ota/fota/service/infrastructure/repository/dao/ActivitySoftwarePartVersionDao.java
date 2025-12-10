@@ -10,7 +10,7 @@ import org.apache.ibatis.annotations.Mapper;
  * </p>
  *
  * @author hwyz_leo
- * @since 2025-09-17
+ * @since 2025-12-09
  */
 @Mapper
 public interface ActivitySoftwarePartVersionDao extends BaseDao<ActivitySoftwarePartVersionPo, Long> {
