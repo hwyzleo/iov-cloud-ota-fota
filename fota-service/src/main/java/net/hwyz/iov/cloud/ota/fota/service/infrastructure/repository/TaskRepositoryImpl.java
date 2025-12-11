@@ -3,6 +3,7 @@ package net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.domain.AbstractRepository;
+import net.hwyz.iov.cloud.ota.fota.api.contract.enums.TaskVehicleState;
 import net.hwyz.iov.cloud.ota.fota.service.domain.task.model.TaskDo;
 import net.hwyz.iov.cloud.ota.fota.service.domain.task.repository.TaskRepository;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.assembler.TaskPoAssembler;
@@ -52,7 +53,7 @@ public class TaskRepositoryImpl extends AbstractRepository<Long, TaskDo> impleme
                                     .activityId(taskPo.getActivityId())
                                     .taskId(taskPo.getId())
                                     .vin(vehicle)
-                                    .state(1)
+                                    .state(TaskVehicleState.WAITING_DOWNLOAD.value)
                                     .build());
                         }
                     });

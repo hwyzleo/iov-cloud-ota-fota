@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import java.util.Arrays;
 
 /**
- * 升级活动状态枚举类
+ * 升级任务状态枚举类
  *
  * @author hwyz_leo
  */
@@ -32,7 +32,7 @@ public enum TaskState {
 
     public static TaskState valOf(Integer val) {
         return Arrays.stream(TaskState.values())
-                .filter(activityState -> activityState.value == val)
+                .filter(taskState -> taskState.value == val)
                 .findFirst()
                 .orElse(null);
     }

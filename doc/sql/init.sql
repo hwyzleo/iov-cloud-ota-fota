@@ -185,7 +185,7 @@ CREATE TABLE `db_fota`.`tb_task_vehicle`
     `activity_id` BIGINT      NOT NULL COMMENT '升级活动ID',
     `task_id`     BIGINT      NOT NULL COMMENT '升级任务ID',
     `vin`         VARCHAR(20) NOT NULL COMMENT '车架号',
-    `state`       SMALLINT    NOT NULL COMMENT '车辆任务状态',
+    `state`       SMALLINT    NOT NULL COMMENT '车辆任务状态：0=等待下载，1=开始下载，3=继续下载，5=结束下载，7=预约升级，9=自动升级，10=安装检测，11=开始安装，15=结束安装，17=开始回滚，19=结束回滚，21=升级立即重启，22=升级用户重启，23=回滚立即重启，24=回滚用户重启，25=写配置字，26=回滚配置字，90=升级失败，91=升级超时',
     `result_code` VARCHAR(20)          DEFAULT NULL COMMENT '结果代码',
     `description` VARCHAR(255)         DEFAULT NULL COMMENT '备注',
     `create_time` TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
