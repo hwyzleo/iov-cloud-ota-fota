@@ -44,7 +44,8 @@ public interface TaskPoAssembler {
             @Mapping(target = "phase", source = "phase.value"),
             @Mapping(target = "upgradeMode", source = "upgradeMode.value"),
             @Mapping(target = "upgradeModeArg", expression = "java(net.hwyz.iov.cloud.framework.common.util.AssemblerHelper.json2String(taskDo.getUpgradeModeArg()))"),
-            @Mapping(target = "state", source = "taskState.value")
+            @Mapping(target = "state", source = "taskState.value"),
+            @Mapping(target = "description", source = "description")
     })
     TaskPo fromDo(TaskDo taskDo);
 

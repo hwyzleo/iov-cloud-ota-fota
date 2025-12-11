@@ -44,17 +44,19 @@ public class TaskRepositoryImpl extends AbstractRepository<Long, TaskDo> impleme
             case CHANGED -> {
                 TaskPo taskPo = TaskPoAssembler.INSTANCE.fromDo(taskDo);
                 taskDao.updatePo(taskPo);
-                taskDo.getVehicles().forEach(vehicle -> {
-                    TaskVehiclePo taskVehiclePo = taskVehicleDao.selectByTaskIdAndVin(taskPo.getId(), vehicle);
-                    if (taskVehiclePo == null) {
-                        taskVehicleDao.insertPo(TaskVehiclePo.builder()
-                                .activityId(taskPo.getActivityId())
-                                .taskId(taskPo.getId())
-                                .vin(vehicle)
-                                .state(1)
-                                .build());
-                    }
-                });
+                if (taskDo.getVehicles() != null) {
+                    taskDo.getVehicles().forEach(vehicle -> {
+                        TaskVehiclePo taskVehiclePo = taskVehicleDao.selectByTaskIdAndVin(taskPo.getId(), vehicle);
+                        if (taskVehiclePo == null) {
+                            taskVehicleDao.insertPo(TaskVehiclePo.builder()
+                                    .activityId(taskPo.getActivityId())
+                                    .taskId(taskPo.getId())
+                                    .vin(vehicle)
+                                    .state(1)
+                                    .build());
+                        }
+                    });
+                }
             }
             default -> {
                 return false;

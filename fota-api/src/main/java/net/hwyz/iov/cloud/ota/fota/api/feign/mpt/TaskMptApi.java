@@ -3,6 +3,7 @@ package net.hwyz.iov.cloud.ota.fota.api.feign.mpt;
 import jakarta.servlet.http.HttpServletResponse;
 import net.hwyz.iov.cloud.framework.common.web.domain.AjaxResult;
 import net.hwyz.iov.cloud.framework.common.web.page.TableDataInfo;
+import net.hwyz.iov.cloud.ota.fota.api.contract.TaskAuditMpt;
 import net.hwyz.iov.cloud.ota.fota.api.contract.TaskMpt;
 
 /**
@@ -67,6 +68,15 @@ public interface TaskMptApi {
      * @return 结果
      */
     AjaxResult submit(Long taskId, TaskMpt task);
+
+    /**
+     * 审核升级任务
+     *
+     * @param taskId    升级任务ID
+     * @param taskAudit 升级任务审核
+     * @return 结果
+     */
+    AjaxResult audit(Long taskId, TaskAuditMpt taskAudit);
 
     /**
      * 删除升级任务

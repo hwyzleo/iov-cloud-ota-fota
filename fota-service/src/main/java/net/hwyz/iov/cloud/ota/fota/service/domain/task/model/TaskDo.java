@@ -93,6 +93,11 @@ public class TaskDo extends BaseDo<Long> implements DomainObj<TaskDo> {
     private TaskState taskState;
 
     /**
+     * 备注
+     */
+    private String description;
+
+    /**
      * 初始化
      */
     public void init() {
@@ -164,6 +169,27 @@ public class TaskDo extends BaseDo<Long> implements DomainObj<TaskDo> {
         if (this.taskState == TaskState.PENDING) {
             edit(taskPo);
             this.taskState = TaskState.SUBMITTED;
+            stateChange();
+            return 1;
+        }
+        return 0;
+    }
+
+    /**
+     * 审核任务
+     *
+     * @param audit  审核结果
+     * @param reason 拒绝原因
+     * @return 1: 成功，0: 失败
+     */
+    public int audit(Boolean audit, String reason) {
+        if (this.taskState == TaskState.SUBMITTED) {
+            if (audit) {
+                this.taskState = TaskState.APPROVED;
+            } else {
+                this.taskState = TaskState.REJECTED;
+                this.description = reason;
+            }
             stateChange();
             return 1;
         }

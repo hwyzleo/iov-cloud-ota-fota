@@ -10,6 +10,7 @@ import net.hwyz.iov.cloud.framework.common.web.domain.AjaxResult;
 import net.hwyz.iov.cloud.framework.common.web.page.TableDataInfo;
 import net.hwyz.iov.cloud.framework.security.annotation.RequiresPermissions;
 import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
+import net.hwyz.iov.cloud.ota.fota.api.contract.TaskAuditMpt;
 import net.hwyz.iov.cloud.ota.fota.api.contract.TaskMpt;
 import net.hwyz.iov.cloud.ota.fota.api.contract.enums.TaskState;
 import net.hwyz.iov.cloud.ota.fota.api.feign.mpt.TaskMptApi;
@@ -161,6 +162,25 @@ public class TaskMptController extends BaseController implements TaskMptApi {
         taskPo.setModifyBy(SecurityUtils.getUserId().toString());
         TaskDo taskDo = taskRepository.getById(taskPo.getId()).orElseThrow(() -> new TaskNotExistException(taskPo.getId()));
         int result = taskDo.submit(taskPo);
+        taskRepository.save(taskDo);
+        return toAjax(result);
+    }
+
+    /**
+     * 审核升级任务
+     *
+     * @param taskId    升级任务ID
+     * @param taskAudit 升级任务审核
+     * @return 结果
+     */
+    @Log(title = "升级任务管理", businessType = BusinessType.UPDATE)
+    @RequiresPermissions("ota:fota:task:audit")
+    @Override
+    @PostMapping("/{taskId}/action/audit")
+    public AjaxResult audit(@PathVariable Long taskId, @Validated @RequestBody TaskAuditMpt taskAudit) {
+        logger.info("管理后台用户[{}]审核升级任务[{}]", SecurityUtils.getUsername(), taskId);
+        TaskDo taskDo = taskRepository.getById(taskId).orElseThrow(() -> new TaskNotExistException(taskId));
+        int result = taskDo.audit(taskAudit.getAudit(), taskAudit.getReason());
         taskRepository.save(taskDo);
         return toAjax(result);
     }
