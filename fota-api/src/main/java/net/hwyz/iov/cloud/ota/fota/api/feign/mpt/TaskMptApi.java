@@ -87,6 +87,22 @@ public interface TaskMptApi {
     AjaxResult release(Long taskId);
 
     /**
+     * 暂停升级任务
+     *
+     * @param taskId 升级任务ID
+     * @return 结果
+     */
+    AjaxResult pause(Long taskId);
+
+    /**
+     * 恢复升级任务
+     *
+     * @param taskId 升级任务ID
+     * @return 结果
+     */
+    AjaxResult resume(Long taskId);
+
+    /**
      * 删除升级任务
      *
      * @param taskIds 升级任务ID数组

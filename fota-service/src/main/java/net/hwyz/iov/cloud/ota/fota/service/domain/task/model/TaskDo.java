@@ -212,4 +212,32 @@ public class TaskDo extends BaseDo<Long> implements DomainObj<TaskDo> {
         return 0;
     }
 
+    /**
+     * 暂停任务
+     *
+     * @return 1: 成功，0: 失败
+     */
+    public int pause() {
+        if (this.taskState == TaskState.RELEASED) {
+            this.taskState = TaskState.PAUSED;
+            stateChange();
+            return 1;
+        }
+        return 0;
+    }
+
+    /**
+     * 恢复任务
+     *
+     * @return 1: 成功，0: 失败
+     */
+    public int resume() {
+        if (this.taskState == TaskState.PAUSED) {
+            this.taskState = TaskState.RELEASED;
+            stateChange();
+            return 1;
+        }
+        return 0;
+    }
+
 }

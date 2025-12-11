@@ -204,6 +204,42 @@ public class TaskMptController extends BaseController implements TaskMptApi {
     }
 
     /**
+     * 暂停升级任务
+     *
+     * @param taskId 升级任务ID
+     * @return 结果
+     */
+    @Log(title = "升级任务管理", businessType = BusinessType.UPDATE)
+    @RequiresPermissions("ota:fota:task:pause")
+    @Override
+    @PostMapping("/{taskId}/action/pause")
+    public AjaxResult pause(@PathVariable Long taskId) {
+        logger.info("管理后台用户[{}]暂停升级任务[{}]", SecurityUtils.getUsername(), taskId);
+        TaskDo taskDo = taskRepository.getById(taskId).orElseThrow(() -> new TaskNotExistException(taskId));
+        int result = taskDo.pause();
+        taskRepository.save(taskDo);
+        return toAjax(result);
+    }
+
+    /**
+     * 恢复升级任务
+     *
+     * @param taskId 升级任务ID
+     * @return 结果
+     */
+    @Log(title = "升级任务管理", businessType = BusinessType.UPDATE)
+    @RequiresPermissions("ota:fota:task:resume")
+    @Override
+    @PostMapping("/{taskId}/action/resume")
+    public AjaxResult resume(@PathVariable Long taskId) {
+        logger.info("管理后台用户[{}]恢复升级任务[{}]", SecurityUtils.getUsername(), taskId);
+        TaskDo taskDo = taskRepository.getById(taskId).orElseThrow(() -> new TaskNotExistException(taskId));
+        int result = taskDo.resume();
+        taskRepository.save(taskDo);
+        return toAjax(result);
+    }
+
+    /**
      * 删除升级任务
      *
      * @param taskIds 升级任务ID数组

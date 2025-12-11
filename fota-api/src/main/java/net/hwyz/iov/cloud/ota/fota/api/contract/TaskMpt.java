@@ -60,7 +60,7 @@ public class TaskMpt extends BaseRequest {
     /**
      * 任务发布时间
      */
-    private Date publishTime;
+    private Date releaseTime;
 
     /**
      * 通知类型（多选）：1 手机
