@@ -70,7 +70,7 @@ public class TaskDo extends BaseDo<Long> implements DomainObj<TaskDo> {
     /**
      * 任务发布时间
      */
-    private Date publishTime;
+    private Date releaseTime;
 
     /**
      * 通知类型（多选）：1 手机
@@ -190,6 +190,22 @@ public class TaskDo extends BaseDo<Long> implements DomainObj<TaskDo> {
                 this.taskState = TaskState.REJECTED;
                 this.description = reason;
             }
+            stateChange();
+            return 1;
+        }
+        return 0;
+    }
+
+    /**
+     * 发布任务
+     *
+     * @return 1: 成功，0: 失败
+     */
+    public int release() {
+        if (this.taskState == TaskState.APPROVED) {
+            this.vehicles = Set.of(this.target.split(","));
+            this.releaseTime = new Date();
+            this.taskState = TaskState.RELEASED;
             stateChange();
             return 1;
         }

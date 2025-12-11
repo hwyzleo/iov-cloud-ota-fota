@@ -16,7 +16,7 @@ public enum TaskState {
     SUBMITTED("待审核", 2),
     APPROVED("已审核", 3),
     REJECTED("未通过", 4),
-    PUBLISHED("已发布", 5),
+    RELEASED("已发布", 5),
     SUSPENDED("已暂停", 6),
     FINISHED("已结束", 7),
     CANCELLED("已取消", 8);

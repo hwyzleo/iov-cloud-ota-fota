@@ -186,6 +186,24 @@ public class TaskMptController extends BaseController implements TaskMptApi {
     }
 
     /**
+     * 发布升级任务
+     *
+     * @param taskId 升级任务ID
+     * @return 结果
+     */
+    @Log(title = "升级任务管理", businessType = BusinessType.UPDATE)
+    @RequiresPermissions("ota:fota:task:release")
+    @Override
+    @PostMapping("/{taskId}/action/release")
+    public AjaxResult release(@PathVariable Long taskId) {
+        logger.info("管理后台用户[{}]发布升级任务[{}]", SecurityUtils.getUsername(), taskId);
+        TaskDo taskDo = taskRepository.getById(taskId).orElseThrow(() -> new TaskNotExistException(taskId));
+        int result = taskDo.release();
+        taskRepository.save(taskDo);
+        return toAjax(result);
+    }
+
+    /**
      * 删除升级任务
      *
      * @param taskIds 升级任务ID数组

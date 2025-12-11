@@ -162,7 +162,7 @@ CREATE TABLE `db_fota`.`tb_task`
     `target`           VARCHAR(255) NOT NULL COMMENT '升级对象，普通任务时为文件代码，快速任务时为VIN',
     `start_time`       DATETIME              DEFAULT NULL COMMENT '任务开始时间',
     `end_time`         DATETIME              DEFAULT NULL COMMENT '任务结束时间',
-    `publish_time`     DATETIME              DEFAULT NULL COMMENT '任务发布时间',
+    `release_time`     DATETIME              DEFAULT NULL COMMENT '任务发布时间',
     `notice_type`      VARCHAR(255)          DEFAULT NULL COMMENT '通知类型（多选）：1 手机',
     `upgrade_mode`     SMALLINT              DEFAULT NULL COMMENT '升级模式：1=普通，2=强制，3=预约静默，4=远程静默，5=工厂',
     `upgrade_mode_arg` VARCHAR(255)          DEFAULT NULL COMMENT '升级模式参数',

@@ -19,7 +19,7 @@
         <result column="target" property="target" />
         <result column="start_time" property="startTime" />
         <result column="end_time" property="endTime" />
-        <result column="publish_time" property="publishTime" />
+        <result column="release_time" property="releaseTime" />
         <result column="notice_type" property="noticeType" />
         <result column="upgrade_mode" property="upgradeMode" />
         <result column="upgrade_mode_arg" property="upgradeModeArg" />
@@ -28,18 +28,18 @@
 
     <!-- 通用查询结果列 -->
     <sql id="baseColumnList">
-        id, name, type, phase, activity_id, target, start_time, end_time, publish_time, notice_type, upgrade_mode, upgrade_mode_arg, state, 
+        id, name, type, phase, activity_id, target, start_time, end_time, release_time, notice_type, upgrade_mode, upgrade_mode_arg, state,
         description, create_time, create_by, modify_time, modify_by, row_version, row_valid
     </sql>
 
     <!-- 插入 -->
     <insert id="insertPo" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tb_task (
-            id, name, type, phase, activity_id, target, start_time, end_time, publish_time, notice_type, upgrade_mode, upgrade_mode_arg, state, 
+            id, name, type, phase, activity_id, target, start_time, end_time, release_time, notice_type, upgrade_mode, upgrade_mode_arg, state,
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES (
-            #{id}, #{name}, #{type}, #{phase}, #{activityId}, #{target}, #{startTime}, #{endTime}, #{publishTime}, #{noticeType}, #{upgradeMode}, #{upgradeModeArg}, #{state}, 
+            #{id}, #{name}, #{type}, #{phase}, #{activityId}, #{target}, #{startTime}, #{endTime}, #{releaseTime}, #{noticeType}, #{upgradeMode}, #{upgradeModeArg}, #{state},
             #{description}, now(), #{createBy}, now(), #{modifyBy}, 1, 1
         )
     </insert>
@@ -47,13 +47,13 @@
     <!-- 批量插入 -->
     <insert id="batchInsertPo" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
         INSERT INTO tb_task (
-            id, name, type, phase, activity_id, target, start_time, end_time, publish_time, notice_type, upgrade_mode, upgrade_mode_arg, state, 
+            id, name, type, phase, activity_id, target, start_time, end_time, release_time, notice_type, upgrade_mode, upgrade_mode_arg, state,
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES
         <foreach collection="list" item="item" index="index" separator=",">
         (
-            #{item.id}, #{item.name}, #{item.type}, #{item.phase}, #{item.activityId}, #{item.target}, #{item.startTime}, #{item.endTime}, #{item.publishTime}, #{item.noticeType}, #{item.upgradeMode}, #{item.upgradeModeArg}, #{item.state}, 
+            #{item.id}, #{item.name}, #{item.type}, #{item.phase}, #{item.activityId}, #{item.target}, #{item.startTime}, #{item.endTime}, #{item.releaseTime}, #{item.noticeType}, #{item.upgradeMode}, #{item.upgradeModeArg}, #{item.state},
             #{item.description}, now(), #{item.createBy}, now(), #{item.modifyBy}, 1, 1
         )
         </foreach>
@@ -83,8 +83,8 @@
         <if test="endTime != null">
             t.end_time = #{endTime},
         </if>
-        <if test="publishTime != null">
-            t.publish_time = #{publishTime},
+        <if test="releaseTime != null">
+            t.release_time = #{releaseTime},
         </if>
         <if test="noticeType != null and noticeType != ''">
             t.notice_type = #{noticeType},
@@ -170,8 +170,8 @@
         <if test="endTime != null">
             AND t.end_time = #{endTime}
         </if>
-        <if test="publishTime != null">
-            AND t.publish_time = #{publishTime}
+        <if test="releaseTime != null">
+            AND t.release_time = #{releaseTime}
         </if>
         <if test="noticeType != null and noticeType != ''">
             AND t.notice_type = #{noticeType}

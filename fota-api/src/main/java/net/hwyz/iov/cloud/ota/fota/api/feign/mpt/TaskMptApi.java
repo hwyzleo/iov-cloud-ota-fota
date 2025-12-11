@@ -79,6 +79,14 @@ public interface TaskMptApi {
     AjaxResult audit(Long taskId, TaskAuditMpt taskAudit);
 
     /**
+     * 发布升级任务
+     *
+     * @param taskId 升级任务ID
+     * @return 结果
+     */
+    AjaxResult release(Long taskId);
+
+    /**
      * 删除升级任务
      *
      * @param taskIds 升级任务ID数组

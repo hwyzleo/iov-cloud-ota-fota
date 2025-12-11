@@ -79,8 +79,8 @@ public class TaskPo extends BasePo {
     /**
      * 任务发布时间
      */
-    @TableField("publish_time")
-    private Date publishTime;
+    @TableField("release_time")
+    private Date releaseTime;
 
     /**
      * 通知类型（多选）：1 手机
