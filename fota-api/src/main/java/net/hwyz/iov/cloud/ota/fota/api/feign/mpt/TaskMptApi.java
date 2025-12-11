@@ -103,6 +103,14 @@ public interface TaskMptApi {
     AjaxResult resume(Long taskId);
 
     /**
+     * 取消升级任务
+     *
+     * @param taskId 升级任务ID
+     * @return 结果
+     */
+    AjaxResult cancel(Long taskId);
+
+    /**
      * 删除升级任务
      *
      * @param taskIds 升级任务ID数组

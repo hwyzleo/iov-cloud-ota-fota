@@ -240,4 +240,18 @@ public class TaskDo extends BaseDo<Long> implements DomainObj<TaskDo> {
         return 0;
     }
 
+    /**
+     * 取消任务
+     *
+     * @return 1: 成功，0: 失败
+     */
+    public int cancel() {
+        if (this.taskState == TaskState.RELEASED || this.taskState == TaskState.PAUSED) {
+            this.taskState = TaskState.CANCELLED;
+            stateChange();
+            return 1;
+        }
+        return 0;
+    }
+
 }

@@ -240,6 +240,24 @@ public class TaskMptController extends BaseController implements TaskMptApi {
     }
 
     /**
+     * 取消升级任务
+     *
+     * @param taskId 升级任务ID
+     * @return 结果
+     */
+    @Log(title = "升级任务管理", businessType = BusinessType.UPDATE)
+    @RequiresPermissions("ota:fota:task:cancel")
+    @Override
+    @PostMapping("/{taskId}/action/cancel")
+    public AjaxResult cancel(@PathVariable Long taskId) {
+        logger.info("管理后台用户[{}]取消升级任务[{}]", SecurityUtils.getUsername(), taskId);
+        TaskDo taskDo = taskRepository.getById(taskId).orElseThrow(() -> new TaskNotExistException(taskId));
+        int result = taskDo.cancel();
+        taskRepository.save(taskDo);
+        return toAjax(result);
+    }
+
+    /**
      * 删除升级任务
      *
      * @param taskIds 升级任务ID数组
