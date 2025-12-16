@@ -12,13 +12,17 @@ import net.hwyz.iov.cloud.framework.security.annotation.RequiresPermissions;
 import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
 import net.hwyz.iov.cloud.ota.baseline.api.contract.SoftwarePartVersionExService;
 import net.hwyz.iov.cloud.ota.baseline.api.feign.service.ExSoftwarePartVersionService;
+import net.hwyz.iov.cloud.ota.fota.api.contract.ActivityAuditMpt;
 import net.hwyz.iov.cloud.ota.fota.api.contract.ActivityMpt;
 import net.hwyz.iov.cloud.ota.fota.api.contract.ActivitySoftwarePartVersionMpt;
 import net.hwyz.iov.cloud.ota.fota.api.contract.enums.ActivityState;
 import net.hwyz.iov.cloud.ota.fota.api.feign.mpt.ActivityMptApi;
 import net.hwyz.iov.cloud.ota.fota.service.application.service.ActivityAppService;
+import net.hwyz.iov.cloud.ota.fota.service.domain.activity.model.ActivityDo;
+import net.hwyz.iov.cloud.ota.fota.service.domain.activity.repository.ActivityRepository;
 import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.ActivityMptAssembler;
 import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.ActivitySoftwarePartVersionMptAssembler;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.exception.ActivityNotExistException;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivityPo;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivitySoftwarePartVersionPo;
 import org.springframework.validation.annotation.Validated;
@@ -40,6 +44,7 @@ import java.util.Map;
 public class ActivityMptController extends BaseController implements ActivityMptApi {
 
     private final ActivityAppService activityAppService;
+    private final ActivityRepository activityRepository;
     private final ExSoftwarePartVersionService expSoftwarePartVersionService;
 
     /**
@@ -197,6 +202,86 @@ public class ActivityMptController extends BaseController implements ActivityMpt
                                               @RequestParam Integer[] sorts, @RequestParam Integer[] groups) {
         logger.info("管理后台用户[{}]修改升级活动[{}]关联的软件零件版本[{}]", SecurityUtils.getUsername(), activityId, softwarePartVersionIds);
         return success(activityAppService.modifyActivitySoftwarePartVersion(activityId, softwarePartVersionIds, sorts, groups));
+    }
+
+    /**
+     * 提交升级活动
+     *
+     * @param activityId 升级活动ID
+     * @param activity   升级活动
+     * @return 结果
+     */
+    @Log(title = "升级活动管理", businessType = BusinessType.UPDATE)
+    @RequiresPermissions("ota:fota:activity:submit")
+    @Override
+    @PostMapping("/{activityId}/action/submit")
+    public AjaxResult submit(@PathVariable Long activityId, @Validated @RequestBody ActivityMpt activity) {
+        logger.info("管理后台用户[{}]提交升级活动[{}]", SecurityUtils.getUsername(), activityId);
+        if (activity == null) {
+            activity = ActivityMpt.builder().build();
+        }
+        activity.setId(activityId);
+        ActivityPo activityPo = ActivityMptAssembler.INSTANCE.toPo(activity);
+        activityPo.setModifyBy(SecurityUtils.getUserId().toString());
+        ActivityDo activityDo = activityRepository.getById(activityPo.getId()).orElseThrow(() -> new ActivityNotExistException(activityPo.getId()));
+        int result = activityDo.submit(activityPo);
+        activityRepository.save(activityDo);
+        return toAjax(result);
+    }
+
+    /**
+     * 审核升级活动
+     *
+     * @param activityId    升级活动ID
+     * @param activityAudit 升级活动审核
+     * @return 结果
+     */
+    @Log(title = "升级活动管理", businessType = BusinessType.UPDATE)
+    @RequiresPermissions("ota:fota:activity:audit")
+    @Override
+    @PostMapping("/{activityId}/action/audit")
+    public AjaxResult audit(@PathVariable Long activityId, @Validated @RequestBody ActivityAuditMpt activityAudit) {
+        logger.info("管理后台用户[{}]审核升级活动[{}]", SecurityUtils.getUsername(), activityId);
+        ActivityDo activityDo = activityRepository.getById(activityId).orElseThrow(() -> new ActivityNotExistException(activityId));
+        int result = activityDo.audit(activityAudit.getAudit(), activityAudit.getReason());
+        activityRepository.save(activityDo);
+        return toAjax(result);
+    }
+
+    /**
+     * 发布升级活动
+     *
+     * @param activityId 升级活动ID
+     * @return 结果
+     */
+    @Log(title = "升级活动管理", businessType = BusinessType.UPDATE)
+    @RequiresPermissions("ota:fota:activity:release")
+    @Override
+    @PostMapping("/{activityId}/action/release")
+    public AjaxResult release(@PathVariable Long activityId) {
+        logger.info("管理后台用户[{}]发布升级活动[{}]", SecurityUtils.getUsername(), activityId);
+        ActivityDo activityDo = activityRepository.getById(activityId).orElseThrow(() -> new ActivityNotExistException(activityId));
+        int result = activityDo.release();
+        activityRepository.save(activityDo);
+        return toAjax(result);
+    }
+
+    /**
+     * 取消升级活动
+     *
+     * @param activityId 升级活动ID
+     * @return 结果
+     */
+    @Log(title = "升级活动管理", businessType = BusinessType.UPDATE)
+    @RequiresPermissions("ota:fota:task:cancel")
+    @Override
+    @PostMapping("/{activityId}/action/cancel")
+    public AjaxResult cancel(@PathVariable Long activityId) {
+        logger.info("管理后台用户[{}]取消升级活动[{}]", SecurityUtils.getUsername(), activityId);
+        ActivityDo activityDo = activityRepository.getById(activityId).orElseThrow(() -> new ActivityNotExistException(activityId));
+        int result = activityDo.cancel();
+        activityRepository.save(activityDo);
+        return toAjax(result);
     }
 
     /**

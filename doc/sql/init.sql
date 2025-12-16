@@ -112,7 +112,7 @@ CREATE TABLE `db_fota`.`tb_activity`
     `privacy_agreement_article_id` BIGINT                DEFAULT NULL COMMENT '隐私协议文章ID',
     `start_time`                   DATETIME              DEFAULT NULL COMMENT '活动开始时间',
     `end_time`                     DATETIME              DEFAULT NULL COMMENT '活动结束时间',
-    `publish_time`                 DATETIME              DEFAULT NULL COMMENT '活动发布时间',
+    `release_time`                 DATETIME              DEFAULT NULL COMMENT '活动发布时间',
     `upgrade_purpose`              TEXT                  DEFAULT NULL COMMENT '升级目的',
     `upgrade_function`             TEXT                  DEFAULT NULL COMMENT '升级功能项',
     `statement`                    LONGTEXT              DEFAULT NULL COMMENT '活动说明',
@@ -200,3 +200,28 @@ CREATE TABLE `db_fota`.`tb_task_vehicle`
     INDEX `idx_vin` (`vin`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT '升级任务车辆表';
+
+DROP TABLE IF EXISTS `db_fota`.`tb_veh_status`;
+CREATE TABLE `db_fota`.`tb_veh_status`
+(
+    `id`                 BIGINT      NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `vin`                VARCHAR(20) NOT NULL COMMENT '车架号',
+    `report_time`        TIMESTAMP   NULL     DEFAULT NULL COMMENT '最后上报时间',
+    `baseline_code`      VARCHAR(255)         DEFAULT NULL COMMENT '最后基线代码',
+    `baseline_alignment` TINYINT              DEFAULT NULL COMMENT '最后基线是否对齐',
+    `ecu_info`           TEXT                 DEFAULT NULL COMMENT '最后ECU设备信息',
+    `activity_id`        BIGINT               DEFAULT NULL COMMENT '最后升级活动ID',
+    `task_id`            BIGINT               DEFAULT NULL COMMENT '最后升级任务ID',
+    `config_word`        VARCHAR(2000)        DEFAULT NULL COMMENT '最后升级配置字',
+    `master_version`     VARCHAR(255)         DEFAULT NULL COMMENT '最后OTA Master版本',
+    `description`        VARCHAR(255)         DEFAULT NULL COMMENT '备注',
+    `create_time`        TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `create_by`          VARCHAR(64)          DEFAULT NULL COMMENT '创建者',
+    `modify_time`        TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `modify_by`          VARCHAR(64)          DEFAULT NULL COMMENT '修改者',
+    `row_version`        INT                  DEFAULT 1 COMMENT '记录版本',
+    `row_valid`          TINYINT              DEFAULT 1 COMMENT '记录是否有效',
+    PRIMARY KEY (`id`) USING BTREE,
+    INDEX `idx_vin` (`vin`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT '车辆状态表';

@@ -3,6 +3,7 @@ package net.hwyz.iov.cloud.ota.fota.api.feign.mpt;
 import jakarta.servlet.http.HttpServletResponse;
 import net.hwyz.iov.cloud.framework.common.web.domain.AjaxResult;
 import net.hwyz.iov.cloud.framework.common.web.page.TableDataInfo;
+import net.hwyz.iov.cloud.ota.fota.api.contract.ActivityAuditMpt;
 import net.hwyz.iov.cloud.ota.fota.api.contract.ActivityMpt;
 
 /**
@@ -86,6 +87,40 @@ public interface ActivityMptApi {
      * @return 结果
      */
     AjaxResult editSoftwarePartVersion(Long activityId, Long[] softwarePartVersionIds, Integer[] sorts, Integer[] groups);
+
+    /**
+     * 提交升级活动
+     *
+     * @param activityId 升级活动ID
+     * @param activity   升级活动
+     * @return 结果
+     */
+    AjaxResult submit(Long activityId, ActivityMpt activity);
+
+    /**
+     * 审核升级活动
+     *
+     * @param activityId    升级活动ID
+     * @param activityAudit 升级活动审核
+     * @return 结果
+     */
+    AjaxResult audit(Long activityId, ActivityAuditMpt activityAudit);
+
+    /**
+     * 发布升级活动
+     *
+     * @param activityId 升级活动ID
+     * @return 结果
+     */
+    AjaxResult release(Long activityId);
+
+    /**
+     * 取消升级活动
+     *
+     * @param activityId 升级活动ID
+     * @return 结果
+     */
+    AjaxResult cancel(Long activityId);
 
     /**
      * 删除升级活动

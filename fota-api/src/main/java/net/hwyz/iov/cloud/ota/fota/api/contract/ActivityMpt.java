@@ -60,7 +60,7 @@ public class ActivityMpt extends BaseRequest {
     /**
      * 活动发布时间
      */
-    private Date publishTime;
+    private Date releaseTime;
 
     /**
      * 升级目的

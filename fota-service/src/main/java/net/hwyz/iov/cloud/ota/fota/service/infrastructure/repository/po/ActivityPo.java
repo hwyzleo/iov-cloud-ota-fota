@@ -79,8 +79,8 @@ public class ActivityPo extends BasePo {
     /**
      * 活动发布时间
      */
-    @TableField("publish_time")
-    private Date publishTime;
+    @TableField("release_time")
+    private Date releaseTime;
 
     /**
      * 升级目的
