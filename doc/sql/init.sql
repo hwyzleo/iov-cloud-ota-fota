@@ -265,3 +265,40 @@ CREATE TABLE `db_fota`.`tb_fixed_config_word_detail`
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT '固定配置字明细表';
+
+DROP TABLE IF EXISTS `db_fota`.`tb_activity_fixed_config_word`;
+CREATE TABLE `db_fota`.`tb_activity_fixed_config_word`
+(
+    `id`                   BIGINT    NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `activity_id`          BIGINT    NOT NULL COMMENT '升级活动ID',
+    `fixed_config_word_id` BIGINT    NOT NULL COMMENT '固定配置字ID',
+    `description`          VARCHAR(255)       DEFAULT NULL COMMENT '备注',
+    `create_time`          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `create_by`            VARCHAR(64)        DEFAULT NULL COMMENT '创建者',
+    `modify_time`          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `modify_by`            VARCHAR(64)        DEFAULT NULL COMMENT '修改者',
+    `row_version`          INT                DEFAULT 1 COMMENT '记录版本',
+    `row_valid`            TINYINT            DEFAULT 1 COMMENT '记录是否有效',
+    PRIMARY KEY (`id`) USING BTREE,
+    INDEX `idx_activity` (`activity_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT '升级活动固定配置字表';
+
+DROP TABLE IF EXISTS `db_fota`.`tb_compatible_software_pn`;
+CREATE TABLE `db_fota`.`tb_compatible_software_pn`
+(
+    `id`                     BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `ecu`                    VARCHAR(20)  NOT NULL COMMENT '零部件ECU',
+    `software_pn`            VARCHAR(50)  NOT NULL COMMENT '软件零件号',
+    `compatible_software_pn` VARCHAR(255) NOT NULL COMMENT '兼容软件零件号',
+    `type`                   SMALLINT              DEFAULT NULL COMMENT '分类',
+    `description`            VARCHAR(255)          DEFAULT NULL COMMENT '备注',
+    `create_time`            TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `create_by`              VARCHAR(64)           DEFAULT NULL COMMENT '创建者',
+    `modify_time`            TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `modify_by`              VARCHAR(64)           DEFAULT NULL COMMENT '修改者',
+    `row_version`            INT                   DEFAULT 1 COMMENT '记录版本',
+    `row_valid`              TINYINT               DEFAULT 1 COMMENT '记录是否有效',
+    PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT '兼容软件零件号表';
