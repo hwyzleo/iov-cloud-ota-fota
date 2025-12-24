@@ -6,7 +6,7 @@ import net.hwyz.iov.cloud.framework.common.web.domain.BaseRequest;
 import java.util.Date;
 
 /**
- * 管理后台固定配置字明细
+ * 管理后台配置字
  *
  * @author hwyz_leo
  */
@@ -15,7 +15,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class FixedConfigWordDetailMpt extends BaseRequest {
+public class ConfigWordMpt extends BaseRequest {
 
     /**
      * 主键
@@ -26,6 +26,21 @@ public class FixedConfigWordDetailMpt extends BaseRequest {
      * 固定配置字ID
      */
     private Long fixedConfigWordId;
+
+    /**
+     * 零部件ECU
+     */
+    private String ecu;
+
+    /**
+     * 软件零件号
+     */
+    private String softwarePn;
+
+    /**
+     * 软件零件版本
+     */
+    private String softwarePartVer;
 
     /**
      * 配置字版本

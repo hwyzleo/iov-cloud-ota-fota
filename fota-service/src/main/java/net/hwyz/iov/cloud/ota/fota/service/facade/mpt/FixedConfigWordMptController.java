@@ -10,13 +10,13 @@ import net.hwyz.iov.cloud.framework.common.web.domain.AjaxResult;
 import net.hwyz.iov.cloud.framework.common.web.page.TableDataInfo;
 import net.hwyz.iov.cloud.framework.security.annotation.RequiresPermissions;
 import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
-import net.hwyz.iov.cloud.ota.fota.api.contract.FixedConfigWordDetailMpt;
+import net.hwyz.iov.cloud.ota.fota.api.contract.ConfigWordMpt;
 import net.hwyz.iov.cloud.ota.fota.api.contract.FixedConfigWordMpt;
 import net.hwyz.iov.cloud.ota.fota.api.feign.mpt.FixedConfigWordMptApi;
 import net.hwyz.iov.cloud.ota.fota.service.application.service.FixedConfigWordAppService;
-import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.FixedConfigWordDetailMptAssembler;
+import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.ConfigWordMptAssembler;
 import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.FixedConfigWordMptAssembler;
-import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.FixedConfigWordDetailPo;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ConfigWordPo;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.FixedConfigWordPo;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -55,18 +55,18 @@ public class FixedConfigWordMptController extends BaseController implements Fixe
     }
 
     /**
-     * 列出固定配置字明细列表
+     * 列出配置字列表
      *
      * @param fixedConfigWordId 固定配置字ID
-     * @return 固定配置字明细列表
+     * @return 配置字列表
      */
     @RequiresPermissions("ota:fota:fixedConfigWord:query")
     @Override
-    @GetMapping(value = "/{fixedConfigWordId}/detail")
-    public AjaxResult listDetail(@PathVariable Long fixedConfigWordId) {
-        logger.info("管理后台用户[{}]列出固定配置字[{}]明细列表", SecurityUtils.getUsername(), fixedConfigWordId);
-        List<FixedConfigWordDetailPo> fixedConfigWordDetailPoList = fixedConfigWordAppService.listDetailByFixedConfigWordId(fixedConfigWordId);
-        return success(FixedConfigWordDetailMptAssembler.INSTANCE.fromPoList(fixedConfigWordDetailPoList));
+    @GetMapping(value = "/{fixedConfigWordId}/configWord")
+    public AjaxResult listConfigWord(@PathVariable Long fixedConfigWordId) {
+        logger.info("管理后台用户[{}]列出固定配置字[{}]下配置字列表", SecurityUtils.getUsername(), fixedConfigWordId);
+        List<ConfigWordPo> configWordPoList = fixedConfigWordAppService.listConfigWordByFixedConfigWordId(fixedConfigWordId);
+        return success(ConfigWordMptAssembler.INSTANCE.fromPoList(configWordPoList));
     }
 
     /**
@@ -99,19 +99,19 @@ public class FixedConfigWordMptController extends BaseController implements Fixe
     }
 
     /**
-     * 根据固定配置字明细ID获取固定配置字明细
+     * 根据配置字ID获取配置字
      *
-     * @param fixedConfigWordId       固定配置字ID
-     * @param fixedConfigWordDetailId 固定配置字明细ID
-     * @return 固定配置字明细
+     * @param fixedConfigWordId 固定配置字ID
+     * @param configWordId      配置字ID
+     * @return 配置字
      */
     @RequiresPermissions("ota:fota:fixedConfigWord:query")
     @Override
-    @GetMapping(value = "/{fixedConfigWordId}/detail/{fixedConfigWordDetailId}")
-    public AjaxResult getDetailInfo(@PathVariable Long fixedConfigWordId, @PathVariable Long fixedConfigWordDetailId) {
-        logger.info("管理后台用户[{}]根据固定配置字明细ID[{}]获取固定配置字明细", SecurityUtils.getUsername(), fixedConfigWordDetailId);
-        FixedConfigWordDetailPo fixedConfigWordDetailPo = fixedConfigWordAppService.getFixedConfigWordDetailById(fixedConfigWordDetailId);
-        return success(FixedConfigWordDetailMptAssembler.INSTANCE.fromPo(fixedConfigWordDetailPo));
+    @GetMapping(value = "/{fixedConfigWordId}/configWord/{configWordId}")
+    public AjaxResult getConfigWordInfo(@PathVariable Long fixedConfigWordId, @PathVariable Long configWordId) {
+        logger.info("管理后台用户[{}]根据配置字ID[{}]获取配置字", SecurityUtils.getUsername(), configWordId);
+        ConfigWordPo configWordPo = fixedConfigWordAppService.getConfigWordById(configWordId);
+        return success(ConfigWordMptAssembler.INSTANCE.fromPo(configWordPo));
     }
 
     /**
@@ -132,21 +132,21 @@ public class FixedConfigWordMptController extends BaseController implements Fixe
     }
 
     /**
-     * 新增固定配置字明细
+     * 新增配置字
      *
-     * @param fixedConfigWordId     固定配置字ID
-     * @param fixedConfigWordDetail 固定配置字明细
+     * @param fixedConfigWordId 固定配置字ID
+     * @param configWord        配置字
      * @return 结果
      */
     @Log(title = "固定配置字管理", businessType = BusinessType.UPDATE)
     @RequiresPermissions("ota:fota:fixedConfigWord:edit")
     @Override
-    @PostMapping("/{fixedConfigWordId}/detail")
-    public AjaxResult addDetail(@PathVariable Long fixedConfigWordId, @Validated @RequestBody FixedConfigWordDetailMpt fixedConfigWordDetail) {
-        logger.info("管理后台用户[{}]新增固定配置字[{}]明细", SecurityUtils.getUsername(), fixedConfigWordId);
-        FixedConfigWordDetailPo fixedConfigWordDetailPo = FixedConfigWordDetailMptAssembler.INSTANCE.toPo(fixedConfigWordDetail);
-        fixedConfigWordDetailPo.setCreateBy(SecurityUtils.getUserId().toString());
-        return toAjax(fixedConfigWordAppService.createFixedConfigWordDetail(fixedConfigWordDetailPo));
+    @PostMapping("/{fixedConfigWordId}/configWord")
+    public AjaxResult addConfigWord(@PathVariable Long fixedConfigWordId, @Validated @RequestBody ConfigWordMpt configWord) {
+        logger.info("管理后台用户[{}]新增固定配置字[{}]配置字", SecurityUtils.getUsername(), fixedConfigWordId);
+        ConfigWordPo configWordPo = ConfigWordMptAssembler.INSTANCE.toPo(configWord);
+        configWordPo.setCreateBy(SecurityUtils.getUserId().toString());
+        return toAjax(fixedConfigWordAppService.createConfigWord(configWordPo));
     }
 
     /**
@@ -167,21 +167,21 @@ public class FixedConfigWordMptController extends BaseController implements Fixe
     }
 
     /**
-     * 修改保存固定配置字明细
+     * 修改保存配置字
      *
-     * @param fixedConfigWordId     固定配置字ID
-     * @param fixedConfigWordDetail 固定配置字明细
+     * @param fixedConfigWordId 固定配置字ID
+     * @param configWord        配置字
      * @return 结果
      */
     @Log(title = "固定配置字管理", businessType = BusinessType.UPDATE)
     @RequiresPermissions("ota:fota:fixedConfigWord:edit")
     @Override
-    @PutMapping("/{fixedConfigWordId}/detail")
-    public AjaxResult editDetail(@PathVariable Long fixedConfigWordId, @Validated @RequestBody FixedConfigWordDetailMpt fixedConfigWordDetail) {
-        logger.info("管理后台用户[{}]修改保存固定配置字[{}]明细", SecurityUtils.getUsername(), fixedConfigWordId);
-        FixedConfigWordDetailPo fixedConfigWordDetailPo = FixedConfigWordDetailMptAssembler.INSTANCE.toPo(fixedConfigWordDetail);
-        fixedConfigWordDetailPo.setModifyBy(SecurityUtils.getUserId().toString());
-        return toAjax(fixedConfigWordAppService.modifyFixedConfigWordDetail(fixedConfigWordDetailPo));
+    @PutMapping("/{fixedConfigWordId}/configWord")
+    public AjaxResult editConfigWord(@PathVariable Long fixedConfigWordId, @Validated @RequestBody ConfigWordMpt configWord) {
+        logger.info("管理后台用户[{}]修改保存固定配置字[{}]配置字", SecurityUtils.getUsername(), fixedConfigWordId);
+        ConfigWordPo configWordPo = ConfigWordMptAssembler.INSTANCE.toPo(configWord);
+        configWordPo.setModifyBy(SecurityUtils.getUserId().toString());
+        return toAjax(fixedConfigWordAppService.modifyConfigWord(configWordPo));
     }
 
     /**
@@ -200,18 +200,18 @@ public class FixedConfigWordMptController extends BaseController implements Fixe
     }
 
     /**
-     * 删除固定配置字明细
+     * 删除配置字
      *
-     * @param fixedConfigWordId        固定配置字ID
-     * @param fixedConfigWordDetailIds 固定配置字明细ID数组
+     * @param fixedConfigWordId 固定配置字ID
+     * @param configWordIds     配置字ID数组
      * @return 结果
      */
     @Log(title = "固定配置字管理", businessType = BusinessType.UPDATE)
     @RequiresPermissions("ota:fota:fixedConfigWord:edit")
     @Override
-    @DeleteMapping("/{fixedConfigWordId}/detail/{fixedConfigWordDetailIds}")
-    public AjaxResult removeDetail(@PathVariable Long fixedConfigWordId, @PathVariable Long[] fixedConfigWordDetailIds) {
-        logger.info("管理后台用户[{}]删除固定配置字[{}]明细[{}]", SecurityUtils.getUsername(), fixedConfigWordId, fixedConfigWordDetailIds);
-        return toAjax(fixedConfigWordAppService.deleteFixedConfigWordDetailByIds(fixedConfigWordDetailIds));
+    @DeleteMapping("/{fixedConfigWordId}/configWord/{configWordIds}")
+    public AjaxResult removeConfigWord(@PathVariable Long fixedConfigWordId, @PathVariable Long[] configWordIds) {
+        logger.info("管理后台用户[{}]删除固定配置字[{}]配置字[{}]", SecurityUtils.getUsername(), fixedConfigWordId, configWordIds);
+        return toAjax(fixedConfigWordAppService.deleteConfigWordByIds(configWordIds));
     }
 }

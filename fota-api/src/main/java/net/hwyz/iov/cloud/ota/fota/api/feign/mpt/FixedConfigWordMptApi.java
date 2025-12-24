@@ -3,7 +3,7 @@ package net.hwyz.iov.cloud.ota.fota.api.feign.mpt;
 import jakarta.servlet.http.HttpServletResponse;
 import net.hwyz.iov.cloud.framework.common.web.domain.AjaxResult;
 import net.hwyz.iov.cloud.framework.common.web.page.TableDataInfo;
-import net.hwyz.iov.cloud.ota.fota.api.contract.FixedConfigWordDetailMpt;
+import net.hwyz.iov.cloud.ota.fota.api.contract.ConfigWordMpt;
 import net.hwyz.iov.cloud.ota.fota.api.contract.FixedConfigWordMpt;
 
 /**
@@ -22,12 +22,12 @@ public interface FixedConfigWordMptApi {
     TableDataInfo list(FixedConfigWordMpt fixedConfigWord);
 
     /**
-     * 列出固定配置字明细列表
+     * 列出配置字列表
      *
      * @param fixedConfigWordId 固定配置字ID
-     * @return 固定配置字明细列表
+     * @return 配置字列表
      */
-    AjaxResult listDetail(Long fixedConfigWordId);
+    AjaxResult listConfigWord(Long fixedConfigWordId);
 
     /**
      * 导出固定配置字
@@ -46,13 +46,13 @@ public interface FixedConfigWordMptApi {
     AjaxResult getInfo(Long fixedConfigWordId);
 
     /**
-     * 根据固定配置字明细ID获取固定配置字明细
+     * 根据配置字ID获取配置字
      *
-     * @param fixedConfigWordId       固定配置字ID
-     * @param fixedConfigWordDetailId 固定配置字明细ID
-     * @return 固定配置字明细
+     * @param fixedConfigWordId 固定配置字ID
+     * @param configWordId      配置字ID
+     * @return 配置字
      */
-    AjaxResult getDetailInfo(Long fixedConfigWordId, Long fixedConfigWordDetailId);
+    AjaxResult getConfigWordInfo(Long fixedConfigWordId, Long configWordId);
 
     /**
      * 新增固定配置字
@@ -63,13 +63,13 @@ public interface FixedConfigWordMptApi {
     AjaxResult add(FixedConfigWordMpt fixedConfigWord);
 
     /**
-     * 新增固定配置字明细
+     * 新增配置字
      *
-     * @param fixedConfigWordId     固定配置字ID
-     * @param fixedConfigWordDetail 固定配置字明细
+     * @param fixedConfigWordId 固定配置字ID
+     * @param configWord        配置字
      * @return 结果
      */
-    AjaxResult addDetail(Long fixedConfigWordId, FixedConfigWordDetailMpt fixedConfigWordDetail);
+    AjaxResult addConfigWord(Long fixedConfigWordId, ConfigWordMpt configWord);
 
     /**
      * 修改保存固定配置字
@@ -80,13 +80,13 @@ public interface FixedConfigWordMptApi {
     AjaxResult edit(FixedConfigWordMpt fixedConfigWord);
 
     /**
-     * 修改保存固定配置字明细
+     * 修改保存配置字
      *
-     * @param fixedConfigWordId     固定配置字ID
-     * @param fixedConfigWordDetail 固定配置字明细
+     * @param fixedConfigWordId 固定配置字ID
+     * @param configWord        配置字
      * @return 结果
      */
-    AjaxResult editDetail(Long fixedConfigWordId, FixedConfigWordDetailMpt fixedConfigWordDetail);
+    AjaxResult editConfigWord(Long fixedConfigWordId, ConfigWordMpt configWord);
 
     /**
      * 删除固定配置字
@@ -97,12 +97,12 @@ public interface FixedConfigWordMptApi {
     AjaxResult remove(Long[] fixedConfigWordIds);
 
     /**
-     * 删除固定配置字明细
+     * 删除配置字
      *
-     * @param fixedConfigWordId        固定配置字ID
-     * @param fixedConfigWordDetailIds 固定配置字明细ID数组
+     * @param fixedConfigWordId 固定配置字ID
+     * @param configWordIds     配置字ID数组
      * @return 结果
      */
-    AjaxResult removeDetail(Long fixedConfigWordId, Long[] fixedConfigWordDetailIds);
+    AjaxResult removeConfigWord(Long fixedConfigWordId, Long[] configWordIds);
 
 }

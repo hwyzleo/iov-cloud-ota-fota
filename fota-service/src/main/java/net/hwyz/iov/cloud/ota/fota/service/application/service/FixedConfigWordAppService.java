@@ -2,9 +2,9 @@ package net.hwyz.iov.cloud.ota.fota.service.application.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.dao.ConfigWordDao;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.dao.FixedConfigWordDao;
-import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.dao.FixedConfigWordDetailDao;
-import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.FixedConfigWordDetailPo;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ConfigWordPo;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.FixedConfigWordPo;
 import org.springframework.stereotype.Service;
 
@@ -23,8 +23,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class FixedConfigWordAppService {
 
+    private final ConfigWordDao configWordDao;
     private final FixedConfigWordDao fixedConfigWordDao;
-    private final FixedConfigWordDetailDao fixedConfigWordDetailDao;
 
     /**
      * 查询固定配置字
@@ -55,25 +55,25 @@ public class FixedConfigWordAppService {
     }
 
     /**
-     * 根据主键ID获取固定配置字明细
+     * 根据主键ID获取配置字
      *
      * @param id 主键ID
-     * @return 固定配置字明细
+     * @return 配置字
      */
-    public FixedConfigWordDetailPo getFixedConfigWordDetailById(Long id) {
-        return fixedConfigWordDetailDao.selectPoById(id);
+    public ConfigWordPo getConfigWordById(Long id) {
+        return configWordDao.selectPoById(id);
     }
 
     /**
-     * 根据主键ID获取固定配置字明细
+     * 根据主键ID获取配置字列表
      *
      * @param fixedConfigWordId 固定配置字ID
-     * @return 固定配置字明细列表
+     * @return 配置字列表
      */
-    public List<FixedConfigWordDetailPo> listDetailByFixedConfigWordId(Long fixedConfigWordId) {
+    public List<ConfigWordPo> listConfigWordByFixedConfigWordId(Long fixedConfigWordId) {
         Map<String, Object> map = new HashMap<>();
         map.put("fixedConfigWordId", fixedConfigWordId);
-        return fixedConfigWordDetailDao.selectPoByMap(map);
+        return configWordDao.selectPoByMap(map);
     }
 
     /**
@@ -87,13 +87,13 @@ public class FixedConfigWordAppService {
     }
 
     /**
-     * 新增固定配置字明细
+     * 新增配置字
      *
-     * @param fixedConfigWordDetailPo 固定配置字明细
+     * @param configWordPo 配置字
      * @return 结果
      */
-    public int createFixedConfigWordDetail(FixedConfigWordDetailPo fixedConfigWordDetailPo) {
-        return fixedConfigWordDetailDao.insertPo(fixedConfigWordDetailPo);
+    public int createConfigWord(ConfigWordPo configWordPo) {
+        return configWordDao.insertPo(configWordPo);
     }
 
     /**
@@ -107,13 +107,13 @@ public class FixedConfigWordAppService {
     }
 
     /**
-     * 修改固定配置字明细
+     * 修改配置字
      *
-     * @param fixedConfigWordDetailPo 固定配置字明细
+     * @param configWordPo 配置字
      * @return 结果
      */
-    public int modifyFixedConfigWordDetail(FixedConfigWordDetailPo fixedConfigWordDetailPo) {
-        return fixedConfigWordDetailDao.updatePo(fixedConfigWordDetailPo);
+    public int modifyConfigWord(ConfigWordPo configWordPo) {
+        return configWordDao.updatePo(configWordPo);
     }
 
     /**
@@ -132,8 +132,8 @@ public class FixedConfigWordAppService {
      * @param ids 固定配置字ID数组
      * @return 结果
      */
-    public int deleteFixedConfigWordDetailByIds(Long[] ids) {
-        return fixedConfigWordDetailDao.batchPhysicalDeletePo(ids);
+    public int deleteConfigWordByIds(Long[] ids) {
+        return configWordDao.batchPhysicalDeletePo(ids);
     }
 
 }

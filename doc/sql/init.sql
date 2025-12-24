@@ -139,6 +139,7 @@ CREATE TABLE `db_fota`.`tb_activity_software_part_version`
     `software_part_version_id` BIGINT    NOT NULL COMMENT '软件零件版本ID',
     `sort`                     SMALLINT  NOT NULL COMMENT '排序',
     `version_group`            SMALLINT  NOT NULL COMMENT '软件版本组',
+    `force_upgrade`            TINYINT            DEFAULT 0 COMMENT '是否强制升级',
     `description`              VARCHAR(255)       DEFAULT NULL COMMENT '备注',
     `create_time`              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `create_by`                VARCHAR(64)        DEFAULT NULL COMMENT '创建者',
@@ -244,27 +245,30 @@ CREATE TABLE `db_fota`.`tb_fixed_config_word`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT '固定配置字表';
 
-DROP TABLE IF EXISTS `db_fota`.`tb_fixed_config_word_detail`;
-CREATE TABLE `db_fota`.`tb_fixed_config_word_detail`
+DROP TABLE IF EXISTS `db_fota`.`tb_config_word`;
+CREATE TABLE `db_fota`.`tb_config_word`
 (
-    `id`                     BIGINT    NOT NULL AUTO_INCREMENT COMMENT '主键',
-    `fixed_config_word_id`   BIGINT    NOT NULL COMMENT '固定配置字ID',
-    `config_word_version`    VARCHAR(255)       DEFAULT NULL COMMENT '配置字版本',
-    `start_byte`             SMALLINT  NOT NULL COMMENT '起始byte',
-    `start_bit`              SMALLINT  NOT NULL COMMENT '起始bit',
-    `config_word_value`      VARCHAR(255)       DEFAULT NULL COMMENT '配置字值',
-    `depend_ecu`             VARCHAR(20)        DEFAULT NULL COMMENT '依赖零部件ECU',
-    `depend_ecu_software_pn` VARCHAR(50)        DEFAULT NULL COMMENT '依赖ECU软件零件号',
-    `description`            VARCHAR(255)       DEFAULT NULL COMMENT '备注',
-    `create_time`            TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `create_by`              VARCHAR(64)        DEFAULT NULL COMMENT '创建者',
-    `modify_time`            TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-    `modify_by`              VARCHAR(64)        DEFAULT NULL COMMENT '修改者',
-    `row_version`            INT                DEFAULT 1 COMMENT '记录版本',
-    `row_valid`              TINYINT            DEFAULT 1 COMMENT '记录是否有效',
+    `id`                     BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `fixed_config_word_id`   BIGINT                DEFAULT NULL COMMENT '固定配置字ID',
+    `ecu`                    VARCHAR(20)  NOT NULL COMMENT '零部件ECU',
+    `software_pn`            VARCHAR(50)  NOT NULL COMMENT '软件零件号',
+    `software_part_ver`      VARCHAR(255)          DEFAULT NULL COMMENT '软件零件版本',
+    `config_word_version`    VARCHAR(255)          DEFAULT NULL COMMENT '配置字版本',
+    `start_byte`             SMALLINT     NOT NULL COMMENT '起始byte',
+    `start_bit`              SMALLINT     NOT NULL COMMENT '起始bit',
+    `config_word_value`      VARCHAR(255) NOT NULL COMMENT '配置字值',
+    `depend_ecu`             VARCHAR(20)           DEFAULT NULL COMMENT '依赖零部件ECU',
+    `depend_ecu_software_pn` VARCHAR(50)           DEFAULT NULL COMMENT '依赖ECU软件零件号',
+    `description`            VARCHAR(255)          DEFAULT NULL COMMENT '备注',
+    `create_time`            TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `create_by`              VARCHAR(64)           DEFAULT NULL COMMENT '创建者',
+    `modify_time`            TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `modify_by`              VARCHAR(64)           DEFAULT NULL COMMENT '修改者',
+    `row_version`            INT                   DEFAULT 1 COMMENT '记录版本',
+    `row_valid`              TINYINT               DEFAULT 1 COMMENT '记录是否有效',
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT '固定配置字明细表';
+  DEFAULT CHARSET = utf8mb4 COMMENT '配置字表';
 
 DROP TABLE IF EXISTS `db_fota`.`tb_activity_fixed_config_word`;
 CREATE TABLE `db_fota`.`tb_activity_fixed_config_word`
