@@ -227,49 +227,6 @@ CREATE TABLE `db_fota`.`tb_veh_status`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT '车辆状态表';
 
-DROP TABLE IF EXISTS `db_fota`.`tb_fixed_config_word`;
-CREATE TABLE `db_fota`.`tb_fixed_config_word`
-(
-    `id`          BIGINT      NOT NULL AUTO_INCREMENT COMMENT '主键',
-    `ecu`         VARCHAR(20) NOT NULL COMMENT '零部件ECU',
-    `software_pn` VARCHAR(50) NOT NULL COMMENT '软件零件号',
-    `type`        SMALLINT             DEFAULT NULL COMMENT '分类',
-    `description` VARCHAR(255)         DEFAULT NULL COMMENT '备注',
-    `create_time` TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `create_by`   VARCHAR(64)          DEFAULT NULL COMMENT '创建者',
-    `modify_time` TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-    `modify_by`   VARCHAR(64)          DEFAULT NULL COMMENT '修改者',
-    `row_version` INT                  DEFAULT 1 COMMENT '记录版本',
-    `row_valid`   TINYINT              DEFAULT 1 COMMENT '记录是否有效',
-    PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT '固定配置字表';
-
-DROP TABLE IF EXISTS `db_fota`.`tb_config_word`;
-CREATE TABLE `db_fota`.`tb_config_word`
-(
-    `id`                     BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键',
-    `fixed_config_word_id`   BIGINT                DEFAULT NULL COMMENT '固定配置字ID',
-    `ecu`                    VARCHAR(20)  NOT NULL COMMENT '零部件ECU',
-    `software_pn`            VARCHAR(50)  NOT NULL COMMENT '软件零件号',
-    `software_part_ver`      VARCHAR(255)          DEFAULT NULL COMMENT '软件零件版本',
-    `config_word_version`    VARCHAR(255)          DEFAULT NULL COMMENT '配置字版本',
-    `start_byte`             SMALLINT     NOT NULL COMMENT '起始byte',
-    `start_bit`              SMALLINT     NOT NULL COMMENT '起始bit',
-    `config_word_value`      VARCHAR(255) NOT NULL COMMENT '配置字值',
-    `depend_ecu`             VARCHAR(20)           DEFAULT NULL COMMENT '依赖零部件ECU',
-    `depend_ecu_software_pn` VARCHAR(50)           DEFAULT NULL COMMENT '依赖ECU软件零件号',
-    `description`            VARCHAR(255)          DEFAULT NULL COMMENT '备注',
-    `create_time`            TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `create_by`              VARCHAR(64)           DEFAULT NULL COMMENT '创建者',
-    `modify_time`            TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-    `modify_by`              VARCHAR(64)           DEFAULT NULL COMMENT '修改者',
-    `row_version`            INT                   DEFAULT 1 COMMENT '记录版本',
-    `row_valid`              TINYINT               DEFAULT 1 COMMENT '记录是否有效',
-    PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT '配置字表';
-
 DROP TABLE IF EXISTS `db_fota`.`tb_activity_fixed_config_word`;
 CREATE TABLE `db_fota`.`tb_activity_fixed_config_word`
 (
@@ -306,3 +263,22 @@ CREATE TABLE `db_fota`.`tb_compatible_software_pn`
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT '兼容软件零件号表';
+
+DROP TABLE IF EXISTS `db_fota`.`tb_task_restriction`;
+CREATE TABLE `db_fota`.`tb_task_restriction`
+(
+    `id`                     BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `task_id`                BIGINT       NOT NULL COMMENT '升级任务ID',
+    `restriction_type`       VARCHAR(255) NOT NULL COMMENT '限制条件类型',
+    `restriction_expression` VARCHAR(255) NOT NULL COMMENT '限制条件表达式',
+    `description`            VARCHAR(255)          DEFAULT NULL COMMENT '备注',
+    `create_time`            TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `create_by`              VARCHAR(64)           DEFAULT NULL COMMENT '创建者',
+    `modify_time`            TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `modify_by`              VARCHAR(64)           DEFAULT NULL COMMENT '修改者',
+    `row_version`            INT                   DEFAULT 1 COMMENT '记录版本',
+    `row_valid`              TINYINT               DEFAULT 1 COMMENT '记录是否有效',
+    PRIMARY KEY (`id`) USING BTREE,
+    INDEX `idx_task` (`task_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT '升级任务限制条件表';
