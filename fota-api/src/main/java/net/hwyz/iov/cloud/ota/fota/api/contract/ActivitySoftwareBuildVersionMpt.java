@@ -6,7 +6,7 @@ import net.hwyz.iov.cloud.framework.common.web.domain.BaseRequest;
 import java.util.Date;
 
 /**
- * 管理后台升级活动下软件零件版本信息
+ * 管理后台升级活动下软件内部版本信息
  *
  * @author hwyz_leo
  */
@@ -15,7 +15,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class ActivitySoftwarePartVersionMpt extends BaseRequest {
+public class ActivitySoftwareBuildVersionMpt extends BaseRequest {
 
     /**
      * 主键
@@ -28,9 +28,9 @@ public class ActivitySoftwarePartVersionMpt extends BaseRequest {
     private Long activityId;
 
     /**
-     * 软件零件版本ID
+     * 软件内部版本ID
      */
-    private Long softwarePartVersionId;
+    private Long softwareBuildVersionId;
 
     /**
      * ECU编码
@@ -53,6 +53,11 @@ public class ActivitySoftwarePartVersionMpt extends BaseRequest {
     private String softwarePartVer;
 
     /**
+     * 软件内部版本
+     */
+    private String softwareBuildVer;
+
+    /**
      * 软件来源：1-BOM，2-OTA
      */
     private Integer softwareSource;
@@ -66,6 +71,11 @@ public class ActivitySoftwarePartVersionMpt extends BaseRequest {
      * 软件版本组
      */
     private Integer versionGroup;
+
+    /**
+     * 是否强制升级
+     */
+    private Boolean forceUpgrade;
 
     /**
      * 创建时间

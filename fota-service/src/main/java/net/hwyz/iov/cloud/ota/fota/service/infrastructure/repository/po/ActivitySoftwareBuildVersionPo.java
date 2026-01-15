@@ -11,19 +11,19 @@ import lombok.experimental.SuperBuilder;
 
 /**
  * <p>
- * 升级活动软件零件版本关系表 数据对象
+ * 升级活动软件内部版本关系表 数据对象
  * </p>
  *
  * @author hwyz_leo
- * @since 2025-12-09
+ * @since 2026-01-09
  */
 @Getter
 @Setter
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("tb_activity_software_part_version")
-public class ActivitySoftwarePartVersionPo extends BasePo {
+@TableName("tb_activity_software_build_version")
+public class ActivitySoftwareBuildVersionPo extends BasePo {
 
     private static final long serialVersionUID = 1L;
 
@@ -40,10 +40,10 @@ public class ActivitySoftwarePartVersionPo extends BasePo {
     private Long activityId;
 
     /**
-     * 软件零件版本ID
+     * 软件内部版本ID
      */
-    @TableField("software_part_version_id")
-    private Long softwarePartVersionId;
+    @TableField("software_build_version_id")
+    private Long softwareBuildVersionId;
 
     /**
      * 排序
@@ -56,4 +56,10 @@ public class ActivitySoftwarePartVersionPo extends BasePo {
      */
     @TableField("version_group")
     private Integer versionGroup;
+
+    /**
+     * 是否强制升级
+     */
+    @TableField("force_upgrade")
+    private Boolean forceUpgrade;
 }

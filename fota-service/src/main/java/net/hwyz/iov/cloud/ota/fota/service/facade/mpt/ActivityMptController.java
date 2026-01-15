@@ -10,27 +10,30 @@ import net.hwyz.iov.cloud.framework.common.web.domain.AjaxResult;
 import net.hwyz.iov.cloud.framework.common.web.page.TableDataInfo;
 import net.hwyz.iov.cloud.framework.security.annotation.RequiresPermissions;
 import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
-import net.hwyz.iov.cloud.ota.baseline.api.contract.SoftwarePartVersionExService;
-import net.hwyz.iov.cloud.ota.baseline.api.feign.service.ExSoftwarePartVersionService;
+import net.hwyz.iov.cloud.ota.baseline.api.contract.BaselineSoftwareBuildVersionExService;
+import net.hwyz.iov.cloud.ota.baseline.api.contract.SoftwareBuildVersionExService;
+import net.hwyz.iov.cloud.ota.baseline.api.feign.service.ExBaselineService;
+import net.hwyz.iov.cloud.ota.baseline.api.feign.service.ExSoftwareBuildVersionService;
 import net.hwyz.iov.cloud.ota.fota.api.contract.ActivityAuditMpt;
 import net.hwyz.iov.cloud.ota.fota.api.contract.ActivityMpt;
-import net.hwyz.iov.cloud.ota.fota.api.contract.ActivitySoftwarePartVersionMpt;
+import net.hwyz.iov.cloud.ota.fota.api.contract.ActivitySoftwareBuildVersionMpt;
 import net.hwyz.iov.cloud.ota.fota.api.contract.enums.ActivityState;
 import net.hwyz.iov.cloud.ota.fota.api.feign.mpt.ActivityMptApi;
 import net.hwyz.iov.cloud.ota.fota.service.application.service.ActivityAppService;
 import net.hwyz.iov.cloud.ota.fota.service.domain.activity.model.ActivityDo;
 import net.hwyz.iov.cloud.ota.fota.service.domain.activity.repository.ActivityRepository;
 import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.ActivityMptAssembler;
-import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.ActivitySoftwarePartVersionMptAssembler;
+import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.ActivitySoftwareBuildVersionMptAssembler;
+import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.BaselineSoftwareBuildVersionExServiceAssembler;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.cache.CacheService;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.exception.ActivityNotExistException;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivityPo;
-import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivitySoftwarePartVersionPo;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivitySoftwareBuildVersionPo;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 升级活动相关管理接口实现类
@@ -43,9 +46,11 @@ import java.util.Map;
 @RequestMapping(value = "/mpt/activity")
 public class ActivityMptController extends BaseController implements ActivityMptApi {
 
+    private final CacheService cacheService;
+    private final ExBaselineService exBaselineService;
     private final ActivityAppService activityAppService;
     private final ActivityRepository activityRepository;
-    private final ExSoftwarePartVersionService expSoftwarePartVersionService;
+    private final ExSoftwareBuildVersionService exSoftwareBuildVersionService;
 
     /**
      * 分页查询升级活动
@@ -61,7 +66,7 @@ public class ActivityMptController extends BaseController implements ActivityMpt
         startPage();
         List<ActivityPo> activityPoList = activityAppService.search(activity.getName(), getBeginTime(activity), getEndTime(activity));
         List<ActivityMpt> activityMptList = ActivityMptAssembler.INSTANCE.fromPoList(activityPoList);
-        activityMptList.forEach(activityMpt -> activityMpt.setSoftwarePartVersionCount(activityAppService.countActivitySoftwarePartVersion(activityMpt.getId())));
+        activityMptList.forEach(activityMpt -> activityMpt.setSoftwareBuildVersionCount(activityAppService.countActivitySoftwareBuildVersion(activityMpt.getId())));
         return getDataTable(activityPoList, activityMptList);
     }
 
@@ -83,27 +88,41 @@ public class ActivityMptController extends BaseController implements ActivityMpt
     }
 
     /**
-     * 列出升级活动下软件零件版本
+     * 列出升级活动下软件内部版本
      *
      * @param activityId 升级活动ID
-     * @return 软件零件版本列表
+     * @param group      组
+     * @return 软件内部版本列表
      */
     @RequiresPermissions("ota:fota:activity:list")
     @Override
-    @GetMapping(value = "/{activityId}/listSoftwarePartVersion")
-    public AjaxResult listSoftwarePartVersion(@PathVariable Long activityId) {
+    @GetMapping(value = "/{activityId}/listSoftwareBuildVersion")
+    public AjaxResult listSoftwareBuildVersion(@PathVariable Long activityId, @RequestParam(required = false) Integer group) {
         logger.info("管理后台用户[{}]列出升级活动[{}]下软件零件版本", SecurityUtils.getUsername(), activityId);
-        List<ActivitySoftwarePartVersionPo> activitySoftwarePartVersionPoList = activityAppService.listSoftwarePartVersion(activityId);
-        List<ActivitySoftwarePartVersionMpt> activitySoftwarePartVersionMptList = ActivitySoftwarePartVersionMptAssembler.INSTANCE.fromPoList(activitySoftwarePartVersionPoList);
-        for (ActivitySoftwarePartVersionMpt activitySoftwarePartVersionMpt : activitySoftwarePartVersionMptList) {
-            SoftwarePartVersionExService softwarePartVersion = expSoftwarePartVersionService.getInfo(activitySoftwarePartVersionMpt.getSoftwarePartVersionId());
-            activitySoftwarePartVersionMpt.setEcuCode(softwarePartVersion.getEcuCode());
-            activitySoftwarePartVersionMpt.setSoftwarePn(softwarePartVersion.getSoftwarePn());
-            activitySoftwarePartVersionMpt.setSoftwarePartName(softwarePartVersion.getSoftwarePartName());
-            activitySoftwarePartVersionMpt.setSoftwarePartVer(softwarePartVersion.getSoftwarePartVer());
-            activitySoftwarePartVersionMpt.setSoftwareSource(softwarePartVersion.getSoftwareSource());
+        List<ActivitySoftwareBuildVersionPo> poList = activityAppService.listSoftwareBuildVersion(activityId);
+        Set<Integer> groupSet = poList.stream().map(ActivitySoftwareBuildVersionPo::getVersionGroup).collect(Collectors.toSet());
+        if (group == null) {
+            group = groupSet.iterator().next();
         }
-        return success(activitySoftwarePartVersionMptList);
+        List<ActivitySoftwareBuildVersionMpt> mptList = new ArrayList<>();
+        for (ActivitySoftwareBuildVersionPo po : poList) {
+            if (po.getVersionGroup().intValue() == group) {
+                ActivitySoftwareBuildVersionMpt mpt = ActivitySoftwareBuildVersionMptAssembler.INSTANCE.fromPo(po);
+                SoftwareBuildVersionExService softwareBuildVersion = exSoftwareBuildVersionService.getInfo(mpt.getSoftwareBuildVersionId());
+                mpt.setEcuCode(softwareBuildVersion.getEcuCode());
+                mpt.setSoftwarePn(softwareBuildVersion.getSoftwarePn());
+                mpt.setSoftwarePartName(softwareBuildVersion.getSoftwarePartName());
+                mpt.setSoftwarePartVer(softwareBuildVersion.getSoftwarePartVer());
+                mpt.setSoftwareBuildVer(softwareBuildVersion.getSoftwareBuildVer());
+                mpt.setSoftwareSource(softwareBuildVersion.getSoftwareSource());
+                mptList.add(mpt);
+            }
+        }
+        Map<String, Object> map = new HashMap<>();
+        map.put("group", group);
+        map.put("groups", groupSet);
+        map.put("list", mptList);
+        return success(map);
     }
 
     /**
@@ -149,23 +168,28 @@ public class ActivityMptController extends BaseController implements ActivityMpt
         logger.info("管理后台用户[{}]新增升级活动[{}]", SecurityUtils.getUsername(), activity.getName());
         ActivityPo activityPo = ActivityMptAssembler.INSTANCE.toPo(activity);
         activityPo.setCreateBy(SecurityUtils.getUserId().toString());
-        return toAjax(activityAppService.createActivity(activityPo));
+        List<ActivitySoftwareBuildVersionPo> activitySoftwareBuildVersionPoList = null;
+        if (activityPo.getBaseline()) {
+            List<BaselineSoftwareBuildVersionExService> baselineSoftwareBuildVersionList = exBaselineService.listSoftwareBuildVersion(activityPo.getBaselineCode());
+            activitySoftwareBuildVersionPoList = BaselineSoftwareBuildVersionExServiceAssembler.INSTANCE.toPoList(baselineSoftwareBuildVersionList);
+        }
+        return toAjax(activityAppService.createActivity(activityPo, activitySoftwareBuildVersionPoList));
     }
 
     /**
-     * 新增关联的软件零件版本
+     * 新增关联的软件内部版本
      *
-     * @param activityId             升级活动ID
-     * @param softwarePartVersionIds 软件零件版本ID数组
+     * @param activityId              升级活动ID
+     * @param softwareBuildVersionIds 软件内部版本ID数组
      * @return 结果
      */
     @Log(title = "升级活动管理", businessType = BusinessType.UPDATE)
     @RequiresPermissions("ota:fota:activity:edit")
     @Override
-    @PostMapping(value = "/{activityId}/action/addSoftwarePartVersion/{softwarePartVersionIds}")
-    public AjaxResult addSoftwarePartVersion(@PathVariable Long activityId, @PathVariable Long[] softwarePartVersionIds) {
-        logger.info("管理后台用户[{}]新增升级活动[{}]关联的软件零件版本[{}]", SecurityUtils.getUsername(), activityId, softwarePartVersionIds);
-        return toAjax(activityAppService.createActivitySoftwarePartVersion(activityId, softwarePartVersionIds));
+    @PostMapping(value = "/{activityId}/action/addSoftwareBuildVersion/{softwareBuildVersionIds}")
+    public AjaxResult addSoftwareBuildVersion(@PathVariable Long activityId, @PathVariable Long[] softwareBuildVersionIds) {
+        logger.info("管理后台用户[{}]新增升级活动[{}]关联的软件内部版本[{}]", SecurityUtils.getUsername(), activityId, softwareBuildVersionIds);
+        return toAjax(activityAppService.createActivitySoftwareBuildVersion(activityId, softwareBuildVersionIds));
     }
 
     /**
@@ -186,22 +210,22 @@ public class ActivityMptController extends BaseController implements ActivityMpt
     }
 
     /**
-     * 修改关联的软件零件版本
+     * 修改关联的软件内部版本
      *
-     * @param activityId             升级活动ID
-     * @param softwarePartVersionIds 软件零件版本ID数组
-     * @param sorts                  排序数组
-     * @param groups                 组数组
+     * @param activityId              升级活动ID
+     * @param softwareBuildVersionIds 软件内部版本ID数组
+     * @param sorts                   排序数组
+     * @param groups                  组数组
      * @return 结果
      */
     @Log(title = "升级活动管理", businessType = BusinessType.UPDATE)
     @RequiresPermissions("ota:fota:activity:edit")
     @Override
-    @PostMapping(value = "/{activityId}/action/editSoftwarePartVersion/{softwarePartVersionIds}")
-    public AjaxResult editSoftwarePartVersion(@PathVariable Long activityId, @PathVariable Long[] softwarePartVersionIds,
-                                              @RequestParam Integer[] sorts, @RequestParam Integer[] groups) {
-        logger.info("管理后台用户[{}]修改升级活动[{}]关联的软件零件版本[{}]", SecurityUtils.getUsername(), activityId, softwarePartVersionIds);
-        return success(activityAppService.modifyActivitySoftwarePartVersion(activityId, softwarePartVersionIds, sorts, groups));
+    @PostMapping(value = "/{activityId}/action/editSoftwareBuildVersion/{softwareBuildVersionIds}")
+    public AjaxResult editSoftwareBuildVersion(@PathVariable Long activityId, @PathVariable Long[] softwareBuildVersionIds,
+                                               @RequestParam Integer[] sorts, @RequestParam Integer[] groups) {
+        logger.info("管理后台用户[{}]修改升级活动[{}]关联的软件内部版本[{}]", SecurityUtils.getUsername(), activityId, softwareBuildVersionIds);
+        return success(activityAppService.modifyActivitySoftwareBuildVersion(activityId, softwareBuildVersionIds, sorts, groups));
     }
 
     /**
@@ -263,6 +287,7 @@ public class ActivityMptController extends BaseController implements ActivityMpt
         ActivityDo activityDo = activityRepository.getById(activityId).orElseThrow(() -> new ActivityNotExistException(activityId));
         int result = activityDo.release();
         activityRepository.save(activityDo);
+        cacheService.addReleaseActivity(activityDo);
         return toAjax(result);
     }
 
@@ -281,6 +306,7 @@ public class ActivityMptController extends BaseController implements ActivityMpt
         ActivityDo activityDo = activityRepository.getById(activityId).orElseThrow(() -> new ActivityNotExistException(activityId));
         int result = activityDo.cancel();
         activityRepository.save(activityDo);
+        cacheService.removeReleaseActivity(activityDo);
         return toAjax(result);
     }
 
@@ -300,18 +326,50 @@ public class ActivityMptController extends BaseController implements ActivityMpt
     }
 
     /**
-     * 删除关联的软件零件版本
+     * 删除关联的软件内部版本
      *
-     * @param activityId             升级活动ID
-     * @param softwarePartVersionIds 软件零件版本关联ID数组
+     * @param activityId              升级活动ID
+     * @param softwareBuildVersionIds 软件内部版本关联ID数组
      * @return 结果
      */
     @Log(title = "升级活动管理", businessType = BusinessType.UPDATE)
     @RequiresPermissions("ota:fota:activity:edit")
     @Override
-    @PostMapping(value = "/{activityId}/action/removeSoftwarePartVersion/{softwarePartVersionIds}")
-    public AjaxResult removeSoftwarePartVersion(@PathVariable Long activityId, @PathVariable Long[] softwarePartVersionIds) {
-        logger.info("管理后台用户[{}]删除升级活动[{}]关联的软件零件版本[{}]", SecurityUtils.getUsername(), activityId, softwarePartVersionIds);
-        return toAjax(activityAppService.deleteBaselineSoftwarePartVersion(activityId, softwarePartVersionIds));
+    @PostMapping(value = "/{activityId}/action/removeSoftwareBuildVersion/{softwareBuildVersionIds}")
+    public AjaxResult removeSoftwareBuildVersion(@PathVariable Long activityId, @PathVariable Long[] softwareBuildVersionIds) {
+        logger.info("管理后台用户[{}]删除升级活动[{}]关联的软件内部版本[{}]", SecurityUtils.getUsername(), activityId, softwareBuildVersionIds);
+        return toAjax(activityAppService.deleteActivitySoftwareBuildVersion(activityId, softwareBuildVersionIds));
+    }
+
+    /**
+     * 调整关联的软件内部版本组
+     *
+     * @param activityId 升级活动ID
+     * @param list       升级活动软件内部版本列表
+     * @return 结果
+     */
+    @Log(title = "升级活动管理", businessType = BusinessType.UPDATE)
+    @RequiresPermissions("ota:fota:activity:edit")
+    @Override
+    @PostMapping(value = "/{activityId}/action/regroupSoftwareBuildVersion")
+    public AjaxResult regroupSoftwareBuildVersion(@PathVariable Long activityId, @Validated @RequestBody List<ActivitySoftwareBuildVersionMpt> list) {
+        logger.info("管理后台用户[{}]调整基线[{}]关联的软件内部版本组", SecurityUtils.getUsername(), activityId);
+        return toAjax(activityAppService.regroupActivitySoftwareBuildVersion(activityId, list));
+    }
+
+    /**
+     * 重排序关联的软件内部版本
+     *
+     * @param activityId 升级活动ID
+     * @param list       升级活动软件内部版本列表
+     * @return 结果
+     */
+    @Log(title = "升级活动管理", businessType = BusinessType.UPDATE)
+    @RequiresPermissions("ota:fota:activity:edit")
+    @Override
+    @PostMapping(value = "/{activityId}/action/resortSoftwareBuildVersion")
+    public AjaxResult resortSoftwareBuildVersion(@PathVariable Long activityId, @Validated @RequestBody List<ActivitySoftwareBuildVersionMpt> list) {
+        logger.info("管理后台用户[{}]重排序基线[{}]关联的软件内部版本", SecurityUtils.getUsername(), activityId);
+        return toAjax(activityAppService.resortActivitySoftwareBuildVersion(activityId, list));
     }
 }

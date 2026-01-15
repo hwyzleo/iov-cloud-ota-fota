@@ -98,9 +98,9 @@ public class ActivityMpt extends BaseRequest {
     private String baselineCode;
 
     /**
-     * 软件零件版本数量
+     * 软件内部版本数量
      */
-    private Integer softwarePartVersionCount;
+    private Integer softwareBuildVersionCount;
 
     /**
      * 创建时间
