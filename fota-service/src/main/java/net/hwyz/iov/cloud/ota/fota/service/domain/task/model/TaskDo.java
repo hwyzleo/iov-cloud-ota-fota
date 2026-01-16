@@ -8,13 +8,16 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.domain.BaseDo;
 import net.hwyz.iov.cloud.framework.common.domain.DomainObj;
+import net.hwyz.iov.cloud.ota.fota.api.contract.enums.TaskRestrictionType;
 import net.hwyz.iov.cloud.ota.fota.api.contract.enums.TaskState;
 import net.hwyz.iov.cloud.ota.fota.service.domain.contract.enums.TaskPhase;
 import net.hwyz.iov.cloud.ota.fota.service.domain.contract.enums.TaskType;
 import net.hwyz.iov.cloud.ota.fota.service.domain.contract.enums.UpgradeMode;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.TaskPo;
+import net.hwyz.iov.cloud.ota.fota.service.domain.vehicle.model.VehicleDo;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -96,6 +99,11 @@ public class TaskDo extends BaseDo<Long> implements DomainObj<TaskDo> {
      * 备注
      */
     private String description;
+
+    /**
+     * 升级任务限制条件列表
+     */
+    private List<TaskRestrictionVo> taskRestrictionList;
 
     /**
      * 初始化
@@ -252,6 +260,60 @@ public class TaskDo extends BaseDo<Long> implements DomainObj<TaskDo> {
             return 1;
         }
         return 0;
+    }
+
+    /**
+     * 检查任务下载前置条件
+     *
+     * @param vehicle 车辆
+     * @return true: 满足条件，false: 不满足条件
+     */
+    public boolean checkPreconditions(VehicleDo vehicle) {
+        if (!checkTaskTimeRange()) {
+            return false;
+        }
+        if (!checkRestrictions(vehicle)) {
+            return false;
+        }
+        // TODO 检查各类条件（是否基线拉齐、……）
+        return true;
+    }
+
+    /**
+     * 检查任务时间范围
+     *
+     * @return true: 满足条件，false: 不满足条件
+     */
+    private boolean checkTaskTimeRange() {
+        return System.currentTimeMillis() >= this.startTime.getTime() && System.currentTimeMillis() <= this.endTime.getTime();
+    }
+
+    /**
+     * 检查各项任务限制
+     *
+     * @param vehicle 车辆
+     * @return true: 满足条件，false: 不满足条件
+     */
+    private boolean checkRestrictions(VehicleDo vehicle) {
+        for (TaskRestrictionVo restriction : this.taskRestrictionList) {
+            switch (TaskRestrictionType.valueOf(restriction.getRestrictionType())) {
+                case BASELINE_EXCLUDE -> {
+                    // 检查车辆基线是否在任务排除的基线范围内
+                    for (String baseline : restriction.getRestrictionExpression().split(",")) {
+                        if (baseline.equals(vehicle.getBaselineCode())) {
+                            return false;
+                        }
+                    }
+                }
+                case BASELINE_UNIFICATION -> {
+                    // 未对齐基线的车辆如果未打开强制拉齐则不满足条件
+                    if (!Boolean.parseBoolean(restriction.getRestrictionExpression()) && !vehicle.getIsBaselineAlignment()) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
 }

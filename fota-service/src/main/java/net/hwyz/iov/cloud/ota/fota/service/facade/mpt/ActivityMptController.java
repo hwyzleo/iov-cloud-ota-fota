@@ -68,7 +68,8 @@ public class ActivityMptController extends BaseController implements ActivityMpt
     public TableDataInfo list(ActivityMpt activity) {
         logger.info("管理后台用户[{}]分页查询升级活动", SecurityUtils.getUsername());
         startPage();
-        List<ActivityPo> activityPoList = activityAppService.search(activity.getName(), getBeginTime(activity), getEndTime(activity));
+        List<ActivityPo> activityPoList = activityAppService.search(activity.getName(), activity.getState(),
+                getBeginTime(activity), getEndTime(activity));
         List<ActivityMpt> activityMptList = ActivityMptAssembler.INSTANCE.fromPoList(activityPoList);
         activityMptList.forEach(activityMpt -> activityMpt.setSoftwareBuildVersionCount(activityAppService.countActivitySoftwareBuildVersion(activityMpt.getId())));
         return getDataTable(activityPoList, activityMptList);

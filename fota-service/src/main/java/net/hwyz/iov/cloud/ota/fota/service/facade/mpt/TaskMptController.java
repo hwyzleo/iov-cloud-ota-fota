@@ -18,6 +18,7 @@ import net.hwyz.iov.cloud.ota.fota.service.application.service.TaskAppService;
 import net.hwyz.iov.cloud.ota.fota.service.domain.task.model.TaskDo;
 import net.hwyz.iov.cloud.ota.fota.service.domain.task.repository.TaskRepository;
 import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.TaskMptAssembler;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.cache.CacheService;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.exception.TaskNotExistException;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.TaskPo;
 import org.springframework.validation.annotation.Validated;
@@ -38,6 +39,7 @@ import java.util.Map;
 @RequestMapping(value = "/mpt/task")
 public class TaskMptController extends BaseController implements TaskMptApi {
 
+    private final CacheService cacheService;
     private final TaskAppService taskAppService;
     private final TaskRepository taskRepository;
 
@@ -200,6 +202,7 @@ public class TaskMptController extends BaseController implements TaskMptApi {
         TaskDo taskDo = taskRepository.getById(taskId).orElseThrow(() -> new TaskNotExistException(taskId));
         int result = taskDo.release();
         taskRepository.save(taskDo);
+        cacheService.addReleaseTask(taskDo);
         return toAjax(result);
     }
 
@@ -218,6 +221,7 @@ public class TaskMptController extends BaseController implements TaskMptApi {
         TaskDo taskDo = taskRepository.getById(taskId).orElseThrow(() -> new TaskNotExistException(taskId));
         int result = taskDo.pause();
         taskRepository.save(taskDo);
+        cacheService.removeReleaseTask(taskDo);
         return toAjax(result);
     }
 
@@ -236,6 +240,7 @@ public class TaskMptController extends BaseController implements TaskMptApi {
         TaskDo taskDo = taskRepository.getById(taskId).orElseThrow(() -> new TaskNotExistException(taskId));
         int result = taskDo.resume();
         taskRepository.save(taskDo);
+        cacheService.addReleaseTask(taskDo);
         return toAjax(result);
     }
 
@@ -254,6 +259,7 @@ public class TaskMptController extends BaseController implements TaskMptApi {
         TaskDo taskDo = taskRepository.getById(taskId).orElseThrow(() -> new TaskNotExistException(taskId));
         int result = taskDo.cancel();
         taskRepository.save(taskDo);
+        cacheService.removeReleaseTask(taskDo);
         return toAjax(result);
     }
 

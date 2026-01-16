@@ -38,13 +38,15 @@ public class ActivityAppService {
      * 查询升级活动
      *
      * @param name      升级活动名称
+     * @param state     升级活动状态
      * @param beginTime 开始时间
      * @param endTime   结束时间
      * @return 升级活动列表
      */
-    public List<ActivityPo> search(String name, Date beginTime, Date endTime) {
+    public List<ActivityPo> search(String name, Integer state, Date beginTime, Date endTime) {
         Map<String, Object> map = new HashMap<>();
         map.put("name", ParamHelper.fuzzyQueryParam(name));
+        map.put("state", state);
         map.put("beginTime", beginTime);
         map.put("endTime", endTime);
         return activityDao.selectPoByMap(map);

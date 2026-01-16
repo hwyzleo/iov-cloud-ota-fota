@@ -30,7 +30,8 @@ public enum TaskVehicleState {
     CONFIG_WRITE("写配置字", 25),
     CONFIG_ROLLBACK("回滚配置字", 26),
     UPGRADE_FAILED("升级失败", 90),
-    UPGRADE_TIMEOUT("升级超时", 91);
+    UPGRADE_TIMEOUT("升级超时", 91),
+    UPGRADE_SUCCESS("升级成功", 99);
 
     /**
      * 名称
