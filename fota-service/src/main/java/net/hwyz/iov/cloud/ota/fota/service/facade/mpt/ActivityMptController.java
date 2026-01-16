@@ -12,26 +12,23 @@ import net.hwyz.iov.cloud.framework.security.annotation.RequiresPermissions;
 import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
 import net.hwyz.iov.cloud.ota.baseline.api.contract.BaselineSoftwareBuildVersionExService;
 import net.hwyz.iov.cloud.ota.baseline.api.contract.CompatiblePnExService;
+import net.hwyz.iov.cloud.ota.baseline.api.contract.FixedConfigWordExService;
 import net.hwyz.iov.cloud.ota.baseline.api.contract.SoftwareBuildVersionExService;
 import net.hwyz.iov.cloud.ota.baseline.api.feign.service.ExBaselineService;
 import net.hwyz.iov.cloud.ota.baseline.api.feign.service.ExCompatiblePnService;
+import net.hwyz.iov.cloud.ota.baseline.api.feign.service.ExFixedConfigWordService;
 import net.hwyz.iov.cloud.ota.baseline.api.feign.service.ExSoftwareBuildVersionService;
-import net.hwyz.iov.cloud.ota.fota.api.contract.ActivityAuditMpt;
-import net.hwyz.iov.cloud.ota.fota.api.contract.ActivityCompatiblePnMpt;
-import net.hwyz.iov.cloud.ota.fota.api.contract.ActivityMpt;
-import net.hwyz.iov.cloud.ota.fota.api.contract.ActivitySoftwareBuildVersionMpt;
+import net.hwyz.iov.cloud.ota.fota.api.contract.*;
 import net.hwyz.iov.cloud.ota.fota.api.contract.enums.ActivityState;
 import net.hwyz.iov.cloud.ota.fota.api.feign.mpt.ActivityMptApi;
 import net.hwyz.iov.cloud.ota.fota.service.application.service.ActivityAppService;
 import net.hwyz.iov.cloud.ota.fota.service.domain.activity.model.ActivityDo;
 import net.hwyz.iov.cloud.ota.fota.service.domain.activity.repository.ActivityRepository;
-import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.ActivityCompatiblePnMptAssembler;
-import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.ActivityMptAssembler;
-import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.ActivitySoftwareBuildVersionMptAssembler;
-import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.BaselineSoftwareBuildVersionExServiceAssembler;
+import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.*;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.cache.CacheService;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.exception.ActivityNotExistException;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivityCompatiblePnPo;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivityFixedConfigWordPo;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivityPo;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivitySoftwareBuildVersionPo;
 import org.springframework.validation.annotation.Validated;
@@ -56,6 +53,7 @@ public class ActivityMptController extends BaseController implements ActivityMpt
     private final ActivityAppService activityAppService;
     private final ActivityRepository activityRepository;
     private final ExCompatiblePnService exCompatiblePnService;
+    private final ExFixedConfigWordService exFixedConfigWordService;
     private final ExSoftwareBuildVersionService exSoftwareBuildVersionService;
 
     /**
@@ -156,6 +154,29 @@ public class ActivityMptController extends BaseController implements ActivityMpt
     }
 
     /**
+     * 列出升级活动下固定配置字
+     *
+     * @param activityId 升级活动ID
+     * @return 固定配置字列表
+     */
+    @RequiresPermissions("ota:fota:activity:list")
+    @Override
+    @GetMapping(value = "/{activityId}/listFixedConfigWord")
+    public AjaxResult listFixedConfigWord(@PathVariable Long activityId) {
+        logger.info("管理后台用户[{}]列出升级活动[{}]下固定配置字", SecurityUtils.getUsername(), activityId);
+        List<ActivityFixedConfigWordPo> poList = activityAppService.listFixedConfigWord(activityId);
+        List<ActivityFixedConfigWordMpt> mptList = ActivityFixedConfigWordMptAssembler.INSTANCE.fromPoList(poList);
+        mptList.forEach(mpt -> {
+            FixedConfigWordExService fixedConfigWord = exFixedConfigWordService.getInfo(mpt.getFixedConfigWordId());
+            mpt.setEcu(fixedConfigWord.getEcu());
+            mpt.setSoftwarePn(fixedConfigWord.getSoftwarePn());
+            mpt.setType(fixedConfigWord.getType());
+            mpt.setDescription(fixedConfigWord.getDescription());
+        });
+        return success(mptList);
+    }
+
+    /**
      * 导出升级活动
      *
      * @param response 响应
@@ -236,6 +257,22 @@ public class ActivityMptController extends BaseController implements ActivityMpt
     public AjaxResult addCompatiblePn(@PathVariable Long activityId, @PathVariable Long[] compatiblePnIds) {
         logger.info("管理后台用户[{}]新增升级活动[{}]关联的兼容零件号[{}]", SecurityUtils.getUsername(), activityId, compatiblePnIds);
         return toAjax(activityAppService.createCompatiblePn(activityId, compatiblePnIds));
+    }
+
+    /**
+     * 新增关联的固定配置字
+     *
+     * @param activityId         升级活动ID
+     * @param fixedConfigWordIds 固定配置字ID数组
+     * @return 结果
+     */
+    @Log(title = "升级活动管理", businessType = BusinessType.UPDATE)
+    @RequiresPermissions("ota:fota:activity:edit")
+    @Override
+    @PostMapping(value = "/{activityId}/action/addFixedConfigWord/{fixedConfigWordIds}")
+    public AjaxResult addFixedConfigWord(@PathVariable Long activityId, @PathVariable Long[] fixedConfigWordIds) {
+        logger.info("管理后台用户[{}]新增升级活动[{}]关联的固定配置字[{}]", SecurityUtils.getUsername(), activityId, fixedConfigWordIds);
+        return toAjax(activityAppService.createFixedConfigWord(activityId, fixedConfigWordIds));
     }
 
     /**
@@ -401,6 +438,22 @@ public class ActivityMptController extends BaseController implements ActivityMpt
     public AjaxResult removeCompatiblePn(@PathVariable Long activityId, @PathVariable Long[] compatiblePnIds) {
         logger.info("管理后台用户[{}]删除升级活动[{}]关联的兼容零件号[{}]", SecurityUtils.getUsername(), activityId, compatiblePnIds);
         return toAjax(activityAppService.deleteCompatiblePn(activityId, compatiblePnIds));
+    }
+
+    /**
+     * 删除关联的固定配置字
+     *
+     * @param activityId         升级活动ID
+     * @param fixedConfigWordIds 固定配置字ID数组
+     * @return 结果
+     */
+    @Log(title = "升级活动管理", businessType = BusinessType.UPDATE)
+    @RequiresPermissions("ota:fota:activity:edit")
+    @Override
+    @PostMapping(value = "/{activityId}/action/removeFixedConfigWord/{fixedConfigWordIds}")
+    public AjaxResult removeFixedConfigWord(@PathVariable Long activityId, @PathVariable Long[] fixedConfigWordIds) {
+        logger.info("管理后台用户[{}]删除升级活动[{}]关联的固定配置字[{}]", SecurityUtils.getUsername(), activityId, fixedConfigWordIds);
+        return toAjax(activityAppService.deleteFixedConfigWord(activityId, fixedConfigWordIds));
     }
 
     /**

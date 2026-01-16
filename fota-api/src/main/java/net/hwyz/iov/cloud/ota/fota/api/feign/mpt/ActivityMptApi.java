@@ -49,6 +49,14 @@ public interface ActivityMptApi {
     AjaxResult listCompatiblePn(Long activityId);
 
     /**
+     * 列出升级活动下固定配置字
+     *
+     * @param activityId 升级活动ID
+     * @return 固定配置字列表
+     */
+    AjaxResult listFixedConfigWord(Long activityId);
+
+    /**
      * 导出升级活动
      *
      * @param response 响应
@@ -89,6 +97,15 @@ public interface ActivityMptApi {
      * @return 结果
      */
     AjaxResult addCompatiblePn(Long activityId, Long[] compatiblePnIds);
+
+    /**
+     * 新增关联的固定配置字
+     *
+     * @param activityId         升级活动ID
+     * @param fixedConfigWordIds 固定配置字ID数组
+     * @return 结果
+     */
+    AjaxResult addFixedConfigWord(Long activityId, Long[] fixedConfigWordIds);
 
     /**
      * 修改保存升级活动
@@ -168,6 +185,15 @@ public interface ActivityMptApi {
      * @return 结果
      */
     AjaxResult removeCompatiblePn(Long activityId, Long[] compatiblePnIds);
+
+    /**
+     * 删除关联的固定配置字
+     *
+     * @param activityId         升级活动ID
+     * @param fixedConfigWordIds 固定配置字ID数组
+     * @return 结果
+     */
+    AjaxResult removeFixedConfigWord(Long activityId, Long[] fixedConfigWordIds);
 
     /**
      * 调整关联的软件内部版本组

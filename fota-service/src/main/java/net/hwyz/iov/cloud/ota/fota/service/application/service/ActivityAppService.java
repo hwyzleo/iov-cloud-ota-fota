@@ -7,8 +7,10 @@ import net.hwyz.iov.cloud.ota.fota.api.contract.ActivitySoftwareBuildVersionMpt;
 import net.hwyz.iov.cloud.ota.fota.api.contract.enums.ActivityState;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.dao.ActivityCompatiblePnDao;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.dao.ActivityDao;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.dao.ActivityFixedConfigWordDao;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.dao.ActivitySoftwareBuildVersionDao;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivityCompatiblePnPo;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivityFixedConfigWordPo;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivityPo;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivitySoftwareBuildVersionPo;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ public class ActivityAppService {
 
     private final ActivityDao activityDao;
     private final ActivityCompatiblePnDao activityCompatiblePnDao;
+    private final ActivityFixedConfigWordDao activityFixedConfigWordDao;
     private final ActivitySoftwareBuildVersionDao activitySoftwareBuildVersionDao;
 
     /**
@@ -65,6 +68,16 @@ public class ActivityAppService {
      */
     public List<ActivityCompatiblePnPo> listCompatiblePn(Long activityId) {
         return activityCompatiblePnDao.selectPoByExample(ActivityCompatiblePnPo.builder().activityId(activityId).build());
+    }
+
+    /**
+     * 获取升级活动下的兼容零件号列表
+     *
+     * @param activityId 升级活动ID
+     * @return 兼容零件号列表
+     */
+    public List<ActivityFixedConfigWordPo> listFixedConfigWord(Long activityId) {
+        return activityFixedConfigWordDao.selectPoByExample(ActivityFixedConfigWordPo.builder().activityId(activityId).build());
     }
 
     /**
@@ -152,6 +165,32 @@ public class ActivityAppService {
     }
 
     /**
+     * 新增升级活动固定配置字
+     *
+     * @param activityId         升级活动ID
+     * @param fixedConfigWordIds 固定配置字ID数组
+     * @return 结果
+     */
+    public int createFixedConfigWord(Long activityId, Long[] fixedConfigWordIds) {
+        Set<Long> fixedConfigWordIdSet = listFixedConfigWord(activityId).stream()
+                .map(ActivityFixedConfigWordPo::getFixedConfigWordId)
+                .collect(Collectors.toSet());
+        List<ActivityFixedConfigWordPo> list = new ArrayList<>();
+        for (Long fixedConfigWordId : fixedConfigWordIds) {
+            if (!fixedConfigWordIdSet.contains(fixedConfigWordId)) {
+                list.add(ActivityFixedConfigWordPo.builder()
+                        .activityId(activityId)
+                        .fixedConfigWordId(fixedConfigWordId)
+                        .build());
+            }
+        }
+        if (!list.isEmpty()) {
+            return activityFixedConfigWordDao.batchInsertPo(list);
+        }
+        return 0;
+    }
+
+    /**
      * 修改升级活动
      *
      * @param activity 升级活动
@@ -213,6 +252,17 @@ public class ActivityAppService {
      */
     public int deleteCompatiblePn(Long activityId, Long[] compatiblePnIds) {
         return activityCompatiblePnDao.batchPhysicalDeletePoByActivityIdAndCompatiblePnIds(activityId, compatiblePnIds);
+    }
+
+    /**
+     * 删除升级活动固定配置字信息
+     *
+     * @param activityId         升级活动ID
+     * @param fixedConfigWordIds 固定配置字ID数组
+     * @return 结果
+     */
+    public int deleteFixedConfigWord(Long activityId, Long[] fixedConfigWordIds) {
+        return activityFixedConfigWordDao.batchPhysicalDeletePoByActivityIdAndFixedConfigWordIds(activityId, fixedConfigWordIds);
     }
 
     /**

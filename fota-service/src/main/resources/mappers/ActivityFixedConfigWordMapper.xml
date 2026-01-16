@@ -93,6 +93,16 @@
         </foreach>
     </delete>
 
+    <!-- 批量物理删除指定活动ID下固定配置字关系 -->
+    <delete id="batchPhysicalDeletePoByActivityIdAndFixedConfigWordIds" parameterType="long">
+        DELETE FROM tb_activity_fixed_config_word t
+        WHERE t.activity_id = #{activityId}
+        AND t.fixed_config_word_id IN
+        <foreach collection="fixedConfigWordIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
     <!-- 根据主键获取对应数据 -->
     <select id="selectPoById" parameterType="Long" resultMap="baseResultMap">
         SELECT <include refid="baseColumnList"/>
