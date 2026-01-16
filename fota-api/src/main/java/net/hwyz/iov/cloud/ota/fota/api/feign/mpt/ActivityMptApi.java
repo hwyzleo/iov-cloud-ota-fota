@@ -41,6 +41,14 @@ public interface ActivityMptApi {
     AjaxResult listSoftwareBuildVersion(Long activityId, Integer group);
 
     /**
+     * 列出升级活动下兼容零件号
+     *
+     * @param activityId 升级活动ID
+     * @return 兼容零件号列表
+     */
+    AjaxResult listCompatiblePn(Long activityId);
+
+    /**
      * 导出升级活动
      *
      * @param response 响应
@@ -72,6 +80,15 @@ public interface ActivityMptApi {
      * @return 结果
      */
     AjaxResult addSoftwareBuildVersion(Long activityId, Long[] softwareBuildVersionIds);
+
+    /**
+     * 新增关联的兼容零件号
+     *
+     * @param activityId      升级活动ID
+     * @param compatiblePnIds 兼容零件号ID数组
+     * @return 结果
+     */
+    AjaxResult addCompatiblePn(Long activityId, Long[] compatiblePnIds);
 
     /**
      * 修改保存升级活动
@@ -142,6 +159,15 @@ public interface ActivityMptApi {
      * @return 结果
      */
     AjaxResult removeSoftwareBuildVersion(Long activityId, Long[] softwareBuildVersionIds);
+
+    /**
+     * 删除关联的兼容零件号
+     *
+     * @param activityId      升级活动ID
+     * @param compatiblePnIds 兼容零件号ID数组
+     * @return 结果
+     */
+    AjaxResult removeCompatiblePn(Long activityId, Long[] compatiblePnIds);
 
     /**
      * 调整关联的软件内部版本组

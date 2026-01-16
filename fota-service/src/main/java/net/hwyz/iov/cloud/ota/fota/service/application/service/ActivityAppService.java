@@ -5,8 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.util.ParamHelper;
 import net.hwyz.iov.cloud.ota.fota.api.contract.ActivitySoftwareBuildVersionMpt;
 import net.hwyz.iov.cloud.ota.fota.api.contract.enums.ActivityState;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.dao.ActivityCompatiblePnDao;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.dao.ActivityDao;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.dao.ActivitySoftwareBuildVersionDao;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivityCompatiblePnPo;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivityPo;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivitySoftwareBuildVersionPo;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
 public class ActivityAppService {
 
     private final ActivityDao activityDao;
+    private final ActivityCompatiblePnDao activityCompatiblePnDao;
     private final ActivitySoftwareBuildVersionDao activitySoftwareBuildVersionDao;
 
     /**
@@ -52,6 +55,16 @@ public class ActivityAppService {
      */
     public List<ActivitySoftwareBuildVersionPo> listSoftwareBuildVersion(Long activityId) {
         return activitySoftwareBuildVersionDao.selectPoByExample(ActivitySoftwareBuildVersionPo.builder().activityId(activityId).build());
+    }
+
+    /**
+     * 获取升级活动下的兼容零件号列表
+     *
+     * @param activityId 升级活动ID
+     * @return 兼容零件号列表
+     */
+    public List<ActivityCompatiblePnPo> listCompatiblePn(Long activityId) {
+        return activityCompatiblePnDao.selectPoByExample(ActivityCompatiblePnPo.builder().activityId(activityId).build());
     }
 
     /**
@@ -91,7 +104,7 @@ public class ActivityAppService {
      * @param softwareBuildVersionIds 软件内部版本ID数组
      * @return 结果
      */
-    public int createActivitySoftwareBuildVersion(Long activityId, Long[] softwareBuildVersionIds) {
+    public int createSoftwareBuildVersion(Long activityId, Long[] softwareBuildVersionIds) {
         Set<Long> softwareBuildVersionIdSet = listSoftwareBuildVersion(activityId).stream()
                 .map(ActivitySoftwareBuildVersionPo::getSoftwareBuildVersionId)
                 .collect(Collectors.toSet());
@@ -108,6 +121,32 @@ public class ActivityAppService {
         }
         if (!list.isEmpty()) {
             return activitySoftwareBuildVersionDao.batchInsertPo(list);
+        }
+        return 0;
+    }
+
+    /**
+     * 新增升级活动兼容零件号
+     *
+     * @param activityId      升级活动ID
+     * @param compatiblePnIds 兼容零件号ID数组
+     * @return 结果
+     */
+    public int createCompatiblePn(Long activityId, Long[] compatiblePnIds) {
+        Set<Long> compatiblePnIdSet = listCompatiblePn(activityId).stream()
+                .map(ActivityCompatiblePnPo::getCompatiblePnId)
+                .collect(Collectors.toSet());
+        List<ActivityCompatiblePnPo> list = new ArrayList<>();
+        for (Long compatiblePnId : compatiblePnIds) {
+            if (!compatiblePnIdSet.contains(compatiblePnId)) {
+                list.add(ActivityCompatiblePnPo.builder()
+                        .activityId(activityId)
+                        .compatiblePnId(compatiblePnId)
+                        .build());
+            }
+        }
+        if (!list.isEmpty()) {
+            return activityCompatiblePnDao.batchInsertPo(list);
         }
         return 0;
     }
@@ -161,8 +200,19 @@ public class ActivityAppService {
      * @param softwareBuildVersionIds 软件内部版本ID数组
      * @return 结果
      */
-    public int deleteActivitySoftwareBuildVersion(Long activityId, Long[] softwareBuildVersionIds) {
+    public int deleteSoftwareBuildVersion(Long activityId, Long[] softwareBuildVersionIds) {
         return activitySoftwareBuildVersionDao.batchPhysicalDeletePoByActivityIdAndSoftwareBuildVersionIds(activityId, softwareBuildVersionIds);
+    }
+
+    /**
+     * 删除升级活动兼容零件号信息
+     *
+     * @param activityId      升级活动ID
+     * @param compatiblePnIds 兼容零件号ID数组
+     * @return 结果
+     */
+    public int deleteCompatiblePn(Long activityId, Long[] compatiblePnIds) {
+        return activityCompatiblePnDao.batchPhysicalDeletePoByActivityIdAndCompatiblePnIds(activityId, compatiblePnIds);
     }
 
     /**

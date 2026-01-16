@@ -11,10 +11,13 @@ import net.hwyz.iov.cloud.framework.common.web.page.TableDataInfo;
 import net.hwyz.iov.cloud.framework.security.annotation.RequiresPermissions;
 import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
 import net.hwyz.iov.cloud.ota.baseline.api.contract.BaselineSoftwareBuildVersionExService;
+import net.hwyz.iov.cloud.ota.baseline.api.contract.CompatiblePnExService;
 import net.hwyz.iov.cloud.ota.baseline.api.contract.SoftwareBuildVersionExService;
 import net.hwyz.iov.cloud.ota.baseline.api.feign.service.ExBaselineService;
+import net.hwyz.iov.cloud.ota.baseline.api.feign.service.ExCompatiblePnService;
 import net.hwyz.iov.cloud.ota.baseline.api.feign.service.ExSoftwareBuildVersionService;
 import net.hwyz.iov.cloud.ota.fota.api.contract.ActivityAuditMpt;
+import net.hwyz.iov.cloud.ota.fota.api.contract.ActivityCompatiblePnMpt;
 import net.hwyz.iov.cloud.ota.fota.api.contract.ActivityMpt;
 import net.hwyz.iov.cloud.ota.fota.api.contract.ActivitySoftwareBuildVersionMpt;
 import net.hwyz.iov.cloud.ota.fota.api.contract.enums.ActivityState;
@@ -22,11 +25,13 @@ import net.hwyz.iov.cloud.ota.fota.api.feign.mpt.ActivityMptApi;
 import net.hwyz.iov.cloud.ota.fota.service.application.service.ActivityAppService;
 import net.hwyz.iov.cloud.ota.fota.service.domain.activity.model.ActivityDo;
 import net.hwyz.iov.cloud.ota.fota.service.domain.activity.repository.ActivityRepository;
+import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.ActivityCompatiblePnMptAssembler;
 import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.ActivityMptAssembler;
 import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.ActivitySoftwareBuildVersionMptAssembler;
 import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.BaselineSoftwareBuildVersionExServiceAssembler;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.cache.CacheService;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.exception.ActivityNotExistException;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivityCompatiblePnPo;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivityPo;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivitySoftwareBuildVersionPo;
 import org.springframework.validation.annotation.Validated;
@@ -50,6 +55,7 @@ public class ActivityMptController extends BaseController implements ActivityMpt
     private final ExBaselineService exBaselineService;
     private final ActivityAppService activityAppService;
     private final ActivityRepository activityRepository;
+    private final ExCompatiblePnService exCompatiblePnService;
     private final ExSoftwareBuildVersionService exSoftwareBuildVersionService;
 
     /**
@@ -126,6 +132,30 @@ public class ActivityMptController extends BaseController implements ActivityMpt
     }
 
     /**
+     * 列出升级活动下兼容零件号
+     *
+     * @param activityId 升级活动ID
+     * @return 兼容零件号列表
+     */
+    @RequiresPermissions("ota:fota:activity:list")
+    @Override
+    @GetMapping(value = "/{activityId}/listCompatiblePn")
+    public AjaxResult listCompatiblePn(@PathVariable Long activityId) {
+        logger.info("管理后台用户[{}]列出升级活动[{}]下兼容零件号", SecurityUtils.getUsername(), activityId);
+        List<ActivityCompatiblePnPo> poList = activityAppService.listCompatiblePn(activityId);
+        List<ActivityCompatiblePnMpt> mptList = ActivityCompatiblePnMptAssembler.INSTANCE.fromPoList(poList);
+        mptList.forEach(mpt -> {
+            CompatiblePnExService compatiblePn = exCompatiblePnService.getInfo(mpt.getCompatiblePnId());
+            mpt.setType(compatiblePn.getType());
+            mpt.setEcu(compatiblePn.getEcu());
+            mpt.setPn(compatiblePn.getPn());
+            mpt.setCompatiblePn(compatiblePn.getCompatiblePn());
+            mpt.setDescription(compatiblePn.getDescription());
+        });
+        return success(mptList);
+    }
+
+    /**
      * 导出升级活动
      *
      * @param response 响应
@@ -189,7 +219,23 @@ public class ActivityMptController extends BaseController implements ActivityMpt
     @PostMapping(value = "/{activityId}/action/addSoftwareBuildVersion/{softwareBuildVersionIds}")
     public AjaxResult addSoftwareBuildVersion(@PathVariable Long activityId, @PathVariable Long[] softwareBuildVersionIds) {
         logger.info("管理后台用户[{}]新增升级活动[{}]关联的软件内部版本[{}]", SecurityUtils.getUsername(), activityId, softwareBuildVersionIds);
-        return toAjax(activityAppService.createActivitySoftwareBuildVersion(activityId, softwareBuildVersionIds));
+        return toAjax(activityAppService.createSoftwareBuildVersion(activityId, softwareBuildVersionIds));
+    }
+
+    /**
+     * 新增关联的兼容零件号
+     *
+     * @param activityId      升级活动ID
+     * @param compatiblePnIds 兼容零件号ID数组
+     * @return 结果
+     */
+    @Log(title = "升级活动管理", businessType = BusinessType.UPDATE)
+    @RequiresPermissions("ota:fota:activity:edit")
+    @Override
+    @PostMapping(value = "/{activityId}/action/addCompatiblePn/{compatiblePnIds}")
+    public AjaxResult addCompatiblePn(@PathVariable Long activityId, @PathVariable Long[] compatiblePnIds) {
+        logger.info("管理后台用户[{}]新增升级活动[{}]关联的兼容零件号[{}]", SecurityUtils.getUsername(), activityId, compatiblePnIds);
+        return toAjax(activityAppService.createCompatiblePn(activityId, compatiblePnIds));
     }
 
     /**
@@ -338,7 +384,23 @@ public class ActivityMptController extends BaseController implements ActivityMpt
     @PostMapping(value = "/{activityId}/action/removeSoftwareBuildVersion/{softwareBuildVersionIds}")
     public AjaxResult removeSoftwareBuildVersion(@PathVariable Long activityId, @PathVariable Long[] softwareBuildVersionIds) {
         logger.info("管理后台用户[{}]删除升级活动[{}]关联的软件内部版本[{}]", SecurityUtils.getUsername(), activityId, softwareBuildVersionIds);
-        return toAjax(activityAppService.deleteActivitySoftwareBuildVersion(activityId, softwareBuildVersionIds));
+        return toAjax(activityAppService.deleteSoftwareBuildVersion(activityId, softwareBuildVersionIds));
+    }
+
+    /**
+     * 删除关联的兼容零件号
+     *
+     * @param activityId      升级活动ID
+     * @param compatiblePnIds 兼容零件号ID数组
+     * @return 结果
+     */
+    @Log(title = "升级活动管理", businessType = BusinessType.UPDATE)
+    @RequiresPermissions("ota:fota:activity:edit")
+    @Override
+    @PostMapping(value = "/{activityId}/action/removeCompatiblePn/{compatiblePnIds}")
+    public AjaxResult removeCompatiblePn(@PathVariable Long activityId, @PathVariable Long[] compatiblePnIds) {
+        logger.info("管理后台用户[{}]删除升级活动[{}]关联的兼容零件号[{}]", SecurityUtils.getUsername(), activityId, compatiblePnIds);
+        return toAjax(activityAppService.deleteCompatiblePn(activityId, compatiblePnIds));
     }
 
     /**

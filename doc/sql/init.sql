@@ -152,6 +152,24 @@ CREATE TABLE `db_fota`.`tb_activity_software_build_version`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT '升级活动软件内部版本关系表';
 
+DROP TABLE IF EXISTS `db_fota`.`tb_activity_compatible_pn`;
+CREATE TABLE `db_fota`.`tb_activity_compatible_pn`
+(
+    `id`               BIGINT    NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `activity_id`      BIGINT    NOT NULL COMMENT '活动ID',
+    `compatible_pn_id` BIGINT    NOT NULL COMMENT '兼容零件号ID',
+    `description`      VARCHAR(255)       DEFAULT NULL COMMENT '备注',
+    `create_time`      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `create_by`        VARCHAR(64)        DEFAULT NULL COMMENT '创建者',
+    `modify_time`      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `modify_by`        VARCHAR(64)        DEFAULT NULL COMMENT '修改者',
+    `row_version`      INT                DEFAULT 1 COMMENT '记录版本',
+    `row_valid`        TINYINT            DEFAULT 1 COMMENT '记录是否有效',
+    PRIMARY KEY (`id`) USING BTREE,
+    INDEX `idx_activity` (`activity_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT '升级活动兼容零件号关系表';
+
 DROP TABLE IF EXISTS `db_fota`.`tb_task`;
 CREATE TABLE `db_fota`.`tb_task`
 (
