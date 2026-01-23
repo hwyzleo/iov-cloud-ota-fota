@@ -14,6 +14,8 @@
         <result column="row_valid" property="rowValid" />
         <result column="activity_id" property="activityId" />
         <result column="software_build_version_id" property="softwareBuildVersionId" />
+        <result column="critical" property="critical" />
+        <result column="ota" property="ota" />
         <result column="sort" property="sort" />
         <result column="version_group" property="versionGroup" />
         <result column="force_upgrade" property="forceUpgrade" />
@@ -21,18 +23,18 @@
 
     <!-- 通用查询结果列 -->
     <sql id="baseColumnList">
-        id, activity_id, software_build_version_id, sort, version_group, force_upgrade, 
+        id, activity_id, software_build_version_id, critical, ota, sort, version_group, force_upgrade,
         description, create_time, create_by, modify_time, modify_by, row_version, row_valid
     </sql>
 
     <!-- 插入 -->
     <insert id="insertPo" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tb_activity_software_build_version (
-            id, activity_id, software_build_version_id, sort, version_group, force_upgrade, 
+            id, activity_id, software_build_version_id, critical, ota, sort, version_group, force_upgrade,
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES (
-            #{id}, #{activityId}, #{softwareBuildVersionId}, #{sort}, #{versionGroup}, #{forceUpgrade}, 
+            #{id}, #{activityId}, #{softwareBuildVersionId}, #{critical}, #{ota}, #{sort}, #{versionGroup}, #{forceUpgrade},
             #{description}, now(), #{createBy}, now(), #{modifyBy}, 1, 1
         )
     </insert>
@@ -40,13 +42,13 @@
     <!-- 批量插入 -->
     <insert id="batchInsertPo" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
         INSERT INTO tb_activity_software_build_version (
-            id, activity_id, software_build_version_id, sort, version_group, force_upgrade, 
+            id, activity_id, software_build_version_id, critical, ota, sort, version_group, force_upgrade,
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES
         <foreach collection="list" item="item" index="index" separator=",">
         (
-            #{item.id}, #{item.activityId}, #{item.softwareBuildVersionId}, #{item.sort}, #{item.versionGroup}, #{item.forceUpgrade}, 
+            #{item.id}, #{item.activityId}, #{item.softwareBuildVersionId}, #{item.critical}, #{item.ota}, #{item.sort}, #{item.versionGroup}, #{item.forceUpgrade},
             #{item.description}, now(), #{item.createBy}, now(), #{item.modifyBy}, 1, 1
         )
         </foreach>
@@ -60,6 +62,12 @@
         </if>
         <if test="softwareBuildVersionId != null">
             t.software_build_version_id = #{softwareBuildVersionId},
+        </if>
+        <if test="critical != null">
+            t.critical = #{critical},
+        </if>
+        <if test="ota != null">
+            t.ota = #{ota},
         </if>
         <if test="sort != null">
             t.sort = #{sort},
@@ -137,6 +145,12 @@
         <if test="softwareBuildVersionId != null">
             AND t.software_build_version_id = #{softwareBuildVersionId}
         </if>
+        <if test="critical != null">
+            AND t.critical = #{critical}
+        </if>
+        <if test="ota != null">
+            AND t.ota = #{ota}
+        </if>
         <if test="sort != null">
             AND t.sort = #{sort}
         </if>
@@ -173,7 +187,16 @@
         FROM tb_activity_software_build_version t
         WHERE t.row_valid = 1
         <!-- 添加自定义条件 -->
-        ORDER BY t.id DESC
+        ORDER BY t.version_group ASC, t.sort ASC
+    </select>
+
+    <!-- 根据升级活动ID查询软件内部版本关系 -->
+    <select id="selectPoByActivityId" parameterType="java.util.Map" resultMap="baseResultMap">
+        SELECT <include refid="baseColumnList"/>
+        FROM tb_activity_software_build_version t
+        WHERE t.row_valid = 1
+        AND t.activity_id = #{activityId}
+        ORDER BY t.version_group ASC, t.sort ASC
     </select>
 
     <!-- 根据Map对象统计记录数 -->

@@ -30,6 +30,21 @@ public interface CacheService {
     void setVehicle(VehicleDo vehicle);
 
     /**
+     * 获取升级活动缓存
+     *
+     * @param activityId 升级活动ID
+     * @return 升级活动
+     */
+    Optional<ActivityDo> getActivity(Long activityId);
+
+    /**
+     * 设置升级活动缓存
+     *
+     * @param activity 升级活动
+     */
+    void setActivity(ActivityDo activity);
+
+    /**
      * 添加已发布升级活动缓存
      *
      * @param activity 升级活动
@@ -49,6 +64,21 @@ public interface CacheService {
      * @return 升级活动ID列表
      */
     List<Long> getReleaseActivity();
+
+    /**
+     * 获取升级任务缓存
+     *
+     * @param taskId 升级任务ID
+     * @return 升级任务
+     */
+    Optional<TaskDo> getTask(Long taskId);
+
+    /**
+     * 设置升级任务缓存
+     *
+     * @param task 升级任务
+     */
+    void setTask(TaskDo task);
 
     /**
      * 添加已发布升级任务缓存

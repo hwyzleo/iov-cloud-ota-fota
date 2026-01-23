@@ -3,14 +3,30 @@ package net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.domain.AbstractRepository;
+import net.hwyz.iov.cloud.ota.baseline.api.contract.CompatiblePnExService;
+import net.hwyz.iov.cloud.ota.baseline.api.contract.FixedConfigWordExService;
+import net.hwyz.iov.cloud.ota.baseline.api.contract.SoftwareBuildVersionExService;
+import net.hwyz.iov.cloud.ota.baseline.api.feign.service.ExCompatiblePnService;
+import net.hwyz.iov.cloud.ota.baseline.api.feign.service.ExFixedConfigWordService;
+import net.hwyz.iov.cloud.ota.baseline.api.feign.service.ExSoftwareBuildVersionService;
 import net.hwyz.iov.cloud.ota.fota.service.domain.activity.model.ActivityDo;
+import net.hwyz.iov.cloud.ota.fota.service.domain.activity.model.ActivitySoftwareBuildVersionVo;
+import net.hwyz.iov.cloud.ota.fota.service.domain.activity.model.ConfigWordVo;
 import net.hwyz.iov.cloud.ota.fota.service.domain.activity.repository.ActivityRepository;
+import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.ConfigWordExServiceAssembler;
+import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.SoftwareBuildVersionDependencyExServiceAssembler;
+import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.SoftwareBuildVersionExServiceAssembler;
+import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.SoftwarePackageExServiceAssembler;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.cache.CacheService;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.assembler.ActivityPoAssembler;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.dao.ActivityCompatiblePnDao;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.dao.ActivityDao;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.dao.ActivityFixedConfigWordDao;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.dao.ActivitySoftwareBuildVersionDao;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivityPo;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import java.util.*;
 
 /**
  * 升级活动仓库接口实现类
@@ -23,16 +39,57 @@ import java.util.Optional;
 public class ActivityRepositoryImpl extends AbstractRepository<Long, ActivityDo> implements ActivityRepository {
 
     private final ActivityDao activityDao;
+    private final CacheService cacheService;
+    private final ExCompatiblePnService exCompatiblePnService;
+    private final ActivityCompatiblePnDao activityCompatiblePnDao;
+    private final ExFixedConfigWordService exFixedConfigWordService;
+    private final ActivityFixedConfigWordDao activityFixedConfigWordDao;
+    private final ExSoftwareBuildVersionService exSoftwareBuildVersionService;
+    private final ActivitySoftwareBuildVersionDao activitySoftwareBuildVersionDao;
 
     @Override
     public Optional<ActivityDo> getById(Long id) {
-        ActivityPo activityPo = activityDao.selectPoById(id);
-        if (activityPo != null) {
-            ActivityDo activityDo = ActivityPoAssembler.INSTANCE.toDo(activityPo);
-            activityDo.stateLoad();
-            return Optional.of(activityDo);
-        }
-        return Optional.empty();
+        return Optional.ofNullable(cacheService.getActivity(id).orElseGet(() -> {
+            ActivityPo activityPo = activityDao.selectPoById(id);
+            if (activityPo != null) {
+                Map<Integer, List<ActivitySoftwareBuildVersionVo>> groupSoftwareBuildVersionMap = new HashMap<>();
+                activitySoftwareBuildVersionDao.selectPoByActivityId(id).forEach(activitySoftwareBuildVersion -> {
+                    List<ActivitySoftwareBuildVersionVo> groupList = groupSoftwareBuildVersionMap.computeIfAbsent(activitySoftwareBuildVersion.getVersionGroup(), k -> new ArrayList<>());
+                    SoftwareBuildVersionExService softwareBuildVersion = exSoftwareBuildVersionService.getInfo(activitySoftwareBuildVersion.getSoftwareBuildVersionId());
+                    groupList.add(ActivitySoftwareBuildVersionVo.builder()
+                            .group(activitySoftwareBuildVersion.getVersionGroup())
+                            .forceUpgrade(activitySoftwareBuildVersion.getForceUpgrade())
+                            .softwareBuildVersion(SoftwareBuildVersionExServiceAssembler.INSTANCE.toVo(softwareBuildVersion))
+                            .softwarePackageList(SoftwarePackageExServiceAssembler.INSTANCE.toVoList(softwareBuildVersion.getSoftwarePackageList()))
+                            .softwareBuildVersionDependencyList(SoftwareBuildVersionDependencyExServiceAssembler.INSTANCE.toVoList(softwareBuildVersion.getDependencyList()))
+                            .configWordList(ConfigWordExServiceAssembler.INSTANCE.toVoList(softwareBuildVersion.getConfigWordList()))
+                            .createTime(activitySoftwareBuildVersion.getCreateTime())
+                            .build()
+                    );
+                });
+                List<ConfigWordVo> fixedConfigWordList = new ArrayList<>();
+                activityFixedConfigWordDao.selectPoByActivityId(id).forEach(activityFixedConfigWord -> {
+                    FixedConfigWordExService fixedConfigWord = exFixedConfigWordService.getInfo(activityFixedConfigWord.getFixedConfigWordId());
+                    fixedConfigWord.getConfigWordList().forEach(configWord -> {
+                        ConfigWordVo vo = ConfigWordExServiceAssembler.INSTANCE.toVo(configWord);
+                        vo.setEcu(fixedConfigWord.getEcu());
+                        vo.setSoftwarePn(fixedConfigWord.getSoftwarePn());
+                        fixedConfigWordList.add(vo);
+                    });
+                });
+                Map<String, Set<String>> compatiblePnMap = new HashMap<>();
+                activityCompatiblePnDao.selectPoByActivityId(id).forEach(activityCompatiblePn -> {
+                    CompatiblePnExService compatiblePn = exCompatiblePnService.getInfo(activityCompatiblePn.getCompatiblePnId());
+                    Set<String> compatiblePnSet = compatiblePnMap.computeIfAbsent(compatiblePn.getEcu() + compatiblePn.getPn(), k -> new HashSet<>());
+                    compatiblePnSet.addAll(List.of(compatiblePn.getCompatiblePn().split(",")));
+                });
+                ActivityDo activityDoTmp = ActivityPoAssembler.INSTANCE.toDo(activityPo);
+                activityDoTmp.load(groupSoftwareBuildVersionMap, fixedConfigWordList, compatiblePnMap);
+                cacheService.setActivity(activityDoTmp);
+                return activityDoTmp;
+            }
+            return null;
+        }));
     }
 
     @Override
@@ -41,6 +98,7 @@ public class ActivityRepositoryImpl extends AbstractRepository<Long, ActivityDo>
             case CHANGED -> {
                 ActivityPo activityPo = ActivityPoAssembler.INSTANCE.fromDo(activityDo);
                 activityDao.updatePo(activityPo);
+                cacheService.setActivity(activityDo);
             }
             default -> {
                 return false;

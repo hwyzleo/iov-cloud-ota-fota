@@ -11,6 +11,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -38,6 +39,16 @@ public class CacheServiceImpl implements CacheService {
      */
     private static final String REDIS_KEY_PREFIX_TASK = "fota:task:";
 
+    /**
+     * 升级活动缓存
+     */
+    private static final ConcurrentHashMap<Long, ActivityDo> activityMap = new ConcurrentHashMap<>();
+
+    /**
+     * 升级任务缓存
+     */
+    private static final ConcurrentHashMap<Long, TaskDo> taskMap = new ConcurrentHashMap<>();
+
     @Override
     public Optional<VehicleDo> getVehicle(String vin) {
         return Optional.empty();
@@ -46,6 +57,16 @@ public class CacheServiceImpl implements CacheService {
     @Override
     public void setVehicle(VehicleDo vehicle) {
 
+    }
+
+    @Override
+    public Optional<ActivityDo> getActivity(Long activityId) {
+        return Optional.ofNullable(activityMap.get(activityId));
+    }
+
+    @Override
+    public void setActivity(ActivityDo activity) {
+        activityMap.put(activity.getId(), activity);
     }
 
     @Override
@@ -66,6 +87,16 @@ public class CacheServiceImpl implements CacheService {
             return new ArrayList<>();
         }
         return releaseActivityIdList.stream().map(Long::parseLong).collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<TaskDo> getTask(Long taskId) {
+        return Optional.ofNullable(taskMap.get(taskId));
+    }
+
+    @Override
+    public void setTask(TaskDo task) {
+        taskMap.put(task.getId(), task);
     }
 
     @Override

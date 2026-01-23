@@ -1,8 +1,10 @@
 package net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.dao;
 
-import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivityCompatiblePnPo;
 import net.hwyz.iov.cloud.framework.mysql.dao.BaseDao;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivityCompatiblePnPo;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 /**
  * <p>
@@ -14,6 +16,14 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface ActivityCompatiblePnDao extends BaseDao<ActivityCompatiblePnPo, Long> {
+
+    /**
+     * 根据升级活动ID查询兼容零件号关系
+     *
+     * @param activityId 升级活动ID
+     * @return 兼容零件号关系
+     */
+    List<ActivityCompatiblePnPo> selectPoByActivityId(Long activityId);
 
     /**
      * 批量物理删除指定活动ID下兼容零件号关系

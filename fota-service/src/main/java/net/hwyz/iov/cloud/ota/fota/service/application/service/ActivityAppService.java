@@ -59,7 +59,7 @@ public class ActivityAppService {
      * @return 软件内部版本列表
      */
     public List<ActivitySoftwareBuildVersionPo> listSoftwareBuildVersion(Long activityId) {
-        return activitySoftwareBuildVersionDao.selectPoByExample(ActivitySoftwareBuildVersionPo.builder().activityId(activityId).build());
+        return activitySoftwareBuildVersionDao.selectPoByActivityId(activityId);
     }
 
     /**

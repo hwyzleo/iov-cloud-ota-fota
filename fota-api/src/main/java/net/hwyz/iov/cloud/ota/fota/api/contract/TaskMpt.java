@@ -78,6 +78,31 @@ public class TaskMpt extends BaseRequest {
     private String upgradeModeArg;
 
     /**
+     * 适配主体
+     */
+    private Integer adaptiveSubject;
+
+    /**
+     * 比较基准是否兼容
+     */
+    private Boolean comparisonCriteria;
+
+    /**
+     * 排除基线
+     */
+    private String excludedBaseline;
+
+    /**
+     * 基线拉齐
+     */
+    private Boolean baselineUnification;
+
+    /**
+     * 是否回滚
+     */
+    private Boolean rollback;
+
+    /**
      * 任务状态：1=待提交，2=待审核，3=已审核，4=未通过，5=已发布，6=已暂停，7=已结束，8=已取消
      */
     private Integer state;

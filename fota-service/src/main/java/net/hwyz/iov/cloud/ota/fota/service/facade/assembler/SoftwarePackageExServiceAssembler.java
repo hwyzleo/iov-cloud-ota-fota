@@ -1,0 +1,42 @@
+package net.hwyz.iov.cloud.ota.fota.service.facade.assembler;
+
+import net.hwyz.iov.cloud.ota.baseline.api.contract.SoftwarePackageExService;
+import net.hwyz.iov.cloud.ota.fota.service.domain.activity.model.SoftwarePackageVo;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
+import org.mapstruct.factory.Mappers;
+
+import java.util.List;
+
+/**
+ * 对外服务软件包信息转换类
+ *
+ * @author hwyz_leo
+ */
+@Mapper
+public interface SoftwarePackageExServiceAssembler {
+
+    SoftwarePackageExServiceAssembler INSTANCE = Mappers.getMapper(SoftwarePackageExServiceAssembler.class);
+
+    /**
+     * 数据传输对象转值对象
+     *
+     * @param softwarePackageExService 数据传输对象
+     * @return 值对象
+     */
+    @Mappings({
+            @Mapping(target = "packageAdaptiveLevel", expression = "java(net.hwyz.iov.cloud.ota.fota.api.contract.enums.AdaptiveLevel.valOf(softwarePackageExService.getPackageAdaptionLevel()))"),
+            @Mapping(target = "packageType", expression = "java(net.hwyz.iov.cloud.ota.baseline.api.contract.enums.SoftwarePackageType.valOf(softwarePackageExService.getPackageType()))"),
+    })
+    SoftwarePackageVo toVo(SoftwarePackageExService softwarePackageExService);
+
+    /**
+     * 数据传输对象列表转值对象列表
+     *
+     * @param softwarePackageExServiceList 数据传输对象列表
+     * @return 值对象列表
+     */
+    List<SoftwarePackageVo> toVoList(List<SoftwarePackageExService> softwarePackageExServiceList);
+
+}

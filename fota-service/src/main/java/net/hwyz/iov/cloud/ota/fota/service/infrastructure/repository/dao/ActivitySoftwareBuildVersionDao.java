@@ -4,6 +4,8 @@ import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.Activity
 import net.hwyz.iov.cloud.framework.mysql.dao.BaseDao;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * <p>
  * 升级活动软件内部版本关系表 DAO
@@ -23,6 +25,13 @@ public interface ActivitySoftwareBuildVersionDao extends BaseDao<ActivitySoftwar
      * @return 删除数量
      */
     int batchPhysicalDeletePoByActivityIdAndSoftwareBuildVersionIds(Long activityId, Long[] softwareBuildVersionIds);
+
+    /**
+     * 根据升级活动ID查询软件内部版本关系
+     * @param activityId 升级活动ID
+     * @return 软件内部版本关系
+     */
+    List<ActivitySoftwareBuildVersionPo> selectPoByActivityId(Long activityId);
 
     /**
      * 根据升级活动ID统计数量

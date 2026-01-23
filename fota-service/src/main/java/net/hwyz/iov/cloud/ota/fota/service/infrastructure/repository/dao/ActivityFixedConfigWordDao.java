@@ -1,8 +1,10 @@
 package net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.dao;
 
-import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivityFixedConfigWordPo;
 import net.hwyz.iov.cloud.framework.mysql.dao.BaseDao;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivityFixedConfigWordPo;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 /**
  * <p>
@@ -14,6 +16,14 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface ActivityFixedConfigWordDao extends BaseDao<ActivityFixedConfigWordPo, Long> {
+
+    /**
+     * 根据升级活动ID查询固定配置字关系
+     *
+     * @param activityId 升级活动ID
+     * @return 固定配置字关系
+     */
+    List<ActivityFixedConfigWordPo> selectPoByActivityId(Long activityId);
 
     /**
      * 批量物理删除指定活动ID下固定配置字关系

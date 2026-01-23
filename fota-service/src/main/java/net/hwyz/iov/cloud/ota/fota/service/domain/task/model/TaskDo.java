@@ -13,12 +13,16 @@ import net.hwyz.iov.cloud.ota.fota.api.contract.enums.TaskState;
 import net.hwyz.iov.cloud.ota.fota.service.domain.contract.enums.TaskPhase;
 import net.hwyz.iov.cloud.ota.fota.service.domain.contract.enums.TaskType;
 import net.hwyz.iov.cloud.ota.fota.service.domain.contract.enums.UpgradeMode;
-import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.TaskPo;
 import net.hwyz.iov.cloud.ota.fota.service.domain.vehicle.model.VehicleDo;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.TaskPo;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.TaskRestrictionPo;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.TaskStrategyPo;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 升级任务领域对象
@@ -101,9 +105,14 @@ public class TaskDo extends BaseDo<Long> implements DomainObj<TaskDo> {
     private String description;
 
     /**
-     * 升级任务限制条件列表
+     * 升级任务限制条件Map
      */
-    private List<TaskRestrictionVo> taskRestrictionList;
+    private Map<TaskRestrictionType, TaskRestrictionVo> taskRestrictionMap;
+
+    /**
+     * 升级任务策略列表
+     */
+    private List<TaskStrategyVo> taskStrategyList;
 
     /**
      * 初始化
@@ -113,11 +122,24 @@ public class TaskDo extends BaseDo<Long> implements DomainObj<TaskDo> {
     }
 
     /**
+     * 加载信息
+     *
+     * @param taskRestrictionList 升级任务限制条件
+     */
+    public void load(List<TaskRestrictionVo> taskRestrictionList) {
+        this.taskRestrictionMap = taskRestrictionList.stream()
+                .collect(Collectors.toMap(TaskRestrictionVo::getRestrictionType, taskRestrictionVo -> taskRestrictionVo));
+        stateLoad();
+    }
+
+    /**
      * 修改信息
      *
-     * @param taskPo 升级任务
+     * @param taskPo              升级任务
+     * @param taskRestrictionList 升级任务限制条件
+     * @param taskStrategyList    升级任务策略
      */
-    public void edit(TaskPo taskPo) {
+    public void edit(TaskPo taskPo, List<TaskRestrictionPo> taskRestrictionList, List<TaskStrategyPo> taskStrategyList) {
         if (StrUtil.isNotBlank(taskPo.getName()) && !taskPo.getName().equals(this.name)) {
             this.name = taskPo.getName();
             stateChange();
@@ -166,16 +188,38 @@ public class TaskDo extends BaseDo<Long> implements DomainObj<TaskDo> {
                 stateChange();
             }
         }
+        for (TaskRestrictionPo taskRestrictionPo : taskRestrictionList) {
+            TaskRestrictionVo taskRestriction = this.taskRestrictionMap.values().stream()
+                    .filter(taskRestrictionVo -> taskRestrictionVo.getRestrictionType().name().equals(taskRestrictionPo.getRestrictionType()))
+                    .findAny()
+                    .orElseGet(() -> {
+                        TaskRestrictionVo tmp = TaskRestrictionVo.builder()
+                                .id(taskRestrictionPo.getId())
+                                .taskId(taskRestrictionPo.getTaskId())
+                                .restrictionType(TaskRestrictionType.valueOf(taskRestrictionPo.getRestrictionType()))
+                                .restrictionExpression(taskRestrictionPo.getRestrictionExpression())
+                                .build();
+                        this.taskRestrictionMap.put(tmp.getRestrictionType(), tmp);
+                        stateChange();
+                        return tmp;
+                    });
+            if (!taskRestriction.getRestrictionExpression().equals(taskRestrictionPo.getRestrictionExpression())) {
+                taskRestriction.setRestrictionExpression(taskRestrictionPo.getRestrictionExpression());
+                stateChange();
+            }
+        }
     }
 
     /**
      * 提交任务
      *
-     * @param taskPo 升级任务
+     * @param taskPo              升级任务
+     * @param taskRestrictionList 升级任务限制条件
+     * @param taskStrategyList    升级任务策略
      */
-    public int submit(TaskPo taskPo) {
+    public int submit(TaskPo taskPo, List<TaskRestrictionPo> taskRestrictionList, List<TaskStrategyPo> taskStrategyList) {
         if (this.taskState == TaskState.PENDING) {
-            edit(taskPo);
+            edit(taskPo, taskRestrictionList, taskStrategyList);
             this.taskState = TaskState.SUBMITTED;
             stateChange();
             return 1;
@@ -295,21 +339,25 @@ public class TaskDo extends BaseDo<Long> implements DomainObj<TaskDo> {
      * @return true: 满足条件，false: 不满足条件
      */
     private boolean checkRestrictions(VehicleDo vehicle) {
-        for (TaskRestrictionVo restriction : this.taskRestrictionList) {
-            switch (TaskRestrictionType.valueOf(restriction.getRestrictionType())) {
+        for (TaskRestrictionVo restriction : this.taskRestrictionMap.values()) {
+            switch (restriction.getRestrictionType()) {
                 case BASELINE_EXCLUDE -> {
-                    // 检查车辆基线是否在任务排除的基线范围内
                     for (String baseline : restriction.getRestrictionExpression().split(",")) {
                         if (baseline.equals(vehicle.getBaselineCode())) {
+                            logger.info("车辆[{}]基线[{}]在任务[{}]排除的基线内，任务不满足条件", vehicle.getId(), vehicle.getBaselineCode(), this.id);
                             return false;
                         }
                     }
                 }
                 case BASELINE_UNIFICATION -> {
-                    // 未对齐基线的车辆如果未打开强制拉齐则不满足条件
                     if (!Boolean.parseBoolean(restriction.getRestrictionExpression()) && !vehicle.getIsBaselineAlignment()) {
+                        logger.info("车辆[{}]未对齐基线[{}]且任务[{}]未打开强制拉齐，任务不满足条件", vehicle.getId(), vehicle.getBaselineCode(), this.id);
                         return false;
                     }
+                }
+                case ADAPTATION_SUBJECT -> {
+                    // TODO 检查适配主体
+                    return false;
                 }
             }
         }

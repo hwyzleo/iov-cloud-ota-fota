@@ -46,6 +46,18 @@ public class ActivitySoftwareBuildVersionPo extends BasePo {
     private Long softwareBuildVersionId;
 
     /**
+     * 是否关键版本
+     */
+    @TableField("critical")
+    private Boolean critical;
+
+    /**
+     * 是否支持OTA
+     */
+    @TableField("ota")
+    private Boolean ota;
+
+    /**
      * 排序
      */
     @TableField("sort")

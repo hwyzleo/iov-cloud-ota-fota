@@ -13,6 +13,7 @@ import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.Activity
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 升级活动领域对象
@@ -33,6 +34,21 @@ public class ActivityDo extends BaseDo<Long> implements DomainObj<ActivityDo> {
      * 活动版本
      */
     private String version;
+
+    /**
+     * 升级须知文章ID
+     */
+    private Long upgradeNoticeArticleId;
+
+    /**
+     * 活动条款文章ID
+     */
+    private Long activityTermArticleId;
+
+    /**
+     * 隐私协议文章ID
+     */
+    private Long privacyAgreementArticleId;
 
     /**
      * 活动开始时间
@@ -70,15 +86,40 @@ public class ActivityDo extends BaseDo<Long> implements DomainObj<ActivityDo> {
     private String description;
 
     /**
-     * 分组软件零件版本信息Map
+     * 分组软件内部版本信息Map
      */
     private Map<Integer, List<ActivitySoftwareBuildVersionVo>> groupSoftwareBuildVersionMap;
+
+    /**
+     * 固定配置字信息列表
+     */
+    private List<ConfigWordVo> fixedConfigWordList;
+
+    /**
+     * 兼容零件号Map
+     */
+    private Map<String, Set<String>> compatiblePnMap;
 
     /**
      * 初始化
      */
     public void init() {
         stateInit();
+    }
+
+    /**
+     * 加载信息
+     *
+     * @param groupSoftwareBuildVersionMap 分组软件内部版本信息Map
+     * @param fixedConfigWordList          固定配置字信息列表
+     * @param compatiblePnMap              兼容零件号Map
+     */
+    public void load(Map<Integer, List<ActivitySoftwareBuildVersionVo>> groupSoftwareBuildVersionMap, List<ConfigWordVo> fixedConfigWordList,
+                     Map<String, Set<String>> compatiblePnMap) {
+        this.groupSoftwareBuildVersionMap = groupSoftwareBuildVersionMap;
+        this.fixedConfigWordList = fixedConfigWordList;
+        this.compatiblePnMap = compatiblePnMap;
+        stateLoad();
     }
 
     /**
@@ -177,23 +218,24 @@ public class ActivityDo extends BaseDo<Long> implements DomainObj<ActivityDo> {
      * @return true: 满足条件，false: 不满足条件
      */
     public boolean checkPreconditions(VehicleDo vehicle) {
-        if (!checkNecessaryEcus(vehicle)) {
+        if (!checkCriticalEcus(vehicle)) {
             return false;
         }
         return true;
     }
 
     /**
-     * 检查车辆必要ECU是否满足升级条件
+     * 检查车辆关键ECU是否满足升级条件
      *
      * @param vehicle 车辆
      * @return true: 满足条件，false: 不满足条件
      */
-    private boolean checkNecessaryEcus(VehicleDo vehicle) {
+    private boolean checkCriticalEcus(VehicleDo vehicle) {
         if (this.baseline) {
             for (List<ActivitySoftwareBuildVersionVo> list : groupSoftwareBuildVersionMap.values()) {
                 for (ActivitySoftwareBuildVersionVo entity : list) {
-                    if (!vehicle.getEcuMap().containsKey(entity.getSoftwareBuildVersion().getEcuCode())) {
+                    if (entity.getCritical() && !vehicle.getEcuMap().containsKey(entity.getSoftwareBuildVersion().getEcuCode())) {
+                        logger.warn("车辆[{}]关键ECU[{}]不满足升级条件", vehicle.getId(), entity.getSoftwareBuildVersion().getEcuCode());
                         return false;
                     }
                 }

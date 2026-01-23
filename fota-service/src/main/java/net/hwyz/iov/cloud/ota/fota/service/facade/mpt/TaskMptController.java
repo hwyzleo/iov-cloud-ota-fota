@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.audit.annotation.Log;
 import net.hwyz.iov.cloud.framework.audit.enums.BusinessType;
+import net.hwyz.iov.cloud.framework.common.util.StrUtil;
 import net.hwyz.iov.cloud.framework.common.web.controller.BaseController;
 import net.hwyz.iov.cloud.framework.common.web.domain.AjaxResult;
 import net.hwyz.iov.cloud.framework.common.web.page.TableDataInfo;
@@ -21,12 +22,17 @@ import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.TaskMptAssembler;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.cache.CacheService;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.exception.TaskNotExistException;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.TaskPo;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.TaskRestrictionPo;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.TaskStrategyPo;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static net.hwyz.iov.cloud.ota.fota.api.contract.enums.TaskRestrictionType.*;
+import static net.hwyz.iov.cloud.ota.fota.api.contract.enums.TaskStrategyType.ROLLBACK;
 
 /**
  * 升级任务相关管理接口实现类
@@ -120,7 +126,7 @@ public class TaskMptController extends BaseController implements TaskMptApi {
         logger.info("管理后台用户[{}]新增升级任务[{}]", SecurityUtils.getUsername(), task.getName());
         TaskPo taskPo = TaskMptAssembler.INSTANCE.toPo(task);
         taskPo.setCreateBy(SecurityUtils.getUserId().toString());
-        return toAjax(taskAppService.createTask(taskPo));
+        return toAjax(taskAppService.createTask(taskPo, assemblerTaskRestrictions(task), assemblerTaskStrategies(task)));
     }
 
     /**
@@ -138,7 +144,7 @@ public class TaskMptController extends BaseController implements TaskMptApi {
         TaskPo taskPo = TaskMptAssembler.INSTANCE.toPo(task);
         taskPo.setModifyBy(SecurityUtils.getUserId().toString());
         TaskDo taskDo = taskRepository.getById(taskPo.getId()).orElseThrow(() -> new TaskNotExistException(taskPo.getId()));
-        taskDo.edit(taskPo);
+        taskDo.edit(taskPo, assemblerTaskRestrictions(task), assemblerTaskStrategies(task));
         taskRepository.save(taskDo);
         return toAjax(1);
     }
@@ -163,7 +169,7 @@ public class TaskMptController extends BaseController implements TaskMptApi {
         TaskPo taskPo = TaskMptAssembler.INSTANCE.toPo(task);
         taskPo.setModifyBy(SecurityUtils.getUserId().toString());
         TaskDo taskDo = taskRepository.getById(taskPo.getId()).orElseThrow(() -> new TaskNotExistException(taskPo.getId()));
-        int result = taskDo.submit(taskPo);
+        int result = taskDo.submit(taskPo, assemblerTaskRestrictions(task), assemblerTaskStrategies(task));
         taskRepository.save(taskDo);
         return toAjax(result);
     }
@@ -276,5 +282,57 @@ public class TaskMptController extends BaseController implements TaskMptApi {
     public AjaxResult remove(@PathVariable Long[] taskIds) {
         logger.info("管理后台用户[{}]删除升级任务[{}]", SecurityUtils.getUsername(), taskIds);
         return toAjax(taskAppService.deleteTaskByIds(taskIds));
+    }
+
+    /**
+     * 组装任务限制
+     *
+     * @param task 升级任务
+     * @return 任务限制
+     */
+    private List<TaskRestrictionPo> assemblerTaskRestrictions(TaskMpt task) {
+        List<TaskRestrictionPo> taskRestrictionList = new ArrayList<>();
+        if (task.getAdaptiveSubject() != null) {
+            taskRestrictionList.add(TaskRestrictionPo.builder()
+                    .restrictionType(ADAPTATION_SUBJECT.name())
+                    .restrictionExpression(String.valueOf(task.getAdaptiveSubject()))
+                    .build());
+        }
+        if (StrUtil.isNotBlank(task.getExcludedBaseline())) {
+            taskRestrictionList.add(TaskRestrictionPo.builder()
+                    .restrictionType(BASELINE_EXCLUDE.name())
+                    .restrictionExpression(task.getExcludedBaseline())
+                    .build());
+        }
+        if (task.getBaselineUnification() != null) {
+            taskRestrictionList.add(TaskRestrictionPo.builder()
+                    .restrictionType(BASELINE_UNIFICATION.name())
+                    .restrictionExpression(String.valueOf(task.getBaselineUnification()))
+                    .build());
+        }
+        if (task.getComparisonCriteria() != null) {
+            taskRestrictionList.add(TaskRestrictionPo.builder()
+                    .restrictionType(COMPARISON_CRITERIA.name())
+                    .restrictionExpression(String.valueOf(task.getComparisonCriteria()))
+                    .build());
+        }
+        return taskRestrictionList;
+    }
+
+    /**
+     * 组装任务策略
+     *
+     * @param task 升级任务
+     * @return 任务策略
+     */
+    private List<TaskStrategyPo> assemblerTaskStrategies(TaskMpt task) {
+        List<TaskStrategyPo> taskStrategyList = new ArrayList<>();
+        if (task.getRollback() != null) {
+            taskStrategyList.add(TaskStrategyPo.builder()
+                    .strategyType(ROLLBACK.name())
+                    .strategyExpression(String.valueOf(task.getRollback()))
+                    .build());
+        }
+        return taskStrategyList;
     }
 }

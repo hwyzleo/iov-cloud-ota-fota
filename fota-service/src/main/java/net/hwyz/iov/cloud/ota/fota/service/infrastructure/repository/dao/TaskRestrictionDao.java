@@ -1,8 +1,10 @@
 package net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.dao;
 
-import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.TaskRestrictionPo;
 import net.hwyz.iov.cloud.framework.mysql.dao.BaseDao;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.TaskRestrictionPo;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 /**
  * <p>
@@ -14,5 +16,13 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface TaskRestrictionDao extends BaseDao<TaskRestrictionPo, Long> {
+
+    /**
+     * 根据任务ID查询限制条件
+     *
+     * @param taskId 任务ID
+     * @return 限制条件列表
+     */
+    List<TaskRestrictionPo> selectPoByTaskId(Long taskId);
 
 }

@@ -30,6 +30,16 @@ public class ActivitySoftwareBuildVersionVo {
     private Boolean forceUpgrade;
 
     /**
+     * 是否关键版本
+     */
+    private Boolean critical;
+
+    /**
+     * 是否支持OTA
+     */
+    private Boolean ota;
+
+    /**
      * 软件内部版本
      */
     private SoftwareBuildVersionVo softwareBuildVersion;
@@ -43,6 +53,11 @@ public class ActivitySoftwareBuildVersionVo {
      * 软件内部版本依赖列表
      */
     private List<SoftwareBuildVersionDependencyVo> softwareBuildVersionDependencyList;
+
+    /**
+     * 配置字列表
+     */
+    private List<ConfigWordVo> configWordList;
 
     /**
      * 创建时间

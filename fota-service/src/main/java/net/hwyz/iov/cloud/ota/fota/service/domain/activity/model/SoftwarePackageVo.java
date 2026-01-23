@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.hwyz.iov.cloud.ota.baseline.api.contract.enums.SoftwarePackageType;
+import net.hwyz.iov.cloud.ota.fota.api.contract.enums.AdaptiveLevel;
 
 import java.util.Date;
 
@@ -69,9 +71,9 @@ public class SoftwarePackageVo {
     private String packageDesc;
 
     /**
-     * 软件包类型：1-全量，2-差分
+     * 软件包类型
      */
-    private Integer packageType;
+    private SoftwarePackageType packageType;
 
     /**
      * 软件包来源：1-BOM，2-OTA
@@ -91,12 +93,12 @@ public class SoftwarePackageVo {
     /**
      * 软件包适配级别：1-基础版本及以下，2-基础版本及以上，3-与基础版本一致
      */
-    private Integer packageAdaptionLevel;
+    private AdaptiveLevel packageAdaptiveLevel;
 
     /**
      * 适配的总成软件零件号
      */
-    private String adaptedSoftwarePn;
+    private String adaptiveSoftwarePn;
 
     /**
      * 发布日期
@@ -112,6 +114,11 @@ public class SoftwarePackageVo {
      * 是否是OTA包
      */
     private Boolean ota;
+
+    /**
+     * 是否匹配
+     */
+    private Boolean match;
 
     /**
      * 创建时间

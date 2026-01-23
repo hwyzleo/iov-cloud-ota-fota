@@ -13,7 +13,9 @@ import java.util.Arrays;
 public enum TaskRestrictionType {
 
     BASELINE_EXCLUDE("过滤排除的基线号"),
-    BASELINE_UNIFICATION("未对齐基线的车辆拉齐基线");
+    BASELINE_UNIFICATION("未对齐基线的车辆拉齐基线"),
+    ADAPTATION_SUBJECT("适配主体"),
+    COMPARISON_CRITERIA("比对基准");
 
     /**
      * 名称

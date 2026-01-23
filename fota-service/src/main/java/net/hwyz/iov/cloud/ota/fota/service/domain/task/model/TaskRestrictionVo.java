@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.hwyz.iov.cloud.ota.fota.api.contract.enums.TaskRestrictionType;
 
 import java.util.Date;
 
@@ -31,7 +32,7 @@ public class TaskRestrictionVo {
     /**
      * 限制条件类型
      */
-    private String restrictionType;
+    private TaskRestrictionType restrictionType;
 
     /**
      * 限制条件表达式

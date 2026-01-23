@@ -39,6 +39,16 @@ public class SoftwareBuildVersionVo {
     private String softwarePartName;
 
     /**
+     * 软件零件是否支持OTA
+     */
+    private Boolean softwarePartOta;
+
+    /**
+     * 软件零件是否有解闭锁安全件
+     */
+    private Boolean softwarePartLockUnlockSecurityComponent;
+
+    /**
      * 软件零件版本
      */
     private String softwarePartVer;
@@ -66,12 +76,12 @@ public class SoftwareBuildVersionVo {
     /**
      * 适配的总成硬件零件号
      */
-    private String adaptedHardwarePn;
+    private String adaptiveHardwarePn;
 
     /**
      * 适配的总成软件零件号
      */
-    private String adaptedSoftwarePn;
+    private String adaptiveSoftwarePn;
 
     /**
      * 发布日期
@@ -92,7 +102,7 @@ public class SoftwareBuildVersionVo {
      * 适配级别
      * 作为依赖时使用
      */
-    private Integer adaptionLevel;
+    private Integer adaptiveLevel;
 
     /**
      * 创建时间

@@ -33,6 +33,11 @@ public class ActivitySoftwareBuildVersionMpt extends BaseRequest {
     private Long softwareBuildVersionId;
 
     /**
+     * 是否关键版本
+     */
+    private Boolean critical;
+
+    /**
      * ECU编码
      */
     private String ecuCode;

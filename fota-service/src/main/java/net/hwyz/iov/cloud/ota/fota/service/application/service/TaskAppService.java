@@ -5,7 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.util.ParamHelper;
 import net.hwyz.iov.cloud.ota.fota.api.contract.enums.TaskState;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.dao.TaskDao;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.dao.TaskRestrictionDao;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.TaskPo;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.TaskRestrictionPo;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.TaskStrategyPo;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -24,6 +27,7 @@ import java.util.Map;
 public class TaskAppService {
 
     private final TaskDao taskDao;
+    private final TaskRestrictionDao taskRestrictionDao;
 
     /**
      * 查询升级任务
@@ -54,12 +58,17 @@ public class TaskAppService {
     /**
      * 新增升级任务
      *
-     * @param task 升级任务
+     * @param task                升级任务
+     * @param taskRestrictionList 升级任务限制条件
+     * @param taskStrategyList    升级任务策略
      * @return 结果
      */
-    public int createTask(TaskPo task) {
+    public int createTask(TaskPo task, List<TaskRestrictionPo> taskRestrictionList, List<TaskStrategyPo> taskStrategyList) {
         task.setState(TaskState.PENDING.value);
-        return taskDao.insertPo(task);
+        int result = taskDao.insertPo(task);
+        taskRestrictionList.forEach(taskRestriction -> taskRestriction.setTaskId(task.getId()));
+        taskRestrictionDao.batchInsertPo(taskRestrictionList);
+        return result;
     }
 
     /**

@@ -155,6 +155,15 @@
         ORDER BY t.id DESC
     </select>
 
+    <!-- 根据升级活动ID查询固定配置字关系 -->
+    <select id="selectPoByActivityId" parameterType="java.util.Map" resultMap="baseResultMap">
+        SELECT <include refid="baseColumnList"/>
+        FROM tb_activity_fixed_config_word t
+        WHERE t.row_valid = 1
+        AND t.activity_id = #{activityId}
+        ORDER BY t.id DESC
+    </select>
+
     <!-- 根据Map对象统计记录数 -->
     <select id="countPoByMap" parameterType="java.util.Map" resultType="int">
         SELECT COUNT(*)
