@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 import static net.hwyz.iov.cloud.ota.fota.api.contract.enums.TaskRestrictionType.*;
-import static net.hwyz.iov.cloud.ota.fota.api.contract.enums.TaskStrategyType.ROLLBACK;
+import static net.hwyz.iov.cloud.ota.fota.api.contract.enums.TaskStrategyType.*;
 
 /**
  * 升级任务相关管理接口实现类
@@ -331,6 +331,54 @@ public class TaskMptController extends BaseController implements TaskMptApi {
             taskStrategyList.add(TaskStrategyPo.builder()
                     .strategyType(ROLLBACK.name())
                     .strategyExpression(String.valueOf(task.getRollback()))
+                    .build());
+        }
+        if (task.getFlashCount() != null) {
+            taskStrategyList.add(TaskStrategyPo.builder()
+                    .strategyType(FLASH_COUNT.name())
+                    .strategyExpression(String.valueOf(task.getFlashCount()))
+                    .build());
+        }
+        if (task.getImpactVehicleOperation() != null) {
+            taskStrategyList.add(TaskStrategyPo.builder()
+                    .strategyType(IMPACT_VEHICLE_OPERATION.name())
+                    .strategyExpression(String.valueOf(task.getImpactVehicleOperation()))
+                    .build());
+        }
+        if (task.getKeepInPark() != null) {
+            taskStrategyList.add(TaskStrategyPo.builder()
+                    .strategyType(KEEP_IN_PARK.name())
+                    .strategyExpression(String.valueOf(task.getKeepInPark()))
+                    .build());
+        }
+        if (task.getNotCharging() != null) {
+            taskStrategyList.add(TaskStrategyPo.builder()
+                    .strategyType(NOT_CHARGING.name())
+                    .strategyExpression(String.valueOf(task.getNotCharging()))
+                    .build());
+        }
+        if (task.getNoExternalPower() != null) {
+            taskStrategyList.add(TaskStrategyPo.builder()
+                    .strategyType(NO_EXTERNAL_POWER.name())
+                    .strategyExpression(String.valueOf(task.getNoExternalPower()))
+                    .build());
+        }
+        if (task.getAllClosed() != null) {
+            taskStrategyList.add(TaskStrategyPo.builder()
+                    .strategyType(ALL_CLOSED.name())
+                    .strategyExpression(String.valueOf(task.getAllClosed()))
+                    .build());
+        }
+        if (task.getHvSoc() != null) {
+            taskStrategyList.add(TaskStrategyPo.builder()
+                    .strategyType(HV_SOC.name())
+                    .strategyExpression(String.valueOf(task.getHvSoc()))
+                    .build());
+        }
+        if (task.getLvSoc() != null) {
+            taskStrategyList.add(TaskStrategyPo.builder()
+                    .strategyType(LV_SOC.name())
+                    .strategyExpression(String.valueOf(task.getLvSoc()))
                     .build());
         }
         return taskStrategyList;

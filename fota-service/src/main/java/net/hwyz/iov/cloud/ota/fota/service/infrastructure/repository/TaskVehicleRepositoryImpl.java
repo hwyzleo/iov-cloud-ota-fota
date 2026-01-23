@@ -1,5 +1,6 @@
 package net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository;
 
+import cn.hutool.json.JSONUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.domain.AbstractRepository;
@@ -7,6 +8,8 @@ import net.hwyz.iov.cloud.ota.fota.service.domain.taskvehicle.model.TaskVehicleD
 import net.hwyz.iov.cloud.ota.fota.service.domain.taskvehicle.repository.TaskVehicleRepository;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.assembler.TaskVehiclePoAssembler;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.dao.TaskVehicleDao;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.dao.TaskVehicleDetailDao;
+import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.TaskVehicleDetailPo;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.TaskVehiclePo;
 import org.springframework.stereotype.Repository;
 
@@ -23,6 +26,7 @@ import java.util.Optional;
 public class TaskVehicleRepositoryImpl extends AbstractRepository<Long, TaskVehicleDo> implements TaskVehicleRepository {
 
     private final TaskVehicleDao taskVehicleDao;
+    private final TaskVehicleDetailDao taskVehicleDetailDao;
 
     @Override
     public Optional<TaskVehicleDo> getById(Long id) {
@@ -40,7 +44,16 @@ public class TaskVehicleRepositoryImpl extends AbstractRepository<Long, TaskVehi
     public boolean save(TaskVehicleDo taskVehicleDo) {
         switch (taskVehicleDo.getState()) {
             case CHANGED -> {
-
+                TaskVehicleDetailPo taskVehicleDetail = taskVehicleDetailDao.selectPoById(taskVehicleDo.getId());
+                if (taskVehicleDetail == null) {
+                    taskVehicleDetailDao.insertPo(TaskVehicleDetailPo.builder()
+                            .id(taskVehicleDo.getId())
+                            .fotaInfo(JSONUtil.toJsonStr(taskVehicleDo.getSoftwareBuildVersionList()))
+                            .build());
+                } else {
+                    taskVehicleDetail.setFotaInfo(JSONUtil.toJsonStr(taskVehicleDo.getSoftwareBuildVersionList()));
+                    taskVehicleDetailDao.updatePo(taskVehicleDetail);
+                }
             }
             default -> {
                 return false;

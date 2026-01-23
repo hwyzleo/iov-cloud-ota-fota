@@ -1,6 +1,7 @@
 package net.hwyz.iov.cloud.ota.fota.service.domain.taskvehicle.model;
 
 import cn.hutool.core.comparator.VersionComparator;
+import cn.hutool.json.JSONObject;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,8 @@ import net.hwyz.iov.cloud.ota.fota.api.contract.enums.AdaptiveSubject;
 import net.hwyz.iov.cloud.ota.fota.api.contract.enums.TaskRestrictionType;
 import net.hwyz.iov.cloud.ota.fota.api.contract.enums.TaskStrategyType;
 import net.hwyz.iov.cloud.ota.fota.service.domain.activity.model.*;
+import net.hwyz.iov.cloud.ota.fota.service.domain.contract.enums.UpgradeMode;
+import net.hwyz.iov.cloud.ota.fota.service.domain.contract.enums.UpgradeModeArg;
 import net.hwyz.iov.cloud.ota.fota.service.domain.task.model.TaskDo;
 import net.hwyz.iov.cloud.ota.fota.service.domain.task.model.TaskRestrictionVo;
 import net.hwyz.iov.cloud.ota.fota.service.domain.vehicle.model.EcuInfoVo;
@@ -30,6 +33,56 @@ import java.util.*;
 @Getter
 @SuperBuilder
 public class TaskVehicleDo extends BaseDo<Long> implements DomainObj<TaskVehicleDo> {
+
+    /**
+     * 基线代码
+     */
+    private String baselineCode;
+
+    /**
+     * 升级活动版本
+     */
+    private String activityVersion;
+
+    /**
+     * 升级活动发布时间
+     */
+    private Date activityReleaseTime;
+
+    /**
+     * 升级目的
+     */
+    private String upgradePurpose;
+
+    /**
+     * 升级功能项
+     */
+    private String upgradeFunction;
+
+    /**
+     * 活动说明
+     */
+    private String activityStatement;
+
+    /**
+     * 升级任务开始时间
+     */
+    private Date taskStartTime;
+
+    /**
+     * 升级任务结束时间
+     */
+    private Date taskEndTime;
+
+    /**
+     * 升级模式
+     */
+    private UpgradeMode upgradeMode;
+
+    /**
+     * 升级模式参数
+     */
+    private JSONObject upgradeModeArg;
 
     /**
      * 策略列表
@@ -61,6 +114,25 @@ public class TaskVehicleDo extends BaseDo<Long> implements DomainObj<TaskVehicle
      */
     public void init() {
         stateInit();
+    }
+
+    /**
+     * 加载基础信息
+     *
+     * @param activity 升级活动
+     * @param task     升级任务
+     */
+    public void loadBaseInfo(ActivityDo activity, TaskDo task) {
+        this.baselineCode = activity.getBaselineCode();
+        this.activityVersion = activity.getVersion();
+        this.activityReleaseTime = activity.getReleaseTime();
+        this.upgradePurpose = activity.getUpgradePurpose();
+        this.upgradeFunction = activity.getUpgradeFunction();
+        this.activityStatement = activity.getStatement();
+        this.taskStartTime = task.getStartTime();
+        this.taskEndTime = task.getEndTime();
+        this.upgradeMode = task.getUpgradeMode();
+        this.upgradeModeArg = task.getUpgradeModeArg();
     }
 
     /**
@@ -124,6 +196,7 @@ public class TaskVehicleDo extends BaseDo<Long> implements DomainObj<TaskVehicle
                 }
             }
         }
+        stateChange();
     }
 
     /**
@@ -144,6 +217,45 @@ public class TaskVehicleDo extends BaseDo<Long> implements DomainObj<TaskVehicle
      */
     public CloudFotaInfoCcp toCloudFotaInfoCcp() {
         CloudFotaInfoCcp cloudFotaInfoCcp = new CloudFotaInfoCcp();
+        cloudFotaInfoCcp.setBaselineCode(this.baselineCode);
+        cloudFotaInfoCcp.setActivityVersion(this.activityVersion);
+        cloudFotaInfoCcp.setActivityReleaseTime(this.activityReleaseTime);
+        cloudFotaInfoCcp.setUpgradePurpose(this.upgradePurpose);
+        cloudFotaInfoCcp.setUpgradeFunction(this.upgradeFunction);
+        cloudFotaInfoCcp.setActivityStatement(this.activityStatement);
+        cloudFotaInfoCcp.setTaskStartTime(this.taskStartTime);
+        cloudFotaInfoCcp.setTaskEndTime(this.taskEndTime);
+        if (this.strategyMap.containsKey(TaskStrategyType.KEEP_IN_PARK)) {
+            cloudFotaInfoCcp.setKeepInPark(Boolean.valueOf(this.strategyMap.get(TaskStrategyType.KEEP_IN_PARK)));
+        }
+        if (this.strategyMap.containsKey(TaskStrategyType.NOT_CHARGING)) {
+            cloudFotaInfoCcp.setNotCharging(Boolean.valueOf(this.strategyMap.get(TaskStrategyType.NOT_CHARGING)));
+        }
+        if (this.strategyMap.containsKey(TaskStrategyType.NO_EXTERNAL_POWER)) {
+            cloudFotaInfoCcp.setNoExternalPower(Boolean.valueOf(this.strategyMap.get(TaskStrategyType.NO_EXTERNAL_POWER)));
+        }
+        if (this.strategyMap.containsKey(TaskStrategyType.ALL_CLOSED)) {
+            cloudFotaInfoCcp.setAllClosed(Boolean.valueOf(this.strategyMap.get(TaskStrategyType.ALL_CLOSED)));
+        }
+        if (this.strategyMap.containsKey(TaskStrategyType.HV_SOC)) {
+            cloudFotaInfoCcp.setHvSoc(Integer.parseInt(this.strategyMap.get(TaskStrategyType.HV_SOC)));
+        }
+        if (this.strategyMap.containsKey(TaskStrategyType.LV_SOC)) {
+            cloudFotaInfoCcp.setLvSoc(Integer.parseInt(this.strategyMap.get(TaskStrategyType.LV_SOC)));
+        }
+        if (this.strategyMap.containsKey(TaskStrategyType.IMPACT_VEHICLE_OPERATION)) {
+            cloudFotaInfoCcp.setImpactVehicleOperation(Boolean.valueOf(this.strategyMap.get(TaskStrategyType.IMPACT_VEHICLE_OPERATION)));
+        }
+        if (this.strategyMap.containsKey(TaskStrategyType.FLASH_COUNT)) {
+            cloudFotaInfoCcp.setFlashCount(Integer.parseInt(this.strategyMap.get(TaskStrategyType.FLASH_COUNT)));
+        }
+        if (this.strategyMap.containsKey(TaskStrategyType.ROLLBACK)) {
+            cloudFotaInfoCcp.setRollback(Boolean.valueOf(this.strategyMap.get(TaskStrategyType.ROLLBACK)));
+        }
+        cloudFotaInfoCcp.setUpgradeMode(this.upgradeMode.getValue());
+        if (this.upgradeModeArg.containsKey(UpgradeModeArg.SCHEDULED_TIME.name())) {
+            cloudFotaInfoCcp.setScheduleTime(this.upgradeModeArg.getDate(UpgradeModeArg.SCHEDULED_TIME.name()));
+        }
         return cloudFotaInfoCcp;
     }
 

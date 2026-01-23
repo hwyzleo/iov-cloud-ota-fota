@@ -63,6 +63,41 @@ public class TaskMpt extends BaseRequest {
     private Date releaseTime;
 
     /**
+     * 保持驻车(P档)
+     */
+    private Boolean keepInPark;
+
+    /**
+     * 不在充电
+     */
+    private Boolean notCharging;
+
+    /**
+     * 不对外供电
+     */
+    private Boolean noExternalPower;
+
+    /**
+     * 车窗、天窗、车门及尾门关闭
+     */
+    private Boolean allClosed;
+
+    /**
+     * 高压电量
+     */
+    private Integer hvSoc;
+
+    /**
+     * 低压电量
+     */
+    private Integer lvSoc;
+
+    /**
+     * 是否影响车辆操作
+     */
+    private Boolean impactVehicleOperation;
+
+    /**
      * 通知类型（多选）：1 手机
      */
     private String noticeType;
@@ -96,6 +131,11 @@ public class TaskMpt extends BaseRequest {
      * 基线拉齐
      */
     private Boolean baselineUnification;
+
+    /**
+     * 刷写次数
+     */
+    private Integer flashCount;
 
     /**
      * 是否回滚

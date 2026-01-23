@@ -66,10 +66,12 @@ public class FotaCcpController extends BaseController implements FotaCcpApi {
                     return;
                 }
                 taskVehicleRepository.getByTaskIdAndVin(task.getId(), vin).ifPresent(taskVehicle -> {
+                    taskVehicle.loadBaseInfo(activity, task);
                     taskVehicle.loadStrategy(task);
                     taskVehicle.loadSoftwareBuildVersion(activity, task, vehicle, fotaHelper);
                     taskVehicle.loadArticle(activity);
                     cloudFotaInfoCcp[0] = taskVehicle.toCloudFotaInfoCcp();
+                    taskVehicleRepository.save(taskVehicle);
                 });
             });
         });

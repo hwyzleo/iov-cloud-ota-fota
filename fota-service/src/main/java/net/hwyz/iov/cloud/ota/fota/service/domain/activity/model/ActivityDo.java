@@ -66,6 +66,21 @@ public class ActivityDo extends BaseDo<Long> implements DomainObj<ActivityDo> {
     private Date releaseTime;
 
     /**
+     * 升级目的
+     */
+    private String upgradePurpose;
+
+    /**
+     * 升级功能项
+     */
+    private String upgradeFunction;
+
+    /**
+     * 活动说明
+     */
+    private String statement;
+
+    /**
      * 活动状态
      */
     private ActivityState activityState;
