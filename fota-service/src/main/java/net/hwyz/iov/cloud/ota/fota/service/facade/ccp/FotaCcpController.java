@@ -6,7 +6,10 @@ import net.hwyz.iov.cloud.framework.common.bean.Response;
 import net.hwyz.iov.cloud.framework.common.web.controller.BaseController;
 import net.hwyz.iov.cloud.ota.fota.api.contract.CloudFotaInfoCcp;
 import net.hwyz.iov.cloud.ota.fota.api.contract.VehicleFotaInfoCcp;
+import net.hwyz.iov.cloud.ota.fota.api.contract.VehicleTaskProcessCcp;
+import net.hwyz.iov.cloud.ota.fota.api.contract.VehicleTaskStateCcp;
 import net.hwyz.iov.cloud.ota.fota.api.feign.ccp.FotaCcpApi;
+import net.hwyz.iov.cloud.ota.fota.service.application.service.TaskVehicleAppService;
 import net.hwyz.iov.cloud.ota.fota.service.domain.activity.repository.ActivityRepository;
 import net.hwyz.iov.cloud.ota.fota.service.domain.task.service.TaskService;
 import net.hwyz.iov.cloud.ota.fota.service.domain.taskvehicle.repository.TaskVehicleRepository;
@@ -14,6 +17,7 @@ import net.hwyz.iov.cloud.ota.fota.service.domain.vehicle.model.EcuInfoVo;
 import net.hwyz.iov.cloud.ota.fota.service.domain.vehicle.model.VehicleDo;
 import net.hwyz.iov.cloud.ota.fota.service.domain.vehicle.repository.VehicleRepository;
 import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.EcuInfoCcpAssembler;
+import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.VehicleTaskProcessCcpAssembler;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.exception.VehicleNotExistException;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.util.FotaHelper;
 import org.springframework.validation.annotation.Validated;
@@ -37,6 +41,7 @@ public class FotaCcpController extends BaseController implements FotaCcpApi {
     private final FotaHelper fotaHelper;
     private final ActivityRepository activityRepository;
     private final TaskVehicleRepository taskVehicleRepository;
+    private final TaskVehicleAppService taskVehicleAppService;
 
     /**
      * 检查车辆升级信息
@@ -79,4 +84,53 @@ public class FotaCcpController extends BaseController implements FotaCcpApi {
         return new Response<>(cloudFotaInfoCcp[0]);
     }
 
+    /**
+     * 上报车辆升级任务过程
+     *
+     * @param vin                车架号
+     * @param vehicleTaskProcess 车辆升级任务过程
+     * @return 上报结果
+     */
+    @Override
+    @PostMapping("/reportTaskProcess")
+    public Response<Void> reportTaskProcess(@RequestHeader String vin, @Validated @RequestBody VehicleTaskProcessCcp vehicleTaskProcess) {
+        logger.info("车辆[{}]上报车辆升级任务过程", vin);
+        VehicleDo vehicle = vehicleRepository.getById(vin).orElseThrow(() -> new VehicleNotExistException(vin));
+        taskService.getVehicleTask(vehicle).ifPresent(task -> {
+            if (task.getId().longValue() != vehicleTaskProcess.getTaskId()) {
+                logger.warn("车辆[{}]上报车辆升级任务状态任务ID不一致", vin);
+                return;
+            }
+            taskVehicleRepository.getByTaskIdAndVin(task.getId(), vin).ifPresent(taskVehicle -> {
+                taskVehicleAppService.addTaskVehicleProcess(VehicleTaskProcessCcpAssembler.INSTANCE.toPo(vehicleTaskProcess));
+                // TODO 整体结束时更新车辆零件版本
+            });
+        });
+        return new Response<>();
+    }
+
+    /**
+     * 上报车辆升级任务状态
+     *
+     * @param vin              车架号
+     * @param vehicleTaskState 车辆升级任务状态
+     * @return 上报结果
+     */
+    @Override
+    @PostMapping("/reportTaskState")
+    public Response<Void> reportTaskState(String vin, VehicleTaskStateCcp vehicleTaskState) {
+        logger.info("车辆[{}]上报车辆升级任务状态", vin);
+        VehicleDo vehicle = vehicleRepository.getById(vin).orElseThrow(() -> new VehicleNotExistException(vin));
+        taskService.getVehicleTask(vehicle).ifPresent(task -> {
+            if (task.getId().longValue() != vehicleTaskState.getTaskId()) {
+                logger.warn("车辆[{}]上报车辆升级任务状态任务ID不一致", vin);
+                return;
+            }
+            taskVehicleRepository.getByTaskIdAndVin(task.getId(), vin).ifPresent(taskVehicle -> {
+                taskVehicle.updateState(vehicleTaskState.getTaskState());
+                taskVehicleRepository.save(taskVehicle);
+            });
+        });
+        return new Response<>();
+    }
 }

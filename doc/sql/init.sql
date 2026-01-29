@@ -132,6 +132,44 @@ CREATE TABLE `db_fota`.`tb_task`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT '升级任务表';
 
+DROP TABLE IF EXISTS `db_fota`.`tb_task_restriction`;
+CREATE TABLE `db_fota`.`tb_task_restriction`
+(
+    `id`                     BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `task_id`                BIGINT       NOT NULL COMMENT '升级任务ID',
+    `restriction_type`       VARCHAR(255) NOT NULL COMMENT '限制条件类型',
+    `restriction_expression` VARCHAR(255) NOT NULL COMMENT '限制条件表达式',
+    `description`            VARCHAR(255)          DEFAULT NULL COMMENT '备注',
+    `create_time`            TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `create_by`              VARCHAR(64)           DEFAULT NULL COMMENT '创建者',
+    `modify_time`            TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `modify_by`              VARCHAR(64)           DEFAULT NULL COMMENT '修改者',
+    `row_version`            INT                   DEFAULT 1 COMMENT '记录版本',
+    `row_valid`              TINYINT               DEFAULT 1 COMMENT '记录是否有效',
+    PRIMARY KEY (`id`) USING BTREE,
+    INDEX `idx_task` (`task_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT '升级任务限制条件表';
+
+DROP TABLE IF EXISTS `db_fota`.`tb_task_strategy`;
+CREATE TABLE `db_fota`.`tb_task_strategy`
+(
+    `id`                  BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `task_id`             BIGINT       NOT NULL COMMENT '升级任务ID',
+    `strategy_type`       VARCHAR(255) NOT NULL COMMENT '策略类型',
+    `strategy_expression` VARCHAR(255) NOT NULL COMMENT '限制条件表达式',
+    `description`         VARCHAR(255)          DEFAULT NULL COMMENT '备注',
+    `create_time`         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `create_by`           VARCHAR(64)           DEFAULT NULL COMMENT '创建者',
+    `modify_time`         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `modify_by`           VARCHAR(64)           DEFAULT NULL COMMENT '修改者',
+    `row_version`         INT                   DEFAULT 1 COMMENT '记录版本',
+    `row_valid`           TINYINT               DEFAULT 1 COMMENT '记录是否有效',
+    PRIMARY KEY (`id`) USING BTREE,
+    INDEX `idx_task` (`task_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT '升级任务策略表';
+
 DROP TABLE IF EXISTS `db_fota`.`tb_task_vehicle`;
 CREATE TABLE `db_fota`.`tb_task_vehicle`
 (
@@ -171,43 +209,31 @@ CREATE TABLE `db_fota`.`tb_task_vehicle_detail`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT '升级任务车辆详情表';
 
-DROP TABLE IF EXISTS `db_fota`.`tb_task_restriction`;
-CREATE TABLE `db_fota`.`tb_task_restriction`
+DROP TABLE IF EXISTS `db_fota`.`tb_task_vehicle_process`;
+CREATE TABLE `db_fota`.`tb_task_vehicle_process`
 (
-    `id`                     BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键',
-    `task_id`                BIGINT       NOT NULL COMMENT '升级任务ID',
-    `restriction_type`       VARCHAR(255) NOT NULL COMMENT '限制条件类型',
-    `restriction_expression` VARCHAR(255) NOT NULL COMMENT '限制条件表达式',
-    `description`            VARCHAR(255)          DEFAULT NULL COMMENT '备注',
-    `create_time`            TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `create_by`              VARCHAR(64)           DEFAULT NULL COMMENT '创建者',
-    `modify_time`            TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-    `modify_by`              VARCHAR(64)           DEFAULT NULL COMMENT '修改者',
-    `row_version`            INT                   DEFAULT 1 COMMENT '记录版本',
-    `row_valid`              TINYINT               DEFAULT 1 COMMENT '记录是否有效',
-    PRIMARY KEY (`id`) USING BTREE,
-    INDEX `idx_task` (`task_id`)
+    `id`               BIGINT      NOT NULL COMMENT '升级任务车辆主键',
+    `task_id`          BIGINT      NOT NULL COMMENT '升级任务ID',
+    `vin`              VARCHAR(20) NOT NULL COMMENT '车架号',
+    `device`           VARCHAR(20) NOT NULL COMMENT '升级设备',
+    `device_sn`        VARCHAR(20)          DEFAULT NULL COMMENT '设备序列号',
+    `operation`        SMALLINT    NOT NULL COMMENT '执行操作',
+    `operation_time`   TIMESTAMP   NOT NULL COMMENT '操作时间',
+    `operation_result` SMALLINT             DEFAULT NULL COMMENT '操作结果',
+    `retry_count`      SMALLINT             DEFAULT NULL COMMENT '重试次数',
+    `error_code`       SMALLINT             DEFAULT NULL COMMENT '异常代码',
+    `error_msg`        VARCHAR(255)         DEFAULT NULL COMMENT '异常消息',
+    `extra`            VARCHAR(255)         DEFAULT NULL COMMENT '扩展内容',
+    `description`      VARCHAR(255)         DEFAULT NULL COMMENT '备注',
+    `create_time`      TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `create_by`        VARCHAR(64)          DEFAULT NULL COMMENT '创建者',
+    `modify_time`      TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `modify_by`        VARCHAR(64)          DEFAULT NULL COMMENT '修改者',
+    `row_version`      INT                  DEFAULT 1 COMMENT '记录版本',
+    `row_valid`        TINYINT              DEFAULT 1 COMMENT '记录是否有效',
+    PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT '升级任务限制条件表';
-
-DROP TABLE IF EXISTS `db_fota`.`tb_task_strategy`;
-CREATE TABLE `db_fota`.`tb_task_strategy`
-(
-    `id`                  BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键',
-    `task_id`             BIGINT       NOT NULL COMMENT '升级任务ID',
-    `strategy_type`       VARCHAR(255) NOT NULL COMMENT '策略类型',
-    `strategy_expression` VARCHAR(255) NOT NULL COMMENT '限制条件表达式',
-    `description`         VARCHAR(255)          DEFAULT NULL COMMENT '备注',
-    `create_time`         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `create_by`           VARCHAR(64)           DEFAULT NULL COMMENT '创建者',
-    `modify_time`         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-    `modify_by`           VARCHAR(64)           DEFAULT NULL COMMENT '修改者',
-    `row_version`         INT                   DEFAULT 1 COMMENT '记录版本',
-    `row_valid`           TINYINT               DEFAULT 1 COMMENT '记录是否有效',
-    PRIMARY KEY (`id`) USING BTREE,
-    INDEX `idx_task` (`task_id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT '升级任务策略表';
+  DEFAULT CHARSET = utf8mb4 COMMENT '升级任务车辆升级过程表';
 
 DROP TABLE IF EXISTS `db_fota`.`tb_veh_status`;
 CREATE TABLE `db_fota`.`tb_veh_status`

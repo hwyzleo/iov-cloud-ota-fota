@@ -9,10 +9,7 @@ import net.hwyz.iov.cloud.framework.common.domain.BaseDo;
 import net.hwyz.iov.cloud.framework.common.domain.DomainObj;
 import net.hwyz.iov.cloud.ota.baseline.api.contract.enums.SoftwarePackageType;
 import net.hwyz.iov.cloud.ota.fota.api.contract.CloudFotaInfoCcp;
-import net.hwyz.iov.cloud.ota.fota.api.contract.enums.AdaptiveLevel;
-import net.hwyz.iov.cloud.ota.fota.api.contract.enums.AdaptiveSubject;
-import net.hwyz.iov.cloud.ota.fota.api.contract.enums.TaskRestrictionType;
-import net.hwyz.iov.cloud.ota.fota.api.contract.enums.TaskStrategyType;
+import net.hwyz.iov.cloud.ota.fota.api.contract.enums.*;
 import net.hwyz.iov.cloud.ota.fota.service.domain.activity.model.*;
 import net.hwyz.iov.cloud.ota.fota.service.domain.contract.enums.UpgradeMode;
 import net.hwyz.iov.cloud.ota.fota.service.domain.contract.enums.UpgradeModeArg;
@@ -108,6 +105,11 @@ public class TaskVehicleDo extends BaseDo<Long> implements DomainObj<TaskVehicle
      * 隐私协议文章ID
      */
     private Long privacyAgreementArticleId;
+
+    /**
+     * 车辆任务状态
+     */
+    private TaskVehicleState taskState;
 
     /**
      * 初始化
@@ -257,6 +259,21 @@ public class TaskVehicleDo extends BaseDo<Long> implements DomainObj<TaskVehicle
             cloudFotaInfoCcp.setScheduleTime(this.upgradeModeArg.getDate(UpgradeModeArg.SCHEDULED_TIME.name()));
         }
         return cloudFotaInfoCcp;
+    }
+
+    /**
+     * 更新任务车辆状态
+     *
+     * @param taskState 任务车辆状态
+     */
+    public void updateState(Integer taskState) {
+        TaskVehicleState taskVehicleState = TaskVehicleState.valOf(taskState);
+        if (taskVehicleState != null) {
+            this.taskState = taskVehicleState;
+            stateChange();
+        } else {
+            logger.warn("任务车辆状态错误：{}", taskState);
+        }
     }
 
     /**

@@ -44,6 +44,8 @@ public class TaskVehicleRepositoryImpl extends AbstractRepository<Long, TaskVehi
     public boolean save(TaskVehicleDo taskVehicleDo) {
         switch (taskVehicleDo.getState()) {
             case CHANGED -> {
+                TaskVehiclePo taskVehiclePo = TaskVehiclePoAssembler.INSTANCE.fromDo(taskVehicleDo);
+                taskVehicleDao.updatePo(taskVehiclePo);
                 TaskVehicleDetailPo taskVehicleDetail = taskVehicleDetailDao.selectPoById(taskVehicleDo.getId());
                 if (taskVehicleDetail == null) {
                     taskVehicleDetailDao.insertPo(TaskVehicleDetailPo.builder()
