@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 升级任务车辆应用服务类
+ * 车辆升级任务应用服务类
  *
  * @author hwyz_leo
  */
