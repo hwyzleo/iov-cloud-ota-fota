@@ -1,6 +1,6 @@
 package net.hwyz.iov.cloud.ota.fota.service.facade.assembler;
 
-import net.hwyz.iov.cloud.ota.fota.api.contract.VehicleTaskProcessCcp;
+import net.hwyz.iov.cloud.ota.fota.api.contract.TaskVehicleProcessCcp;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.TaskVehicleProcessPo;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mappings;
@@ -14,9 +14,9 @@ import java.util.List;
  * @author hwyz_leo
  */
 @Mapper
-public interface VehicleTaskProcessCcpAssembler {
+public interface TaskVehicleProcessCcpAssembler {
 
-    VehicleTaskProcessCcpAssembler INSTANCE = Mappers.getMapper(VehicleTaskProcessCcpAssembler.class);
+    TaskVehicleProcessCcpAssembler INSTANCE = Mappers.getMapper(TaskVehicleProcessCcpAssembler.class);
 
     /**
      * 数据对象转数据传输对象
@@ -25,16 +25,16 @@ public interface VehicleTaskProcessCcpAssembler {
      * @return 数据传输对象
      */
     @Mappings({})
-    VehicleTaskProcessCcp fromPo(TaskVehicleProcessPo taskVehicleProcessPo);
+    TaskVehicleProcessCcp fromPo(TaskVehicleProcessPo taskVehicleProcessPo);
 
     /**
      * 数据传输对象转数据对象
      *
-     * @param vehicleTaskProcessCcp 数据传输对象
+     * @param taskVehicleProcessCcp 数据传输对象
      * @return 数据对象
      */
     @Mappings({})
-    TaskVehicleProcessPo toPo(VehicleTaskProcessCcp vehicleTaskProcessCcp);
+    TaskVehicleProcessPo toPo(TaskVehicleProcessCcp taskVehicleProcessCcp);
 
     /**
      * 数据对象列表转数据传输对象列表
@@ -42,6 +42,6 @@ public interface VehicleTaskProcessCcpAssembler {
      * @param taskVehicleProcessPoList 数据对象列表
      * @return 数据传输对象列表
      */
-    List<VehicleTaskProcessCcp> fromPoList(List<TaskVehicleProcessPo> taskVehicleProcessPoList);
+    List<TaskVehicleProcessCcp> fromPoList(List<TaskVehicleProcessPo> taskVehicleProcessPoList);
 
 }

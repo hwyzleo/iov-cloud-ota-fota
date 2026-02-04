@@ -2,9 +2,9 @@ package net.hwyz.iov.cloud.ota.fota.api.feign.ccp;
 
 import net.hwyz.iov.cloud.framework.common.bean.Response;
 import net.hwyz.iov.cloud.ota.fota.api.contract.CloudFotaInfoCcp;
+import net.hwyz.iov.cloud.ota.fota.api.contract.TaskVehicleProcessCcp;
+import net.hwyz.iov.cloud.ota.fota.api.contract.TaskVehicleStateCcp;
 import net.hwyz.iov.cloud.ota.fota.api.contract.VehicleFotaInfoCcp;
-import net.hwyz.iov.cloud.ota.fota.api.contract.VehicleTaskProcessCcp;
-import net.hwyz.iov.cloud.ota.fota.api.contract.VehicleTaskStateCcp;
 
 /**
  * 在线固件升级中央计算平台接口
@@ -26,18 +26,18 @@ public interface FotaCcpApi {
      * 上报车辆升级任务过程
      *
      * @param vin                车架号
-     * @param vehicleTaskProcess 车辆升级任务过程
+     * @param taskVehicleProcess 车辆升级任务过程
      * @return 上报结果
      */
-    Response<Void> reportTaskProcess(String vin, VehicleTaskProcessCcp vehicleTaskProcess);
+    Response<Void> reportTaskProcess(String vin, TaskVehicleProcessCcp taskVehicleProcess);
 
     /**
      * 上报车辆升级任务状态
      *
      * @param vin              车架号
-     * @param vehicleTaskState 车辆升级任务状态
+     * @param taskVehicleState 车辆升级任务状态
      * @return 上报结果
      */
-    Response<Void> reportTaskState(String vin, VehicleTaskStateCcp vehicleTaskState);
+    Response<Void> reportTaskState(String vin, TaskVehicleStateCcp taskVehicleState);
 
 }

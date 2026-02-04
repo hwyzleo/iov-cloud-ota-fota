@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class VehicleTaskStateCcp {
+public class TaskVehicleStateCcp {
 
     /**
      * 升级任务车辆主键

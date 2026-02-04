@@ -62,7 +62,7 @@ public class TaskVehicleProcessPo extends BasePo {
      * 执行操作
      */
     @TableField("operation")
-    private Short operation;
+    private Integer operation;
 
     /**
      * 操作时间
@@ -74,19 +74,19 @@ public class TaskVehicleProcessPo extends BasePo {
      * 操作结果
      */
     @TableField("operation_result")
-    private Short operationResult;
+    private Integer operationResult;
 
     /**
      * 重试次数
      */
     @TableField("retry_count")
-    private Short retryCount;
+    private Integer retryCount;
 
     /**
      * 异常代码
      */
     @TableField("error_code")
-    private Short errorCode;
+    private Integer errorCode;
 
     /**
      * 异常消息

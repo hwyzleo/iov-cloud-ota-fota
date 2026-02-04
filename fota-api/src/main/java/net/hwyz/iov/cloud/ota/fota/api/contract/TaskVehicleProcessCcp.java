@@ -16,7 +16,7 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class VehicleTaskProcessCcp {
+public class TaskVehicleProcessCcp {
 
     /**
      * 升级任务车辆主键
