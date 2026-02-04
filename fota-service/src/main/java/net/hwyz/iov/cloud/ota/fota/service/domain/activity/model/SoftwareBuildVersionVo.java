@@ -24,9 +24,9 @@ public class SoftwareBuildVersionVo {
     private Long id;
 
     /**
-     * ECU编码
+     * 设备编码
      */
-    private String ecuCode;
+    private String deviceCode;
 
     /**
      * 软件零件号

@@ -23,9 +23,9 @@ public class CompatibleSoftwarePnMpt extends BaseRequest {
     private Long id;
 
     /**
-     * 零部件ECU
+     * 设备代码
      */
-    private String ecu;
+    private String deviceCode;
 
     /**
      * 软件零件号

@@ -233,24 +233,24 @@ public class ActivityDo extends BaseDo<Long> implements DomainObj<ActivityDo> {
      * @return true: 满足条件，false: 不满足条件
      */
     public boolean checkPreconditions(VehicleDo vehicle) {
-        if (!checkCriticalEcus(vehicle)) {
+        if (!checkCriticalDevices(vehicle)) {
             return false;
         }
         return true;
     }
 
     /**
-     * 检查车辆关键ECU是否满足升级条件
+     * 检查车辆关键设备是否满足升级条件
      *
      * @param vehicle 车辆
      * @return true: 满足条件，false: 不满足条件
      */
-    private boolean checkCriticalEcus(VehicleDo vehicle) {
+    private boolean checkCriticalDevices(VehicleDo vehicle) {
         if (this.baseline) {
             for (List<ActivitySoftwareBuildVersionVo> list : groupSoftwareBuildVersionMap.values()) {
                 for (ActivitySoftwareBuildVersionVo entity : list) {
-                    if (entity.getCritical() && !vehicle.getEcuMap().containsKey(entity.getSoftwareBuildVersion().getEcuCode())) {
-                        logger.warn("车辆[{}]关键ECU[{}]不满足升级条件", vehicle.getId(), entity.getSoftwareBuildVersion().getEcuCode());
+                    if (entity.getCritical() && !vehicle.getDeviceMap().containsKey(entity.getSoftwareBuildVersion().getDeviceCode())) {
+                        logger.warn("车辆[{}]关键设备[{}]不满足升级条件", vehicle.getId(), entity.getSoftwareBuildVersion().getDeviceCode());
                         return false;
                     }
                 }

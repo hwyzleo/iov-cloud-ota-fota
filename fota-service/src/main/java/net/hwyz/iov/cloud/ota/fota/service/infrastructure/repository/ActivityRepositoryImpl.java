@@ -3,12 +3,6 @@ package net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.domain.AbstractRepository;
-import net.hwyz.iov.cloud.ota.baseline.api.contract.CompatiblePnExService;
-import net.hwyz.iov.cloud.ota.baseline.api.contract.FixedConfigWordExService;
-import net.hwyz.iov.cloud.ota.baseline.api.contract.SoftwareBuildVersionExService;
-import net.hwyz.iov.cloud.ota.baseline.api.feign.service.ExCompatiblePnService;
-import net.hwyz.iov.cloud.ota.baseline.api.feign.service.ExFixedConfigWordService;
-import net.hwyz.iov.cloud.ota.baseline.api.feign.service.ExSoftwareBuildVersionService;
 import net.hwyz.iov.cloud.ota.fota.service.domain.activity.model.ActivityDo;
 import net.hwyz.iov.cloud.ota.fota.service.domain.activity.model.ActivitySoftwareBuildVersionVo;
 import net.hwyz.iov.cloud.ota.fota.service.domain.activity.model.ConfigWordVo;
@@ -24,6 +18,12 @@ import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.dao.Activit
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.dao.ActivityFixedConfigWordDao;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.dao.ActivitySoftwareBuildVersionDao;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivityPo;
+import net.hwyz.iov.cloud.ota.pota.api.contract.CompatiblePnExService;
+import net.hwyz.iov.cloud.ota.pota.api.contract.FixedConfigWordExService;
+import net.hwyz.iov.cloud.ota.pota.api.contract.SoftwareBuildVersionExService;
+import net.hwyz.iov.cloud.ota.pota.api.feign.service.ExCompatiblePnService;
+import net.hwyz.iov.cloud.ota.pota.api.feign.service.ExFixedConfigWordService;
+import net.hwyz.iov.cloud.ota.pota.api.feign.service.ExSoftwareBuildVersionService;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -72,7 +72,7 @@ public class ActivityRepositoryImpl extends AbstractRepository<Long, ActivityDo>
                     FixedConfigWordExService fixedConfigWord = exFixedConfigWordService.getInfo(activityFixedConfigWord.getFixedConfigWordId());
                     fixedConfigWord.getConfigWordList().forEach(configWord -> {
                         ConfigWordVo vo = ConfigWordExServiceAssembler.INSTANCE.toVo(configWord);
-                        vo.setEcu(fixedConfigWord.getEcu());
+                        vo.setDeviceCode(fixedConfigWord.getDeviceCode());
                         vo.setSoftwarePn(fixedConfigWord.getSoftwarePn());
                         fixedConfigWordList.add(vo);
                     });
@@ -80,7 +80,7 @@ public class ActivityRepositoryImpl extends AbstractRepository<Long, ActivityDo>
                 Map<String, Set<String>> compatiblePnMap = new HashMap<>();
                 activityCompatiblePnDao.selectPoByActivityId(id).forEach(activityCompatiblePn -> {
                     CompatiblePnExService compatiblePn = exCompatiblePnService.getInfo(activityCompatiblePn.getCompatiblePnId());
-                    Set<String> compatiblePnSet = compatiblePnMap.computeIfAbsent(compatiblePn.getEcu() + compatiblePn.getPn(), k -> new HashSet<>());
+                    Set<String> compatiblePnSet = compatiblePnMap.computeIfAbsent(compatiblePn.getDeviceCode() + compatiblePn.getPn(), k -> new HashSet<>());
                     compatiblePnSet.addAll(List.of(compatiblePn.getCompatiblePn().split(",")));
                 });
                 ActivityDo activityDoTmp = ActivityPoAssembler.INSTANCE.toDo(activityPo);

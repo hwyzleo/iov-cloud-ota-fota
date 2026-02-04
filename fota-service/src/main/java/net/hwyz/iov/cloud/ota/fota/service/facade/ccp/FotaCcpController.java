@@ -13,10 +13,10 @@ import net.hwyz.iov.cloud.ota.fota.service.application.service.TaskVehicleAppSer
 import net.hwyz.iov.cloud.ota.fota.service.domain.activity.repository.ActivityRepository;
 import net.hwyz.iov.cloud.ota.fota.service.domain.task.service.TaskService;
 import net.hwyz.iov.cloud.ota.fota.service.domain.taskvehicle.repository.TaskVehicleRepository;
-import net.hwyz.iov.cloud.ota.fota.service.domain.vehicle.model.EcuInfoVo;
+import net.hwyz.iov.cloud.ota.fota.service.domain.vehicle.model.DeviceInfoVo;
 import net.hwyz.iov.cloud.ota.fota.service.domain.vehicle.model.VehicleDo;
 import net.hwyz.iov.cloud.ota.fota.service.domain.vehicle.repository.VehicleRepository;
-import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.EcuInfoCcpAssembler;
+import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.DeviceInfoCcpAssembler;
 import net.hwyz.iov.cloud.ota.fota.service.facade.assembler.VehicleTaskProcessCcpAssembler;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.exception.VehicleNotExistException;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.util.FotaHelper;
@@ -56,9 +56,9 @@ public class FotaCcpController extends BaseController implements FotaCcpApi {
         logger.info("车辆[{}]检查车辆升级信息", vin);
         // 处理车辆信息
         VehicleDo vehicle = vehicleRepository.getById(vin).orElseThrow(() -> new VehicleNotExistException(vin));
-        List<EcuInfoVo> ecuInfoList = EcuInfoCcpAssembler.INSTANCE.toVoList(vehicleFotaInfo.getEcuInfoList());
-        if (vehicle.checkBaseline(vehicleFotaInfo.getBaseline()) || vehicle.checkEcus(ecuInfoList)) {
-            vehicle.markBaselineAlignment(fotaHelper.isBaselineAlignment(vehicleFotaInfo.getBaseline(), ecuInfoList));
+        List<DeviceInfoVo> deviceInfoList = DeviceInfoCcpAssembler.INSTANCE.toVoList(vehicleFotaInfo.getDeviceInfoList());
+        if (vehicle.checkBaseline(vehicleFotaInfo.getBaseline()) || vehicle.checkDevices(deviceInfoList)) {
+            vehicle.markBaselineAlignment(fotaHelper.isBaselineAlignment(vehicleFotaInfo.getBaseline(), deviceInfoList));
         }
         // 处理任务信息
         final CloudFotaInfoCcp[] cloudFotaInfoCcp = {null};

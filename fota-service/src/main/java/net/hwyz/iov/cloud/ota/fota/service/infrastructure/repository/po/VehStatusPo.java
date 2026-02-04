@@ -59,10 +59,10 @@ public class VehStatusPo extends BasePo {
     private Boolean baselineAlignment;
 
     /**
-     * 最后ECU设备信息
+     * 最后设备信息
      */
-    @TableField("ecu_info")
-    private String ecuInfo;
+    @TableField("device_info")
+    private String deviceInfo;
 
     /**
      * 最后升级活动ID

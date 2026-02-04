@@ -16,7 +16,7 @@
         <result column="report_time" property="reportTime" />
         <result column="baseline_code" property="baselineCode" />
         <result column="baseline_alignment" property="baselineAlignment" />
-        <result column="ecu_info" property="ecuInfo" />
+        <result column="device_info" property="deviceInfo" />
         <result column="activity_id" property="activityId" />
         <result column="task_id" property="taskId" />
         <result column="config_word" property="configWord" />
@@ -25,18 +25,18 @@
 
     <!-- 通用查询结果列 -->
     <sql id="baseColumnList">
-        id, vin, report_time, baseline_code, baseline_alignment, ecu_info, activity_id, task_id, config_word, master_version, 
+        id, vin, report_time, baseline_code, baseline_alignment, device_info, activity_id, task_id, config_word, master_version, 
         description, create_time, create_by, modify_time, modify_by, row_version, row_valid
     </sql>
 
     <!-- 插入 -->
     <insert id="insertPo" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tb_veh_status (
-            id, vin, report_time, baseline_code, baseline_alignment, ecu_info, activity_id, task_id, config_word, master_version, 
+            id, vin, report_time, baseline_code, baseline_alignment, device_info, activity_id, task_id, config_word, master_version, 
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES (
-            #{id}, #{vin}, #{reportTime}, #{baselineCode}, #{baselineAlignment}, #{ecuInfo}, #{activityId}, #{taskId}, #{configWord}, #{masterVersion}, 
+            #{id}, #{vin}, #{reportTime}, #{baselineCode}, #{baselineAlignment}, #{deviceInfo}, #{activityId}, #{taskId}, #{configWord}, #{masterVersion}, 
             #{description}, now(), #{createBy}, now(), #{modifyBy}, 1, 1
         )
     </insert>
@@ -44,13 +44,13 @@
     <!-- 批量插入 -->
     <insert id="batchInsertPo" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
         INSERT INTO tb_veh_status (
-            id, vin, report_time, baseline_code, baseline_alignment, ecu_info, activity_id, task_id, config_word, master_version, 
+            id, vin, report_time, baseline_code, baseline_alignment, device_info, activity_id, task_id, config_word, master_version, 
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES
         <foreach collection="list" item="item" index="index" separator=",">
         (
-            #{item.id}, #{item.vin}, #{item.reportTime}, #{item.baselineCode}, #{item.baselineAlignment}, #{item.ecuInfo}, #{item.activityId}, #{item.taskId}, #{item.configWord}, #{item.masterVersion}, 
+            #{item.id}, #{item.vin}, #{item.reportTime}, #{item.baselineCode}, #{item.baselineAlignment}, #{item.deviceInfo}, #{item.activityId}, #{item.taskId}, #{item.configWord}, #{item.masterVersion}, 
             #{item.description}, now(), #{item.createBy}, now(), #{item.modifyBy}, 1, 1
         )
         </foreach>
@@ -71,8 +71,8 @@
         <if test="baselineAlignment != null">
             t.baseline_alignment = #{baselineAlignment},
         </if>
-        <if test="ecuInfo != null and ecuInfo != ''">
-            t.ecu_info = #{ecuInfo},
+        <if test="deviceInfo != null and deviceInfo != ''">
+            t.device_info = #{deviceInfo},
         </if>
         <if test="activityId != null">
             t.activity_id = #{activityId},
@@ -158,8 +158,8 @@
         <if test="baselineAlignment != null">
             AND t.baseline_alignment = #{baselineAlignment}
         </if>
-        <if test="ecuInfo != null and ecuInfo != ''">
-            AND t.ecu_info = #{ecuInfo}
+        <if test="deviceInfo != null and deviceInfo != ''">
+            AND t.device_info = #{deviceInfo}
         </if>
         <if test="activityId != null">
             AND t.activity_id = #{activityId}

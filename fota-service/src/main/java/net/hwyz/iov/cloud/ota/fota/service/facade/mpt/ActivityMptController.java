@@ -11,13 +11,7 @@ import net.hwyz.iov.cloud.framework.common.web.page.TableDataInfo;
 import net.hwyz.iov.cloud.framework.security.annotation.RequiresPermissions;
 import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
 import net.hwyz.iov.cloud.ota.baseline.api.contract.BaselineSoftwareBuildVersionExService;
-import net.hwyz.iov.cloud.ota.baseline.api.contract.CompatiblePnExService;
-import net.hwyz.iov.cloud.ota.baseline.api.contract.FixedConfigWordExService;
-import net.hwyz.iov.cloud.ota.baseline.api.contract.SoftwareBuildVersionExService;
 import net.hwyz.iov.cloud.ota.baseline.api.feign.service.ExBaselineService;
-import net.hwyz.iov.cloud.ota.baseline.api.feign.service.ExCompatiblePnService;
-import net.hwyz.iov.cloud.ota.baseline.api.feign.service.ExFixedConfigWordService;
-import net.hwyz.iov.cloud.ota.baseline.api.feign.service.ExSoftwareBuildVersionService;
 import net.hwyz.iov.cloud.ota.fota.api.contract.*;
 import net.hwyz.iov.cloud.ota.fota.api.contract.enums.ActivityState;
 import net.hwyz.iov.cloud.ota.fota.api.feign.mpt.ActivityMptApi;
@@ -31,6 +25,12 @@ import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.Activity
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivityFixedConfigWordPo;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivityPo;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.repository.po.ActivitySoftwareBuildVersionPo;
+import net.hwyz.iov.cloud.ota.pota.api.contract.CompatiblePnExService;
+import net.hwyz.iov.cloud.ota.pota.api.contract.FixedConfigWordExService;
+import net.hwyz.iov.cloud.ota.pota.api.contract.SoftwareBuildVersionExService;
+import net.hwyz.iov.cloud.ota.pota.api.feign.service.ExCompatiblePnService;
+import net.hwyz.iov.cloud.ota.pota.api.feign.service.ExFixedConfigWordService;
+import net.hwyz.iov.cloud.ota.pota.api.feign.service.ExSoftwareBuildVersionService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -114,7 +114,7 @@ public class ActivityMptController extends BaseController implements ActivityMpt
             if (po.getVersionGroup().intValue() == group) {
                 ActivitySoftwareBuildVersionMpt mpt = ActivitySoftwareBuildVersionMptAssembler.INSTANCE.fromPo(po);
                 SoftwareBuildVersionExService softwareBuildVersion = exSoftwareBuildVersionService.getInfo(mpt.getSoftwareBuildVersionId());
-                mpt.setEcuCode(softwareBuildVersion.getEcuCode());
+                mpt.setDeviceCode(softwareBuildVersion.getDeviceCode());
                 mpt.setSoftwarePn(softwareBuildVersion.getSoftwarePn());
                 mpt.setSoftwarePartName(softwareBuildVersion.getSoftwarePartName());
                 mpt.setSoftwarePartVer(softwareBuildVersion.getSoftwarePartVer());
@@ -146,7 +146,7 @@ public class ActivityMptController extends BaseController implements ActivityMpt
         mptList.forEach(mpt -> {
             CompatiblePnExService compatiblePn = exCompatiblePnService.getInfo(mpt.getCompatiblePnId());
             mpt.setType(compatiblePn.getType());
-            mpt.setEcu(compatiblePn.getEcu());
+            mpt.setDeviceCode(compatiblePn.getDeviceCode());
             mpt.setPn(compatiblePn.getPn());
             mpt.setCompatiblePn(compatiblePn.getCompatiblePn());
             mpt.setDescription(compatiblePn.getDescription());
@@ -169,7 +169,7 @@ public class ActivityMptController extends BaseController implements ActivityMpt
         List<ActivityFixedConfigWordMpt> mptList = ActivityFixedConfigWordMptAssembler.INSTANCE.fromPoList(poList);
         mptList.forEach(mpt -> {
             FixedConfigWordExService fixedConfigWord = exFixedConfigWordService.getInfo(mpt.getFixedConfigWordId());
-            mpt.setEcu(fixedConfigWord.getEcu());
+            mpt.setDeviceCode(fixedConfigWord.getDeviceCode());
             mpt.setSoftwarePn(fixedConfigWord.getSoftwarePn());
             mpt.setType(fixedConfigWord.getType());
             mpt.setDescription(fixedConfigWord.getDescription());

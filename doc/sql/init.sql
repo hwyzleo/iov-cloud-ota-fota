@@ -243,7 +243,7 @@ CREATE TABLE `db_fota`.`tb_veh_status`
     `report_time`        TIMESTAMP   NULL     DEFAULT NULL COMMENT '最后上报时间',
     `baseline_code`      VARCHAR(255)         DEFAULT NULL COMMENT '最后基线代码',
     `baseline_alignment` TINYINT              DEFAULT NULL COMMENT '最后基线是否对齐',
-    `ecu_info`           TEXT                 DEFAULT NULL COMMENT '最后ECU设备信息',
+    `device_info`        TEXT                 DEFAULT NULL COMMENT '最后设备信息',
     `activity_id`        BIGINT               DEFAULT NULL COMMENT '最后升级活动ID',
     `task_id`            BIGINT               DEFAULT NULL COMMENT '最后升级任务ID',
     `config_word`        VARCHAR(2000)        DEFAULT NULL COMMENT '最后升级配置字',

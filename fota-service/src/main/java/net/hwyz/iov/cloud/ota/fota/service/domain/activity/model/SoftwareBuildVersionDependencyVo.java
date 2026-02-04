@@ -45,9 +45,9 @@ public class SoftwareBuildVersionDependencyVo {
     private Integer sort;
 
     /**
-     * ECU编码
+     * 设备编码
      */
-    private String ecuCode;
+    private String deviceCode;
 
     /**
      * 软件零件号

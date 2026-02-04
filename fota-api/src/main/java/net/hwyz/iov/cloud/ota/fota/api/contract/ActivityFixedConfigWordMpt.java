@@ -33,9 +33,9 @@ public class ActivityFixedConfigWordMpt extends BaseRequest {
     private Long fixedConfigWordId;
 
     /**
-     * 零部件ECU
+     * 设备代码
      */
-    private String ecu;
+    private String deviceCode;
 
     /**
      * 软件零件号

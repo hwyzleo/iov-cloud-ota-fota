@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.hwyz.iov.cloud.ota.baseline.api.contract.enums.SoftwarePackageType;
 import net.hwyz.iov.cloud.ota.fota.api.contract.enums.AdaptiveLevel;
+import net.hwyz.iov.cloud.ota.pota.api.contract.enums.SoftwarePackageType;
 
 import java.util.Date;
 
@@ -26,9 +26,9 @@ public class SoftwarePackageVo {
     private Long id;
 
     /**
-     * ECU编码
+     * 设备编码
      */
-    private String ecuCode;
+    private String deviceCode;
 
     /**
      * 软件零件号

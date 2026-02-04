@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * ECU设备信息值对象
+ * 设备信息值对象
  *
  * @author hwyz_leo
  */
@@ -17,12 +17,12 @@ import java.util.Objects;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EcuInfoVo {
+public class DeviceInfoVo {
 
     /**
-     * ECU零部件
+     * 设备代码
      */
-    private String ecu;
+    private String deviceCode;
 
     /**
      * 零件序列号
@@ -73,12 +73,16 @@ public class EcuInfoVo {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        EcuInfoVo ecuInfoVo = (EcuInfoVo) o;
-        return Objects.equals(ecu, ecuInfoVo.ecu) && Objects.equals(partSn, ecuInfoVo.partSn) && Objects.equals(partNo, ecuInfoVo.partNo) && Objects.equals(hardwarePn, ecuInfoVo.hardwarePn) && Objects.equals(hardwarePartVer, ecuInfoVo.hardwarePartVer) && Objects.equals(softwarePn, ecuInfoVo.softwarePn) && Objects.equals(softwarePartVer, ecuInfoVo.softwarePartVer) && Objects.equals(configWord, ecuInfoVo.configWord) && Objects.equals(extra, ecuInfoVo.extra);
+        DeviceInfoVo deviceInfoVo = (DeviceInfoVo) o;
+        return Objects.equals(deviceCode, deviceInfoVo.deviceCode) && Objects.equals(partSn, deviceInfoVo.partSn) &&
+                Objects.equals(partNo, deviceInfoVo.partNo) && Objects.equals(hardwarePn, deviceInfoVo.hardwarePn) &&
+                Objects.equals(hardwarePartVer, deviceInfoVo.hardwarePartVer) && Objects.equals(softwarePn, deviceInfoVo.softwarePn)
+                && Objects.equals(softwarePartVer, deviceInfoVo.softwarePartVer) && Objects.equals(configWord, deviceInfoVo.configWord)
+                && Objects.equals(extra, deviceInfoVo.extra);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(ecu, partSn, partNo, hardwarePn, hardwarePartVer, softwarePn, softwarePartVer, configWord, extra);
+        return Objects.hash(deviceCode, partSn, partNo, hardwarePn, hardwarePartVer, softwarePn, softwarePartVer, configWord, extra);
     }
 }

@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.ota.fota.service.facade.assembler;
 
-import net.hwyz.iov.cloud.ota.baseline.api.contract.SoftwareBuildVersionDependencyExService;
 import net.hwyz.iov.cloud.ota.fota.service.domain.activity.model.SoftwareBuildVersionDependencyVo;
+import net.hwyz.iov.cloud.ota.pota.api.contract.SoftwareBuildVersionDependencyExService;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;

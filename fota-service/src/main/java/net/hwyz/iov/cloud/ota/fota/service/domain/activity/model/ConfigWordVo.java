@@ -34,9 +34,9 @@ public class ConfigWordVo {
     private Long referenceId;
 
     /**
-     * 零部件ECU
+     * 设备代码
      */
-    private String ecu;
+    private String deviceCode;
 
     /**
      * 软件零件号
@@ -69,14 +69,14 @@ public class ConfigWordVo {
     private String configWordValue;
 
     /**
-     * 依赖零部件ECU
+     * 依赖设备
      */
-    private String dependEcu;
+    private String dependDevice;
 
     /**
-     * 依赖ECU软件零件号
+     * 依赖设备软件零件号
      */
-    private String dependEcuSoftwarePn;
+    private String dependDeviceSoftwarePn;
 
     /**
      * 描述

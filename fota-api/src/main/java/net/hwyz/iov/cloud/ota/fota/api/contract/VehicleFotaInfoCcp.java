@@ -27,9 +27,9 @@ public class VehicleFotaInfoCcp {
     private String baseline;
 
     /**
-     * ECU设备信息列表
+     * 设备信息列表
      */
-    @NotEmpty(message = "ECU设备信息列表不能为空")
-    private List<EcuInfoCcp> ecuInfoList;
+    @NotEmpty(message = "设备信息列表不能为空")
+    private List<DeviceInfoCcp> deviceInfoList;
 
 }

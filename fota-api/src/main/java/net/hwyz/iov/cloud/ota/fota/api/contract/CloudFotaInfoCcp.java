@@ -115,8 +115,8 @@ public class CloudFotaInfoCcp {
     private Date scheduleTime;
 
     /**
-     * ECU设备信息列表
+     * 设备信息列表
      */
-    private List<EcuInfoCcp> ecuInfoCcpList;
+    private List<DeviceInfoCcp> deviceInfoList;
 
 }

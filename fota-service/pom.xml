@@ -17,6 +17,7 @@
     <properties>
         <fota.version>0.0.1-SNAPSHOT</fota.version>
         <baseline.version>0.0.1-SNAPSHOT</baseline.version>
+        <pota.version>0.0.1-SNAPSHOT</pota.version>
         <vmd.version>0.0.1-SNAPSHOT</vmd.version>
     </properties>
 
@@ -30,6 +31,11 @@
             <groupId>net.hwyz.iov.cloud.ota</groupId>
             <artifactId>baseline-api</artifactId>
             <version>${baseline.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.hwyz.iov.cloud.ota</groupId>
+            <artifactId>pota-api</artifactId>
+            <version>${pota.version}</version>
         </dependency>
         <dependency>
             <groupId>net.hwyz.iov.cloud.tsp</groupId>

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import java.util.Map;
 
 /**
- * 中央计算平台ECU设备信息
+ * 中央计算平台设备信息
  *
  * @author hwyz_leo
  */
@@ -17,13 +17,13 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EcuInfoCcp {
+public class DeviceInfoCcp {
 
     /**
-     * ECU零部件
+     * 设备代码
      */
-    @NotBlank(message = "ECU不能为空")
-    private String ecu;
+    @NotBlank(message = "设备代码不能为空")
+    private String deviceCode;
 
     /**
      * 零件序列号

@@ -38,9 +38,9 @@ public class ActivityCompatiblePnMpt extends BaseRequest {
     private Integer type;
 
     /**
-     * 零部件ECU
+     * 设备代码
      */
-    private String ecu;
+    private String deviceCode;
 
     /**
      * 零件号

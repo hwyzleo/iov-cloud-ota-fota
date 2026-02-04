@@ -38,9 +38,9 @@ public class ActivitySoftwareBuildVersionMpt extends BaseRequest {
     private Boolean critical;
 
     /**
-     * ECU编码
+     * 设备编码
      */
-    private String ecuCode;
+    private String deviceCode;
 
     /**
      * 软件零件号

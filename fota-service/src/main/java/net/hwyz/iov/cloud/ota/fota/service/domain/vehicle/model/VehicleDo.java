@@ -30,9 +30,9 @@ public class VehicleDo extends BaseDo<String> implements DomainObj<VehicleDo> {
     private Boolean isBaselineAlignment;
 
     /**
-     * ECU信息Map
+     * 设备信息Map
      */
-    private Map<String, EcuInfoVo> ecuMap;
+    private Map<String, DeviceInfoVo> deviceMap;
 
     /**
      * 初始化
@@ -57,26 +57,26 @@ public class VehicleDo extends BaseDo<String> implements DomainObj<VehicleDo> {
     }
 
     /**
-     * 校验ECU设备信息是否变更
+     * 校验设备信息是否变更
      *
-     * @param ecuInfoList ECU信息列表
+     * @param deviceInfoList 设备信息列表
      * @return true: 变更，false: 不变更
      */
-    public boolean checkEcus(List<EcuInfoVo> ecuInfoList) {
+    public boolean checkDevices(List<DeviceInfoVo> deviceInfoList) {
         boolean flag = false;
-        if (this.ecuMap == null || this.ecuMap.isEmpty() || this.ecuMap.size() != ecuInfoList.size()) {
+        if (this.deviceMap == null || this.deviceMap.isEmpty() || this.deviceMap.size() != deviceInfoList.size()) {
             flag = true;
         } else {
-            for (EcuInfoVo ecuInfoNew : ecuInfoList) {
-                EcuInfoVo ecuInfoOld = this.ecuMap.get(ecuInfoNew.getEcu());
-                if (!ecuInfoNew.equals(ecuInfoOld)) {
+            for (DeviceInfoVo deviceInfoNew : deviceInfoList) {
+                DeviceInfoVo deviceInfoOld = this.deviceMap.get(deviceInfoNew.getDeviceCode());
+                if (!deviceInfoNew.equals(deviceInfoOld)) {
                     flag = true;
                     break;
                 }
             }
         }
         if (flag) {
-            this.ecuMap = ecuInfoList.stream().collect(java.util.stream.Collectors.toMap(EcuInfoVo::getEcu, ecuInfo -> ecuInfo));
+            this.deviceMap = deviceInfoList.stream().collect(java.util.stream.Collectors.toMap(DeviceInfoVo::getDeviceCode, deviceInfo -> deviceInfo));
             stateChange();
         }
         return flag;

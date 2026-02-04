@@ -7,7 +7,6 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.domain.BaseDo;
 import net.hwyz.iov.cloud.framework.common.domain.DomainObj;
-import net.hwyz.iov.cloud.ota.baseline.api.contract.enums.SoftwarePackageType;
 import net.hwyz.iov.cloud.ota.fota.api.contract.CloudFotaInfoCcp;
 import net.hwyz.iov.cloud.ota.fota.api.contract.enums.*;
 import net.hwyz.iov.cloud.ota.fota.service.domain.activity.model.*;
@@ -15,9 +14,10 @@ import net.hwyz.iov.cloud.ota.fota.service.domain.contract.enums.UpgradeMode;
 import net.hwyz.iov.cloud.ota.fota.service.domain.contract.enums.UpgradeModeArg;
 import net.hwyz.iov.cloud.ota.fota.service.domain.task.model.TaskDo;
 import net.hwyz.iov.cloud.ota.fota.service.domain.task.model.TaskRestrictionVo;
-import net.hwyz.iov.cloud.ota.fota.service.domain.vehicle.model.EcuInfoVo;
+import net.hwyz.iov.cloud.ota.fota.service.domain.vehicle.model.DeviceInfoVo;
 import net.hwyz.iov.cloud.ota.fota.service.domain.vehicle.model.VehicleDo;
 import net.hwyz.iov.cloud.ota.fota.service.infrastructure.util.FotaHelper;
+import net.hwyz.iov.cloud.ota.pota.api.contract.enums.SoftwarePackageType;
 
 import java.util.*;
 
@@ -166,7 +166,7 @@ public class TaskVehicleDo extends BaseDo<Long> implements DomainObj<TaskVehicle
             if (groupAdaptationMatch(groupSoftwareBuildVersionList, vehicle, activity, task)) {
                 for (ActivitySoftwareBuildVersionVo activitySoftwareBuildVersion : groupSoftwareBuildVersionList) {
                     if (!activitySoftwareBuildVersion.getOta()) {
-                        logger.info("车辆[{}]ECU[{}]版本[{}]不支持OTA升级，忽略", activitySoftwareBuildVersion.getSoftwareBuildVersion().getEcuCode(),
+                        logger.info("车辆[{}]设备[{}]版本[{}]不支持OTA升级，忽略", activitySoftwareBuildVersion.getSoftwareBuildVersion().getDeviceCode(),
                                 activitySoftwareBuildVersion.getSoftwareBuildVersion().getSoftwareBuildVer(), vehicle.getId());
                         continue;
                     }
@@ -179,20 +179,20 @@ public class TaskVehicleDo extends BaseDo<Long> implements DomainObj<TaskVehicle
                     taskVehicleSoftwareBuildVersion.setSoftwarePackageList(activitySoftwareBuildVersion.getSoftwarePackageList());
                     taskVehicleSoftwareBuildVersion.setSoftwareBuildVersionDependencyList(activitySoftwareBuildVersion.getSoftwareBuildVersionDependencyList());
                     taskVehicleSoftwareBuildVersion.setConfigWordList(softwareConfigWordList);
-                    EcuInfoVo vehicleEcuInfo = vehicle.getEcuMap().get(activitySoftwareBuildVersion.getSoftwareBuildVersion().getEcuCode());
+                    DeviceInfoVo vehicleDeviceInfo = vehicle.getDeviceMap().get(activitySoftwareBuildVersion.getSoftwareBuildVersion().getDeviceCode());
                     if (Boolean.parseBoolean(this.strategyMap.get(TaskStrategyType.ROLLBACK))) {
-                        List<SoftwarePackageVo> rollbackSoftwarePackage = fotaHelper.getSoftwareBuildVersionPackages(vehicleEcuInfo.getEcu(),
-                                vehicleEcuInfo.getSoftwarePn() + vehicleEcuInfo.getSoftwarePartVer(),
-                                vehicleEcuInfo.getSoftwareBuildVer());
+                        List<SoftwarePackageVo> rollbackSoftwarePackage = fotaHelper.getSoftwareBuildVersionPackages(vehicleDeviceInfo.getDeviceCode(),
+                                vehicleDeviceInfo.getSoftwarePn() + vehicleDeviceInfo.getSoftwarePartVer(),
+                                vehicleDeviceInfo.getSoftwareBuildVer());
                         taskVehicleSoftwareBuildVersion.setRollbackSoftwarePackageList(rollbackSoftwarePackage);
                     }
                     if (!softwareConfigWordList.isEmpty()) {
-                        taskVehicleSoftwareBuildVersion.setOriginConfigWord(vehicleEcuInfo.getConfigWord());
-                        taskVehicleSoftwareBuildVersion.setTargetConfigWord(fotaHelper.configWordToStr(vehicleEcuInfo.getConfigWord(), softwareConfigWordList));
+                        taskVehicleSoftwareBuildVersion.setOriginConfigWord(vehicleDeviceInfo.getConfigWord());
+                        taskVehicleSoftwareBuildVersion.setTargetConfigWord(fotaHelper.configWordToStr(vehicleDeviceInfo.getConfigWord(), softwareConfigWordList));
                     }
                     if (!fixedConfigWordList.isEmpty()) {
-                        taskVehicleSoftwareBuildVersion.setOriginConfigWord(vehicleEcuInfo.getConfigWord());
-                        taskVehicleSoftwareBuildVersion.setTargetConfigWord(fotaHelper.configWordToStr(vehicleEcuInfo.getConfigWord(), fixedConfigWordList));
+                        taskVehicleSoftwareBuildVersion.setOriginConfigWord(vehicleDeviceInfo.getConfigWord());
+                        taskVehicleSoftwareBuildVersion.setTargetConfigWord(fotaHelper.configWordToStr(vehicleDeviceInfo.getConfigWord(), fixedConfigWordList));
                     }
                     this.softwareBuildVersionList.add(taskVehicleSoftwareBuildVersion);
                 }
@@ -292,12 +292,12 @@ public class TaskVehicleDo extends BaseDo<Long> implements DomainObj<TaskVehicle
         for (int i = groupSoftwareBuildVersionList.size() - 1; i > 0; i--) {
             ActivitySoftwareBuildVersionVo activitySoftwareBuildVersion = groupSoftwareBuildVersionList.get(i);
             SoftwareBuildVersionVo softwareBuildVersion = activitySoftwareBuildVersion.getSoftwareBuildVersion();
-            EcuInfoVo ecuInfo = vehicle.getEcuMap().get(softwareBuildVersion.getEcuCode());
+            DeviceInfoVo deviceInfo = vehicle.getDeviceMap().get(softwareBuildVersion.getDeviceCode());
             boolean adaptiveResult = false;
-            if (ecuInfo == null) {
-                logger.warn("车辆[{}]待升级ECU[{}]没有上报，跳过", vehicle.getId(), softwareBuildVersion.getEcuCode());
+            if (deviceInfo == null) {
+                logger.warn("车辆[{}]待升级设备[{}]没有上报，跳过", vehicle.getId(), softwareBuildVersion.getDeviceCode());
             } else {
-                adaptiveResult = ecuAdaptationMatch(ecuInfo, activitySoftwareBuildVersion, activity, task, vehicle);
+                adaptiveResult = deviceAdaptationMatch(deviceInfo, activitySoftwareBuildVersion, activity, task, vehicle);
             }
             if (!adaptiveResult) {
                 if (!activity.getBaseline()) {
@@ -310,28 +310,28 @@ public class TaskVehicleDo extends BaseDo<Long> implements DomainObj<TaskVehicle
     }
 
     /**
-     * ECU适配比对
+     * 设备适配比对
      *
-     * @param ecuInfo                      ECU信息
+     * @param deviceInfo                   设备信息
      * @param activitySoftwareBuildVersion 活动软件内部版本
      * @param activity                     升级活动
      * @param task                         升级任务
      * @param vehicle                      车辆
      * @return true: 适配成功，false: 适配失败
      */
-    private boolean ecuAdaptationMatch(EcuInfoVo ecuInfo, ActivitySoftwareBuildVersionVo activitySoftwareBuildVersion,
-                                       ActivityDo activity, TaskDo task, VehicleDo vehicle) {
+    private boolean deviceAdaptationMatch(DeviceInfoVo deviceInfo, ActivitySoftwareBuildVersionVo activitySoftwareBuildVersion,
+                                          ActivityDo activity, TaskDo task, VehicleDo vehicle) {
         TaskRestrictionVo comparisonCriteriaVo = task.getTaskRestrictionMap().get(TaskRestrictionType.COMPARISON_CRITERIA);
         boolean comparisonCriteria = Boolean.parseBoolean(comparisonCriteriaVo.getRestrictionExpression());
         SoftwareBuildVersionVo softwareBuildVersion = activitySoftwareBuildVersion.getSoftwareBuildVersion();
         Map<String, Set<String>> compatiblePnMap = activity.getCompatiblePnMap();
-        boolean softwarePnMatch = softwareBuildVersion.getSoftwarePn().equals(ecuInfo.getSoftwarePn());
+        boolean softwarePnMatch = softwareBuildVersion.getSoftwarePn().equals(deviceInfo.getSoftwarePn());
         if (!softwarePnMatch && comparisonCriteria) {
-            softwarePnMatch = compatiblePnMap.get(ecuInfo.getEcu()).contains(softwareBuildVersion.getSoftwarePn());
+            softwarePnMatch = compatiblePnMap.get(deviceInfo.getDeviceCode()).contains(softwareBuildVersion.getSoftwarePn());
         }
         if (!softwarePnMatch) {
-            logger.info("车辆[{}]ECU[{}]软件零件号[{}]与软件内部版本软件零件号[{}]不匹配，忽略", vehicle.getId(),
-                    softwareBuildVersion.getEcuCode(), ecuInfo.getSoftwarePn(), softwareBuildVersion.getSoftwarePn());
+            logger.info("车辆[{}]设备[{}]软件零件号[{}]与软件内部版本软件零件号[{}]不匹配，忽略", vehicle.getId(),
+                    softwareBuildVersion.getDeviceCode(), deviceInfo.getSoftwarePn(), softwareBuildVersion.getSoftwarePn());
             return false;
         }
         TaskRestrictionVo adaptationSubjectVo = task.getTaskRestrictionMap().get(TaskRestrictionType.ADAPTATION_SUBJECT);
@@ -340,66 +340,66 @@ public class TaskVehicleDo extends BaseDo<Long> implements DomainObj<TaskVehicle
             if (adaptationSubject == AdaptiveSubject.NONE) {
                 if (softwarePackage.getPackageType() == SoftwarePackageType.DELTA) {
                     // 即使适配主体无需比对，差分包仍然需要适配基础版本
-                    boolean deltaPackageMatch = versionMatch(ecuInfo.getSoftwareBuildVer(), softwarePackage.getBaseSoftwareVer(), softwarePackage.getPackageAdaptiveLevel());
+                    boolean deltaPackageMatch = versionMatch(deviceInfo.getSoftwareBuildVer(), softwarePackage.getBaseSoftwareVer(), softwarePackage.getPackageAdaptiveLevel());
                     if (deltaPackageMatch) {
                         softwarePackage.setMatch(true);
                     } else {
-                        logger.warn("车辆[{}]ECU[{}]软件包[{}]与软件内部版本差分软件包[{}]不匹配，忽略", vehicle.getId(),
-                                softwareBuildVersion.getEcuCode(), softwarePackage.getPackageName(), softwarePackage.getBaseSoftwarePn());
+                        logger.warn("车辆[{}]设备[{}]软件包[{}]与软件内部版本差分软件包[{}]不匹配，忽略", vehicle.getId(),
+                                softwareBuildVersion.getDeviceCode(), softwarePackage.getPackageName(), softwarePackage.getBaseSoftwarePn());
                     }
                     continue;
                 }
-                if (!isSoftwarePnLatest(softwareBuildVersion, ecuInfo) || !isSoftwareBuildVerLatest(softwareBuildVersion, ecuInfo)) {
+                if (!isSoftwarePnLatest(softwareBuildVersion, deviceInfo) || !isSoftwareBuildVerLatest(softwareBuildVersion, deviceInfo)) {
                     softwarePackage.setMatch(true);
                     continue;
                 } else {
-                    // 当前ECU已是最新版
+                    // 当前设备已是最新版
                     return false;
                 }
             }
             String adaptiveHardwarePn = softwareBuildVersion.getAdaptiveHardwarePn();
-            if (!adaptiveHardwarePn.contains(ecuInfo.getHardwarePn()) && !adaptiveHardwarePn.contains(ecuInfo.getPartNo())) {
-                logger.warn("车辆[{}]ECU[{}]硬件零件号[{}:{}]与软件内部版本硬件零件号[{}]不匹配", vehicle.getId(), ecuInfo.getEcu(),
-                        ecuInfo.getHardwarePn(), ecuInfo.getPartNo(), adaptiveHardwarePn);
+            if (!adaptiveHardwarePn.contains(deviceInfo.getHardwarePn()) && !adaptiveHardwarePn.contains(deviceInfo.getPartNo())) {
+                logger.warn("车辆[{}]设备[{}]硬件零件号[{}:{}]与软件内部版本硬件零件号[{}]不匹配", vehicle.getId(), deviceInfo.getDeviceCode(),
+                        deviceInfo.getHardwarePn(), deviceInfo.getPartNo(), adaptiveHardwarePn);
                 return false;
             }
             if (activitySoftwareBuildVersion.getForceUpgrade()) {
-                logger.info("车辆[{}]ECU[{}]软件包[{}]强制升级，跳过校验", vehicle.getId(), softwareBuildVersion.getEcuCode(), softwarePackage.getPackageName());
+                logger.info("车辆[{}]设备[{}]软件包[{}]强制升级，跳过校验", vehicle.getId(), softwareBuildVersion.getDeviceCode(), softwarePackage.getPackageName());
                 softwarePackage.setMatch(true);
                 continue;
             }
             if (adaptationSubject == AdaptiveSubject.BOTH) {
-                if (isSoftwarePnLatest(softwareBuildVersion, ecuInfo) && isSoftwareBuildVerLatest(softwareBuildVersion, ecuInfo)) {
-                    logger.info("车辆[{}]ECU[{}]软件零件号[{}]内部版本[{}]已是最新版本，忽略", vehicle.getId(), ecuInfo.getEcu(),
-                            ecuInfo.getSoftwarePn(), ecuInfo.getSoftwareBuildVer());
+                if (isSoftwarePnLatest(softwareBuildVersion, deviceInfo) && isSoftwareBuildVerLatest(softwareBuildVersion, deviceInfo)) {
+                    logger.info("车辆[{}]设备[{}]软件零件号[{}]内部版本[{}]已是最新版本，忽略", vehicle.getId(), deviceInfo.getDeviceCode(),
+                            deviceInfo.getSoftwarePn(), deviceInfo.getSoftwareBuildVer());
                     return false;
                 }
             }
             if (adaptationSubject == AdaptiveSubject.SOFTWARE_PN) {
-                if (isSoftwarePnLatest(softwareBuildVersion, ecuInfo)) {
-                    logger.info("车辆[{}]ECU[{}]软件零件号[{}]已是最新版，忽略", vehicle.getId(), ecuInfo.getEcu(), ecuInfo.getSoftwarePn());
+                if (isSoftwarePnLatest(softwareBuildVersion, deviceInfo)) {
+                    logger.info("车辆[{}]设备[{}]软件零件号[{}]已是最新版，忽略", vehicle.getId(), deviceInfo.getDeviceCode(), deviceInfo.getSoftwarePn());
                     return false;
                 }
             }
             if (adaptationSubject == AdaptiveSubject.SOFTWARE_BUILD_VERSION) {
-                if (isSoftwareBuildVerLatest(softwareBuildVersion, ecuInfo)) {
-                    logger.info("车辆[{}]ECU[{}]内部版本[{}]已是最新版，忽略", vehicle.getId(), ecuInfo.getEcu(), ecuInfo.getSoftwareBuildVer());
+                if (isSoftwareBuildVerLatest(softwareBuildVersion, deviceInfo)) {
+                    logger.info("车辆[{}]设备[{}]内部版本[{}]已是最新版，忽略", vehicle.getId(), deviceInfo.getDeviceCode(), deviceInfo.getSoftwareBuildVer());
                     return false;
                 }
             }
             if (adaptationSubject == AdaptiveSubject.BOTH || adaptationSubject == AdaptiveSubject.SOFTWARE_PN) {
-                if (!versionMatch(ecuInfo.getSoftwarePn() + ecuInfo.getSoftwarePartVer(),
+                if (!versionMatch(deviceInfo.getSoftwarePn() + deviceInfo.getSoftwarePartVer(),
                         softwarePackage.getSoftwarePn() + softwarePackage.getSoftwarePartVer(), softwarePackage.getPackageAdaptiveLevel())) {
-                    logger.warn("车辆[{}]ECU[{}]软件零件版本[{}:{}]与软件内部版本软件零件版本[{}:{}]不匹配，忽略", vehicle.getId(),
-                            softwareBuildVersion.getEcuCode(), ecuInfo.getSoftwarePn(), ecuInfo.getSoftwarePartVer(),
+                    logger.warn("车辆[{}]设备[{}]软件零件版本[{}:{}]与软件内部版本软件零件版本[{}:{}]不匹配，忽略", vehicle.getId(),
+                            softwareBuildVersion.getDeviceCode(), deviceInfo.getSoftwarePn(), deviceInfo.getSoftwarePartVer(),
                             softwarePackage.getSoftwarePn(), softwarePackage.getSoftwarePartVer());
                     continue;
                 }
             }
             if (adaptationSubject == AdaptiveSubject.BOTH || adaptationSubject == AdaptiveSubject.SOFTWARE_BUILD_VERSION) {
-                if (!versionMatch(ecuInfo.getSoftwareBuildVer(), softwarePackage.getBaseSoftwareVer(), softwarePackage.getPackageAdaptiveLevel())) {
-                    logger.warn("车辆[{}]ECU[{}]软件内部版本[{}:{}]与软件内部版本软件内部版本[{}:{}]不匹配，忽略", vehicle.getId(),
-                            softwareBuildVersion.getEcuCode(), ecuInfo.getSoftwarePn(), ecuInfo.getSoftwareBuildVer(),
+                if (!versionMatch(deviceInfo.getSoftwareBuildVer(), softwarePackage.getBaseSoftwareVer(), softwarePackage.getPackageAdaptiveLevel())) {
+                    logger.warn("车辆[{}]设备[{}]软件内部版本[{}:{}]与软件内部版本软件内部版本[{}:{}]不匹配，忽略", vehicle.getId(),
+                            softwareBuildVersion.getDeviceCode(), deviceInfo.getSoftwarePn(), deviceInfo.getSoftwareBuildVer(),
                             softwarePackage.getSoftwarePn(), softwarePackage.getBaseSoftwareVer());
                     continue;
                 }
@@ -408,7 +408,7 @@ public class TaskVehicleDo extends BaseDo<Long> implements DomainObj<TaskVehicle
                 // 非基线需要进行依赖项校验
                 if (!dependencyMatch(activitySoftwareBuildVersion.getSoftwareBuildVersionDependencyList(), vehicle,
                         comparisonCriteria, compatiblePnMap, adaptationSubject)) {
-                    logger.warn("车辆[{}]ECU[{}]软件包[{}]依赖项不匹配，忽略", vehicle.getId(), softwareBuildVersion.getEcuCode(), softwarePackage.getPackageName());
+                    logger.warn("车辆[{}]设备[{}]软件包[{}]依赖项不匹配，忽略", vehicle.getId(), softwareBuildVersion.getDeviceCode(), softwarePackage.getPackageName());
                     continue;
                 }
             }
@@ -449,37 +449,37 @@ public class TaskVehicleDo extends BaseDo<Long> implements DomainObj<TaskVehicle
                                     boolean comparisonCriteria, Map<String, Set<String>> compatiblePnMap, AdaptiveSubject adaptationSubject) {
         if (softwareBuildVersionDependencyList != null) {
             for (SoftwareBuildVersionDependencyVo dependency : softwareBuildVersionDependencyList) {
-                EcuInfoVo ecuInfo = vehicle.getEcuMap().get(dependency.getEcuCode());
-                if (ecuInfo == null) {
-                    logger.warn("车辆[{}]软件内部版本[{}]依赖ECU[{}]不存在", vehicle.getId(), dependency.getSoftwareBuildVersionId(),
-                            dependency.getEcuCode());
+                DeviceInfoVo deviceInfo = vehicle.getDeviceMap().get(dependency.getDeviceCode());
+                if (deviceInfo == null) {
+                    logger.warn("车辆[{}]软件内部版本[{}]依赖设备[{}]不存在", vehicle.getId(), dependency.getSoftwareBuildVersionId(),
+                            dependency.getDeviceCode());
                     return false;
                 }
-                boolean softwarePnMatch = dependency.getSoftwarePn().equals(ecuInfo.getSoftwarePn());
+                boolean softwarePnMatch = dependency.getSoftwarePn().equals(deviceInfo.getSoftwarePn());
                 if (!softwarePnMatch && comparisonCriteria) {
-                    softwarePnMatch = compatiblePnMap.get(ecuInfo.getEcu()).contains(dependency.getSoftwarePn());
+                    softwarePnMatch = compatiblePnMap.get(deviceInfo.getDeviceCode()).contains(dependency.getSoftwarePn());
                 }
                 if (!softwarePnMatch) {
-                    logger.info("车辆[{}]软件内部版本[{}]依赖ECU[{}]软件零件号[{}]与软件内部版本软件零件号[{}]不匹配，忽略", vehicle.getId(),
-                            dependency.getSoftwareBuildVersionId(), dependency.getEcuCode(), ecuInfo.getSoftwarePn(), dependency.getSoftwarePn());
+                    logger.info("车辆[{}]软件内部版本[{}]依赖设备[{}]软件零件号[{}]与软件内部版本软件零件号[{}]不匹配，忽略", vehicle.getId(),
+                            dependency.getSoftwareBuildVersionId(), dependency.getDeviceCode(), deviceInfo.getSoftwarePn(), dependency.getSoftwarePn());
                     return false;
                 }
                 if (adaptationSubject == AdaptiveSubject.NONE) {
                     continue;
                 }
                 if (adaptationSubject == AdaptiveSubject.SOFTWARE_PN || adaptationSubject == AdaptiveSubject.BOTH) {
-                    if (!versionMatch(ecuInfo.getSoftwarePn() + ecuInfo.getSoftwarePartVer(),
+                    if (!versionMatch(deviceInfo.getSoftwarePn() + deviceInfo.getSoftwarePartVer(),
                             dependency.getSoftwarePn() + dependency.getSoftwarePartVer(), dependency.getAdaptiveLevel())) {
-                        logger.warn("车辆[{}]ECU[{}]软件零件号[{}:{}]与软件内部版本软件零件号[{}:{}]不匹配，忽略", vehicle.getId(),
-                                dependency.getEcuCode(), ecuInfo.getSoftwarePn(), ecuInfo.getSoftwarePartVer(),
+                        logger.warn("车辆[{}]设备[{}]软件零件号[{}:{}]与软件内部版本软件零件号[{}:{}]不匹配，忽略", vehicle.getId(),
+                                dependency.getDeviceCode(), deviceInfo.getSoftwarePn(), deviceInfo.getSoftwarePartVer(),
                                 dependency.getSoftwarePn(), dependency.getSoftwarePartVer());
                         return false;
                     }
                 }
                 if (adaptationSubject == AdaptiveSubject.SOFTWARE_BUILD_VERSION || adaptationSubject == AdaptiveSubject.BOTH) {
-                    if (!versionMatch(ecuInfo.getSoftwareBuildVer(), dependency.getSoftwareBuildVer(), dependency.getAdaptiveLevel())) {
-                        logger.warn("车辆[{}]ECU[{}]软件内部版本[{}]与软件内部版本软件内部版本[{}]不匹配，忽略", vehicle.getId(),
-                                dependency.getEcuCode(), ecuInfo.getSoftwareBuildVer(), dependency.getSoftwareBuildVer());
+                    if (!versionMatch(deviceInfo.getSoftwareBuildVer(), dependency.getSoftwareBuildVer(), dependency.getAdaptiveLevel())) {
+                        logger.warn("车辆[{}]设备[{}]软件内部版本[{}]与软件内部版本软件内部版本[{}]不匹配，忽略", vehicle.getId(),
+                                dependency.getDeviceCode(), deviceInfo.getSoftwareBuildVer(), dependency.getSoftwareBuildVer());
                         return false;
                     }
                 }
@@ -492,23 +492,23 @@ public class TaskVehicleDo extends BaseDo<Long> implements DomainObj<TaskVehicle
      * 软件零件号是否最新
      *
      * @param softwareBuildVersion 软件内部版本
-     * @param ecuInfo              ECU信息
+     * @param deviceInfo           设备信息
      * @return true: 是，false: 否
      */
-    private boolean isSoftwarePnLatest(SoftwareBuildVersionVo softwareBuildVersion, EcuInfoVo ecuInfo) {
-        return softwareBuildVersion.getSoftwarePn().equals(ecuInfo.getSoftwarePn()) &&
-                softwareBuildVersion.getSoftwarePartVer().equals(ecuInfo.getSoftwarePartVer());
+    private boolean isSoftwarePnLatest(SoftwareBuildVersionVo softwareBuildVersion, DeviceInfoVo deviceInfo) {
+        return softwareBuildVersion.getSoftwarePn().equals(deviceInfo.getSoftwarePn()) &&
+                softwareBuildVersion.getSoftwarePartVer().equals(deviceInfo.getSoftwarePartVer());
     }
 
     /**
      * 软件内部版本是否最新
      *
      * @param softwareBuildVersion 软件内部版本
-     * @param ecuInfo              ECU信息
+     * @param deviceInfo           设备信息
      * @return true: 是，false: 否
      */
-    private boolean isSoftwareBuildVerLatest(SoftwareBuildVersionVo softwareBuildVersion, EcuInfoVo ecuInfo) {
-        return softwareBuildVersion.getSoftwareBuildVer().equals(ecuInfo.getSoftwareBuildVer());
+    private boolean isSoftwareBuildVerLatest(SoftwareBuildVersionVo softwareBuildVersion, DeviceInfoVo deviceInfo) {
+        return softwareBuildVersion.getSoftwareBuildVer().equals(deviceInfo.getSoftwareBuildVer());
     }
 
 }
